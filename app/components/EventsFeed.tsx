@@ -3,15 +3,56 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import EventCard from "@/app/components/EventCard";
 import EventSkeleton from "@/app/components/EventSkeleton";
 
-type EventItem = {
+// ---- Tipos ----
+export type EventItem = {
   id: string;
   title: string;
-  start: string;            // ISO (ya normalizado a GT)
+  start: string; // ISO normalizado a GT
   location?: string;
   price?: string;
-  image?: string;           // mapeado desde 'flyer'
+  image?: string; // mapeado desde 'flyer'
   description?: string;
 };
+
+// Entrada cruda posible desde Apps Script / Sheets
+type RawEvent = {
+  id?: string;
+  title?: string;
+  Titulo?: string;
+  start?: string;
+  Fecha?: string;
+  start_time?: string;
+  ["Hora de Inicio"]?: string;
+
+  location?: string;
+  Ubicacion?: string;
+  ["Ubicación"]?: string;
+
+  price?: string;
+  Precio?: string;
+
+  image?: string;
+  flyer?: string;
+  Flyer?: string;
+  flyer_url?: string;
+
+  description?: string;
+  Descripcion?: string;
+  ["Descripción"]?: string;
+};
+
+// Type guard para RawEvent
+function isRawEvent(x: unknown): x is RawEvent {
+  if (typeof x !== "object" || x === null) return false;
+  // Chequeo mínimo: debe tener al menos alguno de estos campos
+  const r = x as Record<string, unknown>;
+  return (
+    "title" in r ||
+    "Titulo" in r ||
+    "start" in r ||
+    "Fecha" in r
+  );
+}
 
 // Util: clave de agrupación por fecha (locale es-GT)
 const dayKey = (iso: string) =>
@@ -24,54 +65,45 @@ const dayKey = (iso: string) =>
     .replace(/^./, (c) => c.toUpperCase());
 
 // Helpers para combinar "Fecha" + "Hora de Inicio" en GT (-06:00)
-function normalizeDateTime(fechaRaw?: any, horaRaw?: any): string | null {
-  // fechaRaw esperado tipo "11/10/2025" o ISO; horaRaw "9:00:00" o "9:00"
+function normalizeDateTime(fechaRaw?: string, horaRaw?: string): string | null {
   const fecha = String(fechaRaw ?? "").trim();
   const hora = String(horaRaw ?? "").trim();
 
   if (!fecha && !hora) return null;
 
-  // Si ya viene un ISO completo, lo devolvemos tal cual
+  // Si ya viene un ISO completo, lo devolvemos tal cual (validando)
   if (fecha && /^\d{4}-\d{2}-\d{2}T/.test(fecha)) {
     const d = new Date(fecha);
     return Number.isNaN(+d) ? null : d.toISOString();
   }
 
   // Parse hora "H:mm" o "H:mm:ss"
-  let hh = "00",
-    mm = "00";
+  let hh = "00";
+  let mm = "00";
   if (hora) {
     const parts = hora.split(":");
     hh = (parts[0] || "00").padStart(2, "0");
     mm = (parts[1] || "00").padStart(2, "0");
   }
 
-  // Intentar fecha en formato DD/MM/YYYY o M/D/YYYY
-  // (Google Sheets en es-GT suele usar DD/MM/YYYY)
+  // Intentar fecha en formato DD/MM/YYYY o YYYY-MM-DD
   const fParts = fecha.split(/[/-]/).map((p) => p.trim());
-  let yyyy = "", mmf = "", ddf = "";
-  if (fParts.length === 3) {
-    // Heurística: si la primera parte > 12, asumimos DD/MM/YYYY
-    const a = parseInt(fParts[0], 10);
-    const b = parseInt(fParts[1], 10);
-    const c = parseInt(fParts[2], 10);
+  let yyyy = "";
+  let mmf = "";
+  let ddf = "";
 
-    if (a > 12) {
-      // DD/MM/YYYY
-      ddf = String(a).padStart(2, "0");
-      mmf = String(b).padStart(2, "0");
-      yyyy = String(c);
-    } else if (b > 12) {
-      // MM/DD/YYYY no aplica en es-GT, pero por si acaso
-      ddf = String(b).padStart(2, "0");
-      mmf = String(a).padStart(2, "0");
-      yyyy = String(c);
-    } else {
-      // Si ambos <=12, asumimos DD/MM/YYYY (consistente con es-GT)
-      ddf = String(a).padStart(2, "0");
-      mmf = String(b).padStart(2, "0");
-      yyyy = String(c);
-    }
+  if (fParts.length === 3) {
+    // Heurística es-GT: interpretar como DD/MM/YYYY
+    const a = parseInt(fParts[0] || "0", 10);
+    const b = parseInt(fParts[1] || "0", 10);
+    const c = parseInt(fParts[2] || "0", 10);
+
+    if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(c)) return null;
+
+    // Si ambos <=12 igual preferimos DD/MM/YYYY por consistencia local
+    ddf = String(a).padStart(2, "0");
+    mmf = String(b).padStart(2, "0");
+    yyyy = String(c);
   } else if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
     // YYYY-MM-DD
     const [Y, M, D] = fecha.split("-");
@@ -112,34 +144,44 @@ export default function EventsFeed() {
 
         const res = await fetch(url, { cache: "no-store", signal: ac.signal });
         const ct = res.headers.get("content-type") || "";
-        const raw = ct.includes("application/json")
+        const payload: unknown = ct.includes("application/json")
           ? await res.json()
           : JSON.parse(await res.text());
-        const arr = Array.isArray(raw) ? raw : [raw];
+
+        const arr: RawEvent[] = Array.isArray(payload)
+          ? payload.filter(isRawEvent)
+          : isRawEvent(payload)
+          ? [payload]
+          : [];
 
         const out: EventItem[] = arr
-          .filter((e: any) => e && (e.title || e.Titulo))
-          .map((e: any, i: number) => {
-            // Campos posibles desde la Sheet / Apps Script
+          .filter((e) => (e.title ?? e.Titulo) && (e.Fecha ?? e.start))
+          .map((e, i) => {
             const title = String(e.title ?? e.Titulo ?? "").trim();
-
-            // 1) Preferir combinación Fecha + Hora de Inicio
             const startIso =
-              normalizeDateTime(e.Fecha ?? e.start, e["Hora de Inicio"] ?? e.start_time) ||
-              // 2) Si no hay hora, al menos fecha (00:00 GT)
-              normalizeDateTime(e.Fecha ?? e.start, "00:00") ||
+              normalizeDateTime(
+                (e.Fecha ?? e.start) ? String(e.Fecha ?? e.start) : undefined,
+                (e["Hora de Inicio"] ?? e.start_time) ? String(e["Hora de Inicio"] ?? e.start_time) : undefined
+              ) ||
+              // Si no hay hora, al menos fecha (00:00 GT)
+              normalizeDateTime(
+                (e.Fecha ?? e.start) ? String(e.Fecha ?? e.start) : undefined,
+                "00:00"
+              ) ||
               null;
 
-            const location = String(e.location ?? e.Ubicacion ?? e["Ubicación"] ?? "").trim() || undefined;
+            const location =
+              String(e.location ?? e.Ubicacion ?? e["Ubicación"] ?? "").trim() || undefined;
             const price = String(e.price ?? e.Precio ?? "").trim() || undefined;
             const image =
               String(e.image ?? e.flyer ?? e.Flyer ?? e.flyer_url ?? "").trim() || undefined;
-            const description = String(e.description ?? e.Descripcion ?? e["Descripción"] ?? "").trim() || undefined;
+            const description =
+              String(e.description ?? e.Descripcion ?? e["Descripción"] ?? "").trim() || undefined;
 
             return {
               id: String(e.id ?? `${title}-${startIso ?? "na"}-${i}`),
               title,
-              start: startIso ?? new Date().toISOString(), // fallback seguro (no debería pasar)
+              start: startIso ?? new Date().toISOString(),
               location,
               price,
               image,
@@ -150,8 +192,9 @@ export default function EventsFeed() {
           .sort((a, b) => +new Date(a.start) - +new Date(b.start));
 
         setItems(out);
-      } catch (e: any) {
-        setErr(e?.message || "No se pudieron cargar los eventos.");
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "No se pudieron cargar los eventos.";
+        setErr(msg);
       } finally {
         setLoading(false);
       }
