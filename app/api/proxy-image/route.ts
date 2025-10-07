@@ -1,41 +1,41 @@
+// app/api/proxy-image/route.ts
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
+function getUrlParam(req: Request): string | null {
+  const u = new URL(req.url);
+  const url = u.searchParams.get("url");
+  return url && url.trim().length ? url : null;
+}
 
-export async function GET(req: Request) {
+export async function GET(req: Request): Promise<Response> {
+  const src = getUrlParam(req);
+  if (!src) {
+    return NextResponse.json({ error: "Missing url" }, { status: 400 });
+  }
+
   try {
-    const { searchParams } = new URL(req.url);
-    const url = searchParams.get("url");
-    const id = searchParams.get("id");
+    const r = await fetch(src, {
+      // No-cache para evitar imágenes obsoletas de Drive
+      cache: "no-store",
+      // Algunos hosts de Drive agradecen un UA explícito
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; AgendaSalsera/1.0)" },
+    });
 
-    // Construir URL objetivo
-    const target = url
-      ? url
-      : id
-      ? `https://drive.google.com/uc?export=view&id=${id}`
-      : null;
-
-    if (!target) {
-      return new NextResponse("Missing 'url' or 'id' param", { status: 400 });
+    if (!r.ok || !r.body) {
+      return NextResponse.json({ error: `Upstream ${r.status}` }, { status: 502 });
     }
 
-    // Fetch sin cache para evitar loops
-    const upstream = await fetch(target, { cache: "no-store" });
-
-    if (!upstream.ok) {
-      return new NextResponse(`Upstream error: ${upstream.status}`, { status: 502 });
-    }
-
-    const contentType = upstream.headers.get("content-type") || "image/jpeg";
-    const buf = await upstream.arrayBuffer();
-
-    return new NextResponse(buf, {
+    // Passthrough del stream y content-type si existe
+    const contentType = r.headers.get("content-type") ?? "image/jpeg";
+    return new Response(r.body, {
+      status: 200,
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "no-store",
+        "Cache-Control": "public, max-age=300, s-maxage=600",
       },
     });
-  } catch (err: any) {
-    return new NextResponse(`Proxy error: ${err?.message || "unknown"}`, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Fetch failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

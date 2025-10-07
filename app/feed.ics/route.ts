@@ -1,25 +1,48 @@
+// app/feed.ics/route.ts
 import { NextResponse } from "next/server";
-import { createEvents } from "ics";
+import { createEvents, type EventAttributes } from "ics";
+import { getEvents } from "@/lib/events";
 
-export async function GET() {
-  const url = process.env.NEXT_PUBLIC_EVENTS_JSON_URL;
-  if (!url) return new NextResponse("Missing env", { status: 500 });
+export async function GET(): Promise<Response> {
+  try {
+    const events = await getEvents();
 
-  const r = await fetch(url, { cache: "no-store" });
-  if (!r.ok) return new NextResponse("Upstream error", { status: 502 });
+    const icsEvents: EventAttributes[] = events.map((e) => {
+      const startDate = new Date(e.start);
+      const endDate = e.end ? new Date(e.end) : new Date(startDate.getTime() + 3 * 3600 * 1000); // 3h por defecto
 
-  const events = await r.json();
-  const icsEvents = events.map((e: any) => {
-    const d = new Date(e.start);
-    const hours = e.end ? Math.max(1, (new Date(e.end).getTime() - d.getTime()) / 3600000) : 3;
-    return {
-      title: e.title,
-      location: e.location,
-      description: `${e.price ?? ""} ${e.contact ?? ""}`.trim(),
-      start: [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()],
-      duration: { hours: Math.round(hours) },
-    };
-  });
-  const { value } = createEvents(icsEvents);
-  return new NextResponse(value, { headers: { "Content-Type": "text/calendar; charset=utf-8" } });
+      return {
+        title: e.title,
+        location: e.location,
+        description: [e.price, e.contact].filter(Boolean).join(" ").trim() || undefined,
+        start: [
+          startDate.getFullYear(),
+          startDate.getMonth() + 1,
+          startDate.getDate(),
+          startDate.getHours(),
+          startDate.getMinutes(),
+        ],
+        end: [
+          endDate.getFullYear(),
+          endDate.getMonth() + 1,
+          endDate.getDate(),
+          endDate.getHours(),
+          endDate.getMinutes(),
+        ],
+      };
+    });
+
+    const { value, error } = createEvents(icsEvents);
+    if (error) {
+      return NextResponse.json({ error: String(error) }, { status: 500 });
+    }
+
+    return new NextResponse(value, {
+      status: 200,
+      headers: { "Content-Type": "text/calendar; charset=utf-8" },
+    });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }

@@ -1,15 +1,13 @@
 // app/api/events/route.ts
 import { NextResponse } from "next/server";
-import { getEvents } from "@/lib/events";
+import { getEvents, type EventItem } from "@/lib/events";
 
-export const dynamic = "force-dynamic";
-// export const revalidate = 120; // <- si quieres cache breve en prod
-
-export async function GET() {
+export async function GET(): Promise<NextResponse<EventItem[] | { error: string }>> {
   try {
-    const events = await getEvents();
-    return NextResponse.json(events);
-  } catch (e: any) {
-    return new NextResponse(e?.message || "Failed to load events", { status: 500 });
+    const items = await getEvents();
+    return NextResponse.json(items, { status: 200 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
