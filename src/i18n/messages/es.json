@@ -157,7 +157,19 @@
     "empty": "Todavía no hay academias registradas.",
     "emptyDescription": "¿Tenés una academia o escuela de baile? Escribinos y la agregamos gratis.",
     "emptyCta": "Registrar mi academia",
-    "contactCta": "Contactar academia"
+    "contactCta": "Contactar academia",
+    "scheduleTitle": "Horario de clases",
+    "descriptionTitle": "Acerca de",
+    "detailsTitle": "Información",
+    "locationTitle": "Ubicación",
+    "levelsLabel": "Niveles",
+    "modalityLabel": "Modalidad",
+    "trialClassLabel": "Clase de prueba gratuita",
+    "trialClassYes": "Sí, ofrecen clase de prueba",
+    "inPerson": "Presencial",
+    "online": "Online",
+    "hybrid": "Mixto (presencial + online)",
+    "contactTitle": "Contacto"
   },
   "submitEvent": {
     "title": "Envía un evento",
@@ -257,6 +269,9 @@
     "spotCoverPlaceholder": "Ej: Q50, o Libre",
     "spotSchedule": "Horario de noches de baile",
     "spotSchedulePlaceholder": "Ej: Jueves a Sábado, 8pm - 1am"
+  },
+  "listing": {
+    "lastUpdated": "Actualizado el {date}"
   },
   "cookies": {
     "text": "Usamos cookies de Google Analytics para mejorar la experiencia. Al aceptar, consentís el uso de cookies analíticas según nuestra",

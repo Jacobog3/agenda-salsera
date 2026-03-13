@@ -5,8 +5,10 @@ import { FilterBar } from "@/components/events/filter-bar";
 import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { LastUpdatedBadge } from "@/components/shared/last-updated-badge";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { getEvents } from "@/lib/queries/events";
+import { getLastUpdated } from "@/lib/queries/last-updated";
 import type { DanceStyle } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
@@ -33,15 +35,21 @@ export default async function EventsPage({
     locale: currentLocale,
     namespace: "events"
   });
-  const events = await getEvents(currentLocale, {
-    danceStyle: filters.danceStyle,
-    dateRangeInDays: filters.date
-  });
+  const [events, lastUpdated] = await Promise.all([
+    getEvents(currentLocale, {
+      danceStyle: filters.danceStyle,
+      dateRangeInDays: filters.date
+    }),
+    getLastUpdated("events")
+  ]);
 
   return (
     <section className="page-section pb-16">
       <Container className="space-y-4 md:space-y-8">
-        <SectionHeading title={t("title")} description={t("description")} as="h1" />
+        <div>
+          <SectionHeading title={t("title")} description={t("description")} as="h1" />
+          <LastUpdatedBadge date={lastUpdated} locale={currentLocale} />
+        </div>
         <Suspense fallback={<div className="h-16 md:h-20" />}>
           <FilterBar />
         </Suspense>

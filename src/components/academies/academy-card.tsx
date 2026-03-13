@@ -8,6 +8,7 @@ import type { LocalizedAcademy } from "@/types/academy";
 
 export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
   const t = await getTranslations("common");
+  const at = await getTranslations("academies");
 
   const socialLinks = [
     academy.whatsappUrl
@@ -64,14 +65,14 @@ export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
 
         {academy.levels && (
           <span className="text-xs text-muted-foreground">
-            Niveles: {academy.levels}
+            {at("levelsLabel")}: {academy.levels}
           </span>
         )}
 
         {academy.trialClass && (
           <span className="flex items-center gap-1 text-xs font-medium text-green-600">
             <CheckCircle2 className="h-3 w-3" />
-            Clase de prueba gratuita
+            {at("trialClassLabel")}
           </span>
         )}
 

@@ -13,6 +13,7 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     descriptionEs: String(row.description_es ?? ""),
     descriptionEn: String(row.description_en ?? ""),
     coverImageUrl: String(row.cover_image_url ?? ""),
+    bannerImageUrl: row.banner_image_url ? String(row.banner_image_url) : null,
     city: String(row.city),
     area: row.area ? String(row.area) : null,
     address: row.address ? String(row.address) : null,
@@ -20,6 +21,7 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
       ? row.styles_taught.map((style) => String(style)) as AcademyRecord["stylesTaught"]
       : [],
     scheduleText: row.schedule_text ? String(row.schedule_text) : null,
+    scheduleData: Array.isArray(row.schedule_data) ? row.schedule_data as AcademyRecord["scheduleData"] : null,
     levels: row.levels ? String(row.levels) : null,
     trialClass: Boolean(row.trial_class),
     modality: row.modality ? String(row.modality) : "presencial",

@@ -1,5 +1,16 @@
 import type { DanceStyle } from "@/types/event";
 
+export type ScheduleClass = {
+  time: string;
+  name: string;
+  level?: string;
+};
+
+export type ScheduleDay = {
+  day: string;
+  classes: ScheduleClass[];
+};
+
 export type AcademyRecord = {
   id: string;
   slug: string;
@@ -7,11 +18,13 @@ export type AcademyRecord = {
   descriptionEs: string;
   descriptionEn: string;
   coverImageUrl: string;
+  bannerImageUrl?: string | null;
   city: string;
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
   scheduleText?: string | null;
+  scheduleData?: ScheduleDay[] | null;
   levels?: string | null;
   trialClass?: boolean;
   modality?: string | null;
@@ -27,11 +40,13 @@ export type LocalizedAcademy = {
   name: string;
   description: string;
   coverImageUrl: string;
+  bannerImageUrl?: string | null;
   city: string;
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
   scheduleText?: string | null;
+  scheduleData?: ScheduleDay[] | null;
   levels?: string | null;
   trialClass?: boolean;
   modality?: string | null;

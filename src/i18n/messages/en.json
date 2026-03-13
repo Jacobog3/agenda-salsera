@@ -157,7 +157,19 @@
     "empty": "No academies registered yet.",
     "emptyDescription": "Do you run a dance academy? Contact us and we'll add it for free.",
     "emptyCta": "Register my academy",
-    "contactCta": "Contact academy"
+    "contactCta": "Contact academy",
+    "scheduleTitle": "Class schedule",
+    "descriptionTitle": "About",
+    "detailsTitle": "Information",
+    "locationTitle": "Location",
+    "levelsLabel": "Levels",
+    "modalityLabel": "Modality",
+    "trialClassLabel": "Free trial class",
+    "trialClassYes": "Yes, they offer a trial class",
+    "inPerson": "In-person",
+    "online": "Online",
+    "hybrid": "Hybrid (in-person + online)",
+    "contactTitle": "Contact"
   },
   "submitEvent": {
     "title": "Submit an event",
@@ -257,6 +269,9 @@
     "spotCoverPlaceholder": "E.g. Q50, or Free",
     "spotSchedule": "Dance night schedule",
     "spotSchedulePlaceholder": "E.g. Thu to Sat, 8pm - 1am"
+  },
+  "listing": {
+    "lastUpdated": "Updated on {date}"
   },
   "cookies": {
     "text": "We use Google Analytics cookies to improve your experience. By accepting, you consent to the use of analytics cookies according to our",

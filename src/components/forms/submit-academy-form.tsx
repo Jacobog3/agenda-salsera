@@ -76,12 +76,12 @@ export function SubmitAcademyForm() {
     try {
       const supabase = createSupabaseBrowserClient();
       const ext = imageFile.name.split(".").pop() ?? "jpg";
-      const fileName = `academy-submissions/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const fileName = `submissions/academies/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage
-        .from("event-images")
+        .from("event-flyers")
         .upload(fileName, imageFile, { upsert: true });
       if (error) throw error;
-      const { data } = supabase.storage.from("event-images").getPublicUrl(fileName);
+      const { data } = supabase.storage.from("event-flyers").getPublicUrl(fileName);
       return data.publicUrl;
     } finally {
       setUploading(false);

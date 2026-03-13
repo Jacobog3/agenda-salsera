@@ -3,8 +3,10 @@ import { SpotCard } from "@/components/spots/spot-card";
 import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { LastUpdatedBadge } from "@/components/shared/last-updated-badge";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { getSpots } from "@/lib/queries/spots";
+import { getLastUpdated } from "@/lib/queries/last-updated";
 import type { Locale } from "@/types/locale";
 
 export async function generateMetadata({
@@ -27,12 +29,18 @@ export default async function SpotsPage({
     locale: currentLocale,
     namespace: "spots"
   });
-  const spots = await getSpots(currentLocale);
+  const [spots, lastUpdated] = await Promise.all([
+    getSpots(currentLocale),
+    getLastUpdated("spots")
+  ]);
 
   return (
     <section className="page-section pb-16">
       <Container className="space-y-4 md:space-y-8">
-        <SectionHeading title={t("title")} description={t("description")} as="h1" />
+        <div>
+          <SectionHeading title={t("title")} description={t("description")} as="h1" />
+          <LastUpdatedBadge date={lastUpdated} locale={currentLocale} />
+        </div>
         {spots.length ? (
           <div className="grid gap-3 md:grid-cols-2 md:gap-5">
             {spots.map((spot) => (
