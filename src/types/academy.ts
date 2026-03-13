@@ -11,6 +11,10 @@ export type AcademyRecord = {
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
+  scheduleText?: string | null;
+  levels?: string | null;
+  trialClass?: boolean;
+  modality?: string | null;
   whatsappUrl?: string | null;
   instagramUrl?: string | null;
   websiteUrl?: string | null;
@@ -27,6 +31,10 @@ export type LocalizedAcademy = {
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
+  scheduleText?: string | null;
+  levels?: string | null;
+  trialClass?: boolean;
+  modality?: string | null;
   whatsappUrl?: string | null;
   instagramUrl?: string | null;
   websiteUrl?: string | null;

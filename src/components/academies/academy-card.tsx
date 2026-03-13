@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Clock, CheckCircle2 } from "lucide-react";
 import type { LocalizedAcademy } from "@/types/academy";
 
 export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
@@ -54,6 +54,26 @@ export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
             </Badge>
           ))}
         </div>
+
+        {academy.scheduleText && (
+          <span className="flex items-start gap-1 text-xs text-muted-foreground">
+            <Clock className="mt-px h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
+            {academy.scheduleText}
+          </span>
+        )}
+
+        {academy.levels && (
+          <span className="text-xs text-muted-foreground">
+            Niveles: {academy.levels}
+          </span>
+        )}
+
+        {academy.trialClass && (
+          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
+            <CheckCircle2 className="h-3 w-3" />
+            Clase de prueba gratuita
+          </span>
+        )}
 
         <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground md:text-sm">
           {academy.description}

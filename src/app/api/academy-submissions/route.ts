@@ -20,10 +20,17 @@ export async function POST(request: Request) {
     city: body.city,
     address: body.address || null,
     styles: body.styles || null,
+    schedule_text: body.scheduleText || null,
+    levels: body.levels || null,
+    trial_class: body.trialClass ?? false,
+    modality: body.modality || "presencial",
+    image_url: body.image_url || null,
+    dance_style: body.danceStyle || "salsa_bachata",
     whatsapp: body.whatsapp || null,
     instagram: body.instagram || null,
     website: body.website || null,
-    contact_name: body.contact_name || null
+    contact_name: body.contactName || null,
+    status: "pending"
   });
 
   if (error) {
