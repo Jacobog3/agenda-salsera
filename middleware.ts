@@ -11,9 +11,7 @@ export default function middleware(request: NextRequest) {
     if (pathname !== "/admin/login") {
       const session = request.cookies.get("admin_session");
       if (!session?.value) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/admin/login";
-        return NextResponse.redirect(url);
+        return NextResponse.redirect(new URL("/admin/login", request.url));
       }
     }
     return NextResponse.next();

@@ -13,7 +13,6 @@ import {
   eventSubmissionSchema,
   type EventSubmissionValues
 } from "@/lib/validations/event-submission";
-import { BASE_PATH } from "@/lib/utils/base-path";
 
 const danceStyles: EventSubmissionValues["danceStyle"][] = [
   "salsa",
@@ -47,7 +46,7 @@ export function SubmitEventForm() {
   async function onSubmit(values: EventSubmissionValues) {
     setStatus("idle");
 
-    const response = await fetch(`${BASE_PATH}/api/event-submissions`, {
+    const response = await fetch("/api/event-submissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values)

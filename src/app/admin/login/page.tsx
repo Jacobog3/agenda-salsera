@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, Lock } from "lucide-react";
-import { BASE_PATH } from "@/lib/utils/base-path";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
@@ -19,7 +18,7 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_PATH}/api/admin/auth`, {
+      const res = await fetch("/api/admin/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password })
@@ -31,7 +30,7 @@ export default function AdminLoginPage() {
         return;
       }
 
-      router.push(`${BASE_PATH}/admin`);
+      router.push("/admin");
       router.refresh();
     } catch {
       setError("Error de conexión");

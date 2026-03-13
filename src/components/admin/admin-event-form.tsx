@@ -11,7 +11,6 @@ import {
   AlertCircle,
   Loader2
 } from "lucide-react";
-import { BASE_PATH } from "@/lib/utils/base-path";
 
 export function AdminEventForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -52,7 +51,7 @@ export function AdminEventForm() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch(`${BASE_PATH}/api/admin/upload`, {
+      const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: formData
       });
@@ -71,7 +70,7 @@ export function AdminEventForm() {
     setExtracting(true);
     setErrorMsg("");
     try {
-      const res = await fetch(`${BASE_PATH}/api/admin/extract`, {
+      const res = await fetch("/api/admin/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: preview })
@@ -127,7 +126,7 @@ export function AdminEventForm() {
     try {
       const finalImageUrl = imageUrl || "";
 
-      const res = await fetch(`${BASE_PATH}/api/admin/events`, {
+      const res = await fetch("/api/admin/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
