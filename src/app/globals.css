@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Avenir Next", "Nunito Sans", "Helvetica Neue", sans-serif;
+  --font-display: "Avenir Next", "Nunito Sans", "Helvetica Neue", sans-serif;
+  --background: 210 33% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 197 86% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 197 78% 95%;
+  --secondary-foreground: 199 78% 24%;
+  --muted: 215 20% 95%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 157 67% 36%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 74% 56%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 197 86% 45%;
+  --surface: 210 25% 99%;
+  --surface-soft: 215 20% 96%;
+  --brand-50: 195 100% 96%;
+  --brand-100: 195 100% 91%;
+  --brand-500: 197 86% 45%;
+  --brand-600: 200 88% 39%;
+  --brand-700: 204 84% 29%;
+  --accent-50: 156 42% 94%;
+  --accent-100: 155 39% 88%;
+  --accent-500: 157 67% 36%;
+  --accent-700: 158 74% 22%;
+  --warm-50: 20 100% 97%;
+  --warm-500: 12 76% 61%;
+  --warm-600: 10 78% 54%;
+  --radius: 1.25rem;
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  background: hsl(var(--background));
+}
+
+a {
+  @apply transition-colors duration-200;
+}
+
+::selection {
+  background: hsl(var(--brand-500) / 0.15);
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen bg-background;
+  }
+
+  .page-section {
+    @apply py-4 md:py-14;
+  }
+
+  .section-title {
+    @apply font-display text-[1.375rem] font-bold tracking-tight text-foreground sm:text-2xl md:text-3xl;
+  }
+
+  .section-copy {
+    @apply max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base md:leading-7;
+  }
+
+  .glass-panel {
+    @apply rounded-3xl border border-white/60 bg-white/80 shadow-soft backdrop-blur-xl;
+  }
+
+  .tropical-surface {
+    @apply rounded-3xl border border-black/[0.04] bg-white shadow-soft;
+  }
+
+  .section-shell {
+    @apply rounded-3xl border border-black/[0.04] bg-white p-5 shadow-soft md:p-8;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,48 @@
+import { defineRouting } from "next-intl/routing";
+
+export const routing = defineRouting({
+  locales: ["es", "en"],
+  defaultLocale: "es",
+  localePrefix: "as-needed",
+  pathnames: {
+    "/": "/",
+    "/events": {
+      es: "/eventos",
+      en: "/events"
+    },
+    "/events/[slug]": {
+      es: "/eventos/[slug]",
+      en: "/events/[slug]"
+    },
+    "/spots": {
+      es: "/lugares",
+      en: "/spots"
+    },
+    "/spots/[slug]": {
+      es: "/lugares/[slug]",
+      en: "/spots/[slug]"
+    },
+    "/academies": {
+      es: "/academias",
+      en: "/academies"
+    },
+    "/academies/[slug]": {
+      es: "/academias/[slug]",
+      en: "/academies/[slug]"
+    },
+    "/submit-event": {
+      es: "/enviar-evento",
+      en: "/submit-event"
+    },
+    "/legal/terms": {
+      es: "/legal/terminos",
+      en: "/legal/terms"
+    },
+    "/legal/privacy": {
+      es: "/legal/privacidad",
+      en: "/legal/privacy"
+    }
+  }
+});
+
+export type AppLocale = (typeof routing.locales)[number];

@@ -1,0 +1,180 @@
+{
+  "common": {
+    "localeName": "Español",
+    "englishName": "Spanish",
+    "browseEvents": "Ver eventos",
+    "browseAcademies": "Explorar academias",
+    "submitEvent": "Publicar evento",
+    "learnMore": "Ver detalles",
+    "featured": "Destacado",
+    "free": "Gratis",
+    "from": "Desde",
+    "contact": "Contactar",
+    "upcoming": "Próximos",
+    "viewAll": "Ver todo",
+    "city": "Ciudad",
+    "danceStyle": "Estilo",
+    "date": "Fecha",
+    "location": "Ubicación",
+    "price": "Precio",
+    "organizer": "Organizador",
+    "styles": "Estilos",
+    "area": "Zona",
+    "schedule": "Horario",
+    "coverCharge": "Cover",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "website": "Sitio web",
+    "relatedEvents": "Eventos relacionados",
+    "loading": "Cargando",
+    "startingAt": "Desde",
+    "danceStyles": {
+      "salsa": "Salsa",
+      "bachata": "Bachata",
+      "salsa_bachata": "Salsa y bachata",
+      "other": "Otro"
+    }
+  },
+  "navigation": {
+    "home": "Inicio",
+    "events": "Eventos",
+    "spots": "Lugares",
+    "academies": "Academias",
+    "submitEvent": "Enviar evento",
+    "switchLanguage": "Cambiar idioma"
+  },
+  "footer": {
+    "description": "Agenda simple para descubrir eventos, sociales y academias de salsa y bachata en Guatemala.",
+    "navigationTitle": "Navegación",
+    "contactTitle": "Contacto",
+    "madeFor": "Hecho para la comunidad salsera de Guatemala.",
+    "rights": "© {year} Exploraguate. Todos los derechos reservados.",
+    "developedBy": "Desarrollado por",
+    "terms": "Términos de uso",
+    "privacy": "Privacidad"
+  },
+  "home": {
+    "eyebrow": "Agenda salsa y bachata en Guatemala",
+    "title": "Encuentra dónde bailar esta semana",
+    "primaryCta": "Ver agenda",
+    "secondaryCta": "Ver academias",
+    "heroListTitle": "Próximo en agenda",
+    "quickPills": {
+      "capital": "Ciudad de Guatemala",
+      "antigua": "Antigua",
+      "atitlan": "Atitlán",
+      "socials": "Sociales"
+    },
+    "agendaEyebrow": "Agenda de la escena",
+    "eventsTitle": "Agenda",
+    "spotsTitle": "Lugares para bailar",
+    "academiesTitle": "Academias",
+    "submitTitle": "¿Organizas un evento?",
+    "submitDescription": "Publícalo en minutos para que más personas lo encuentren.",
+    "highlightsTitle": "Exploración clara desde el celular",
+    "highlights": {
+      "events": "Eventos próximos",
+      "academies": "Academias destacadas",
+      "submissions": "Envío rápido de eventos",
+      "mobile": "Diseño pensado para móvil"
+    },
+    "quoteEyebrow": "Exploraguate",
+    "quote": "Guatemala baila mejor cuando la información es fácil de encontrar.",
+    "heroCard": {
+      "eyebrow": "Próximo evento",
+      "locationLabel": "Ubicación",
+      "organizerLabel": "Organiza"
+    },
+    "localPanel": {
+      "title": "Hecho para la escena local",
+      "description": "Desde Zona 10 hasta Antigua, la idea es encontrar rápido qué está pasando y con quién hablar.",
+      "items": {
+        "city": "Eventos y sociales por ciudad",
+        "contact": "Contacto directo con organizadores",
+        "mobile": "Información clara en móvil"
+      }
+    },
+    "localStrip": {
+      "title": "Una agenda clara basada en cómo la comunidad comparte sus flyers",
+      "description": "Fecha, venue, cover y precio. Solo lo necesario para decidir rápido.",
+      "items": {
+        "city": "Ciudad y venue visibles",
+        "contact": "Flyer y detalle juntos",
+        "mobile": "Lectura rápida en móvil"
+      }
+    },
+    "stats": {
+      "eventsValue": "3+",
+      "eventsLabel": "eventos listos",
+      "citiesValue": "2",
+      "citiesLabel": "ciudades activas",
+      "submitValue": "1 min",
+      "submitLabel": "para publicar"
+    }
+  },
+  "events": {
+    "title": "Eventos de salsa y bachata",
+    "description": "Explora fiestas, sociales, workshops y encuentros próximos en Guatemala.",
+    "empty": "No hay eventos que coincidan con los filtros actuales.",
+    "detailCta": "Hablar con el organizador",
+    "sectionTitle": "Detalles del evento",
+    "filtersTitle": "Filtra por lo que te conviene",
+    "filters": {
+      "allCities": "Todas las ciudades",
+      "allStyles": "Todos los estilos",
+      "allDates": "Cualquier fecha",
+      "next7Days": "Próximos 7 días",
+      "next30Days": "Próximos 30 días",
+      "apply": "Aplicar filtros"
+    }
+  },
+  "spots": {
+    "title": "Lugares para bailar",
+    "description": "Bares, restaurantes y espacios con noches regulares de salsa y bachata.",
+    "empty": "No hay lugares disponibles en este momento.",
+    "contactCta": "Contactar"
+  },
+  "academies": {
+    "title": "Academias y escuelas",
+    "description": "Descubre academias para aprender salsa, bachata y otros ritmos latinos.",
+    "empty": "No hay academias disponibles en este momento.",
+    "contactCta": "Contactar academia"
+  },
+  "submitEvent": {
+    "title": "Envía un evento",
+    "description": "Completa el formulario y revisaremos la información antes de publicarla.",
+    "success": "Tu evento fue enviado correctamente.",
+    "error": "No se pudo enviar el formulario.",
+    "fields": {
+      "title": "Título del evento",
+      "description": "Descripción",
+      "imageUrl": "URL de imagen",
+      "danceStyle": "Estilo de baile",
+      "date": "Fecha",
+      "time": "Hora",
+      "price": "Precio",
+      "city": "Ciudad",
+      "venue": "Lugar",
+      "organizerName": "Nombre del organizador",
+      "contactLink": "Enlace de contacto"
+    },
+    "cta": "Enviar evento"
+  },
+  "metadata": {
+    "siteName": "Exploraguate",
+    "homeTitle": "Exploraguate | Salsa y bachata en Guatemala",
+    "homeDescription": "Descubre eventos, academias y actividades de salsa y bachata en Guatemala.",
+    "eventsTitle": "Eventos | Exploraguate",
+    "eventsDescription": "Lista de próximos eventos de salsa y bachata en Guatemala.",
+    "spotsTitle": "Lugares | Exploraguate",
+    "spotsDescription": "Lugares con noches regulares de salsa y bachata en Guatemala.",
+    "academiesTitle": "Academias | Exploraguate",
+    "academiesDescription": "Directorio de academias de salsa y bachata en Guatemala.",
+    "submitEventTitle": "Enviar evento | Exploraguate",
+    "submitEventDescription": "Comparte un evento con la comunidad Exploraguate."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "Lo que buscas no está disponible o fue movido."
+  }
+}

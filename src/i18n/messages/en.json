@@ -1,0 +1,180 @@
+{
+  "common": {
+    "localeName": "English",
+    "englishName": "English",
+    "browseEvents": "Browse events",
+    "browseAcademies": "Browse academies",
+    "submitEvent": "Submit event",
+    "learnMore": "View details",
+    "featured": "Featured",
+    "free": "Free",
+    "from": "From",
+    "contact": "Contact",
+    "upcoming": "Upcoming",
+    "viewAll": "View all",
+    "city": "City",
+    "danceStyle": "Dance style",
+    "date": "Date",
+    "location": "Location",
+    "price": "Price",
+    "organizer": "Organizer",
+    "styles": "Styles",
+    "area": "Area",
+    "schedule": "Schedule",
+    "coverCharge": "Cover charge",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "website": "Website",
+    "relatedEvents": "Related events",
+    "loading": "Loading",
+    "startingAt": "Starting at",
+    "danceStyles": {
+      "salsa": "Salsa",
+      "bachata": "Bachata",
+      "salsa_bachata": "Salsa and bachata",
+      "other": "Other"
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "events": "Events",
+    "spots": "Spots",
+    "academies": "Academies",
+    "submitEvent": "Submit event",
+    "switchLanguage": "Switch language"
+  },
+  "footer": {
+    "description": "A simple agenda to discover salsa and bachata events, socials, and academies in Guatemala.",
+    "navigationTitle": "Navigation",
+    "contactTitle": "Contact",
+    "madeFor": "Made for Guatemala's salsa community.",
+    "rights": "© {year} Exploraguate. All rights reserved.",
+    "developedBy": "Developed by",
+    "terms": "Terms of use",
+    "privacy": "Privacy"
+  },
+  "home": {
+    "eyebrow": "Salsa and bachata agenda in Guatemala",
+    "title": "Find where to dance this week",
+    "primaryCta": "View agenda",
+    "secondaryCta": "View academies",
+    "heroListTitle": "Next on the agenda",
+    "quickPills": {
+      "capital": "Guatemala City",
+      "antigua": "Antigua",
+      "atitlan": "Atitlan",
+      "socials": "Socials"
+    },
+    "agendaEyebrow": "Scene agenda",
+    "eventsTitle": "Agenda",
+    "spotsTitle": "Dance spots",
+    "academiesTitle": "Academies",
+    "submitTitle": "Do you organize an event?",
+    "submitDescription": "Publish it in minutes so more people can find it.",
+    "highlightsTitle": "Clear mobile-first discovery",
+    "highlights": {
+      "events": "Upcoming events",
+      "academies": "Featured academies",
+      "submissions": "Quick event submission",
+      "mobile": "Built for mobile first"
+    },
+    "quoteEyebrow": "Exploraguate",
+    "quote": "Guatemala dances better when information is easier to find.",
+    "heroCard": {
+      "eyebrow": "Next event",
+      "locationLabel": "Location",
+      "organizerLabel": "Hosted by"
+    },
+    "localPanel": {
+      "title": "Made for the local scene",
+      "description": "From Zona 10 to Antigua, the goal is to quickly see what is happening and who to contact.",
+      "items": {
+        "city": "Events and socials by city",
+        "contact": "Direct contact with organizers",
+        "mobile": "Clear mobile-first information"
+      }
+    },
+    "localStrip": {
+      "title": "A clear agenda based on how the community already shares flyers",
+      "description": "Date, venue, cover, and price. Only what matters to decide quickly.",
+      "items": {
+        "city": "City and venue visible",
+        "contact": "Flyer and details together",
+        "mobile": "Fast mobile scanning"
+      }
+    },
+    "stats": {
+      "eventsValue": "3+",
+      "eventsLabel": "events ready",
+      "citiesValue": "2",
+      "citiesLabel": "active cities",
+      "submitValue": "1 min",
+      "submitLabel": "to publish"
+    }
+  },
+  "events": {
+    "title": "Salsa and bachata events",
+    "description": "Explore upcoming parties, socials, workshops, and gatherings in Guatemala.",
+    "empty": "There are no events matching the current filters.",
+    "detailCta": "Talk to the organizer",
+    "sectionTitle": "Event details",
+    "filtersTitle": "Filter what matters",
+    "filters": {
+      "allCities": "All cities",
+      "allStyles": "All styles",
+      "allDates": "Any date",
+      "next7Days": "Next 7 days",
+      "next30Days": "Next 30 days",
+      "apply": "Apply filters"
+    }
+  },
+  "spots": {
+    "title": "Dance spots",
+    "description": "Bars, restaurants, and venues with regular salsa and bachata nights.",
+    "empty": "There are no spots available right now.",
+    "contactCta": "Contact"
+  },
+  "academies": {
+    "title": "Academies and schools",
+    "description": "Discover academies where you can learn salsa, bachata, and other Latin rhythms.",
+    "empty": "There are no academies available right now.",
+    "contactCta": "Contact academy"
+  },
+  "submitEvent": {
+    "title": "Submit an event",
+    "description": "Complete the form and we will review the information before publishing it.",
+    "success": "Your event was submitted successfully.",
+    "error": "The form could not be submitted.",
+    "fields": {
+      "title": "Event title",
+      "description": "Description",
+      "imageUrl": "Image URL",
+      "danceStyle": "Dance style",
+      "date": "Date",
+      "time": "Time",
+      "price": "Price",
+      "city": "City",
+      "venue": "Venue",
+      "organizerName": "Organizer name",
+      "contactLink": "Contact link"
+    },
+    "cta": "Submit event"
+  },
+  "metadata": {
+    "siteName": "Exploraguate",
+    "homeTitle": "Exploraguate | Salsa and bachata in Guatemala",
+    "homeDescription": "Discover salsa and bachata events, academies, and activities in Guatemala.",
+    "eventsTitle": "Events | Exploraguate",
+    "eventsDescription": "Upcoming salsa and bachata events in Guatemala.",
+    "spotsTitle": "Spots | Exploraguate",
+    "spotsDescription": "Venues with regular salsa and bachata nights in Guatemala.",
+    "academiesTitle": "Academies | Exploraguate",
+    "academiesDescription": "Directory of salsa and bachata academies in Guatemala.",
+    "submitEventTitle": "Submit event | Exploraguate",
+    "submitEventDescription": "Share an event with the Exploraguate community."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The content you are looking for is not available or was moved."
+  }
+}
