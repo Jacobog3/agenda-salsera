@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { LogoIcon } from "@/components/brand/logo-icon";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { SubmitDropdown } from "@/components/layout/submit-dropdown";
 import { DesktopNav } from "@/components/layout/desktop-nav";
@@ -23,15 +23,7 @@ export async function SiteHeader() {
 
           {/* Logo */}
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <div className="h-9 w-9 overflow-hidden rounded-full">
-              <Image
-                src="/images/exploraguate-icon.png"
-                alt="ExploraGuate"
-                width={80}
-                height={80}
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
+            <LogoIcon size={36} />
             <span className="font-display text-[15px] font-bold leading-none tracking-normal">
               <span className="text-brand-600">Salsa</span>
               <span className="mx-1 text-gray-300">·</span>

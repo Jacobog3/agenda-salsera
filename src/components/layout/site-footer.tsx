@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { LogoIcon } from "@/components/brand/logo-icon";
 import { Container } from "@/components/shared/container";
 import { Mail } from "lucide-react";
 
@@ -19,15 +19,7 @@ export async function SiteFooter() {
             {/* Brand block */}
             <div className="max-w-xs space-y-3">
               <div className="flex items-center gap-2">
-                <div className="h-9 w-9 overflow-hidden rounded-full">
-                  <Image
-                    src="/images/exploraguate-icon.png"
-                    alt="ExploraGuate"
-                    width={80}
-                    height={80}
-                    className="h-full w-full object-cover object-center"
-                  />
-                </div>
+                <LogoIcon size={36} />
                 <p className="font-display text-lg font-bold leading-none tracking-normal">
                   <span className="text-gray-900">Explora</span>
                   <span className="text-brand-600">Guate</span>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { LogoIcon } from "@/components/brand/logo-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, Lock } from "lucide-react";
@@ -46,14 +46,8 @@ export default function AdminLoginPage() {
 
         {/* Brand */}
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="h-14 w-14 overflow-hidden rounded-2xl shadow-md">
-            <Image
-              src="/images/exploraguate-icon.png"
-              alt="ExploraGuate"
-              width={112}
-              height={112}
-              className="h-full w-full object-cover"
-            />
+          <div className="drop-shadow-md">
+            <LogoIcon size={56} />
           </div>
           <div>
             <p className="font-display text-lg font-bold tracking-normal">

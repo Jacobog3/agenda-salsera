@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import { LogoIcon } from "@/components/brand/logo-icon";
 import { LogOut } from "lucide-react";
 
 export const metadata = {
@@ -28,15 +28,7 @@ export default async function AdminProtectedLayout({
 
           <div className="flex items-center gap-4">
             <Link href="/" className="flex shrink-0 items-center gap-2">
-              <div className="h-8 w-8 overflow-hidden rounded-full">
-                <Image
-                  src="/images/exploraguate-icon.png"
-                  alt="ExploraGuate"
-                  width={64}
-                  height={64}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              <LogoIcon size={32} />
               <span className="font-display text-sm font-bold leading-none tracking-normal">
                 <span className="text-brand-600">Salsa</span>
                 <span className="mx-1 text-gray-300">·</span>
