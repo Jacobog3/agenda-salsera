@@ -6,13 +6,15 @@ export function SectionHeading({
   eyebrow,
   title,
   description,
-  className
+  className,
+  as: Tag = "h2"
 }: {
   icon?: LucideIcon;
   eyebrow?: string;
   title: string;
   description?: string;
   className?: string;
+  as?: "h1" | "h2";
 }) {
   return (
     <div className={cn("space-y-1", className)}>
@@ -27,7 +29,7 @@ export function SectionHeading({
             <Icon className="h-4 w-4 text-brand-600" strokeWidth={2} />
           </span>
         )}
-        <h2 className="section-title max-w-2xl">{title}</h2>
+        <Tag className="section-title max-w-2xl">{title}</Tag>
       </div>
       {description ? <p className="section-copy mt-1">{description}</p> : null}
     </div>

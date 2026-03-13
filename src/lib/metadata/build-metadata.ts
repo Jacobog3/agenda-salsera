@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { env } from "@/lib/utils/env";
+import { routing } from "@/i18n/routing";
 import type { Locale } from "@/types/locale";
 
 type MetadataKey =
@@ -13,9 +14,29 @@ type MetadataKey =
   | "academiesTitle"
   | "academiesDescription"
   | "submitEventTitle"
-  | "submitEventDescription";
+  | "submitEventDescription"
+  | "submitAcademyTitle"
+  | "submitAcademyDescription"
+  | "submitSpotTitle"
+  | "submitSpotDescription";
 
 const DEFAULT_OG_IMAGE = "/images/exploraguate-logo.png";
+
+function getLocalizedUrl(pathname: string, locale: Locale, siteUrl: string): string {
+  const pathnames = routing.pathnames as Record<string, { es: string; en: string } | string>;
+  const entry = pathnames[pathname];
+  let localizedPath: string;
+  if (!entry) {
+    localizedPath = pathname;
+  } else if (typeof entry === "string") {
+    localizedPath = entry;
+  } else {
+    localizedPath = entry[locale];
+  }
+  const cleanPath = localizedPath === "/" ? "" : localizedPath;
+  const prefix = locale === "es" ? "" : "/en";
+  return `${siteUrl}${prefix}${cleanPath}`;
+}
 
 export async function buildMetadata(
   locale: Locale,
@@ -26,7 +47,7 @@ export async function buildMetadata(
     description?: string;
     image?: string;
     type?: "website" | "article";
-    canonical?: string;
+    pathname?: string;
   }
 ): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: "metadata" });
@@ -36,6 +57,20 @@ export async function buildMetadata(
   const image = overrides?.image ?? DEFAULT_OG_IMAGE;
   const ogImage = image.startsWith("http") ? image : `${siteUrl}${image}`;
 
+  const canonicalUrl = overrides?.pathname
+    ? getLocalizedUrl(overrides.pathname, locale, siteUrl)
+    : locale === "es"
+      ? siteUrl
+      : `${siteUrl}/en`;
+
+  const esUrl = overrides?.pathname
+    ? getLocalizedUrl(overrides.pathname, "es", siteUrl)
+    : siteUrl;
+
+  const enUrl = overrides?.pathname
+    ? getLocalizedUrl(overrides.pathname, "en", siteUrl)
+    : `${siteUrl}/en`;
+
   return {
     title: {
       default: title,
@@ -44,10 +79,10 @@ export async function buildMetadata(
     description,
     metadataBase: new URL(siteUrl),
     alternates: {
-      canonical: overrides?.canonical,
+      canonical: canonicalUrl,
       languages: {
-        es: `${siteUrl}`,
-        en: `${siteUrl}/en`
+        es: esUrl,
+        en: enUrl
       }
     },
     openGraph: {
@@ -56,7 +91,7 @@ export async function buildMetadata(
       siteName: t("siteName"),
       locale,
       type: overrides?.type ?? "website",
-      url: overrides?.canonical ?? siteUrl,
+      url: canonicalUrl,
       images: [
         {
           url: ogImage,

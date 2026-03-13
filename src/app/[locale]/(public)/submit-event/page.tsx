@@ -11,11 +11,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return buildMetadata(
-    locale as Locale,
-    "submitEventTitle",
-    "submitEventDescription"
-  );
+  return buildMetadata(locale as Locale, "submitEventTitle", "submitEventDescription", {
+    pathname: "/submit-event"
+  });
 }
 
 export default async function SubmitEventPage({

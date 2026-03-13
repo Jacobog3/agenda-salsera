@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return buildMetadata(locale as Locale, "eventsTitle", "eventsDescription");
+  return buildMetadata(locale as Locale, "eventsTitle", "eventsDescription", { pathname: "/events" });
 }
 
 export default async function EventsPage({
@@ -41,7 +41,7 @@ export default async function EventsPage({
   return (
     <section className="page-section pb-16">
       <Container className="space-y-4 md:space-y-8">
-        <SectionHeading title={t("title")} description={t("description")} />
+        <SectionHeading title={t("title")} description={t("description")} as="h1" />
         <Suspense fallback={<div className="h-16 md:h-20" />}>
           <FilterBar />
         </Suspense>

@@ -188,7 +188,11 @@
     "academiesTitle": "Academias | Exploraguate",
     "academiesDescription": "Directorio de academias de salsa y bachata en Guatemala.",
     "submitEventTitle": "Enviar evento | Exploraguate",
-    "submitEventDescription": "Comparte un evento con la comunidad Exploraguate."
+    "submitEventDescription": "Comparte un evento con la comunidad Exploraguate.",
+    "submitAcademyTitle": "Registrar academia | Exploraguate",
+    "submitAcademyDescription": "Registrá tu academia de baile en Exploraguate gratis.",
+    "submitSpotTitle": "Registrar lugar | Exploraguate",
+    "submitSpotDescription": "Registrá tu bar o venue con noches de salsa en Exploraguate."
   },
   "notFound": {
     "title": "Página no encontrada",

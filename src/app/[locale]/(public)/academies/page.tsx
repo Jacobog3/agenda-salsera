@@ -13,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return buildMetadata(locale as Locale, "academiesTitle", "academiesDescription");
+  return buildMetadata(locale as Locale, "academiesTitle", "academiesDescription", { pathname: "/academies" });
 }
 
 export default async function AcademiesPage({
@@ -32,7 +32,7 @@ export default async function AcademiesPage({
   return (
     <section className="page-section pb-16">
       <Container className="space-y-6 md:space-y-8">
-        <SectionHeading title={t("title")} description={t("description")} />
+        <SectionHeading title={t("title")} description={t("description")} as="h1" />
         {academies.length ? (
           <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             {academies.map((academy) => (

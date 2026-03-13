@@ -1,10 +1,19 @@
 import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { SubmitAcademyForm } from "@/components/forms/submit-academy-form";
+import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { GraduationCap } from "lucide-react";
+import type { Locale } from "@/types/locale";
 
-export async function generateMetadata() {
-  return { title: "Publicar Academia | ExploraGuate" };
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return buildMetadata(locale as Locale, "submitAcademyTitle", "submitAcademyDescription", {
+    pathname: "/submit-academy"
+  });
 }
 
 export default function SubmitAcademyPage() {
@@ -12,6 +21,7 @@ export default function SubmitAcademyPage() {
     <section className="page-section pb-16">
       <Container className="max-w-2xl space-y-6 md:space-y-8">
         <SectionHeading
+          as="h1"
           icon={GraduationCap}
           title="Registrar academia"
           description="Completá el formulario y publicamos tu academia gratis. Más personas la van a encontrar."

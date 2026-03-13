@@ -13,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return buildMetadata(locale as Locale, "spotsTitle", "spotsDescription");
+  return buildMetadata(locale as Locale, "spotsTitle", "spotsDescription", { pathname: "/spots" });
 }
 
 export default async function SpotsPage({
@@ -32,7 +32,7 @@ export default async function SpotsPage({
   return (
     <section className="page-section pb-16">
       <Container className="space-y-4 md:space-y-8">
-        <SectionHeading title={t("title")} description={t("description")} />
+        <SectionHeading title={t("title")} description={t("description")} as="h1" />
         {spots.length ? (
           <div className="grid gap-3 md:grid-cols-2 md:gap-5">
             {spots.map((spot) => (
