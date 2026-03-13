@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -318,9 +319,9 @@ export function SubmitEventForm() {
       <p className="text-[11px] leading-relaxed text-muted-foreground">
         Al enviar este formulario aceptás que tus datos sean usados para publicar el evento en
         ExploraGuate. Consultá nuestra{" "}
-        <a href="/legal/privacidad" className="underline hover:text-foreground">
+        <Link href="/legal/privacy" className="underline hover:text-foreground">
           política de privacidad
-        </a>
+        </Link>
         .
       </p>
 

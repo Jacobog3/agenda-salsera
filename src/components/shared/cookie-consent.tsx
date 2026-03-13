@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Link } from "@/i18n/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -40,9 +41,9 @@ export function CookieConsent() {
         <p className="pr-6 text-xs leading-relaxed text-muted-foreground">
           Usamos cookies de Google Analytics para mejorar la experiencia. Al aceptar, consentís
           el uso de cookies analíticas según nuestra{" "}
-          <a href="/legal/privacidad" className="underline hover:text-foreground">
+          <Link href="/legal/privacy" className="underline hover:text-foreground">
             política de privacidad
-          </a>
+          </Link>
           .
         </p>
 

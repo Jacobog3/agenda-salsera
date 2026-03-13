@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -330,9 +331,9 @@ export function SubmitAcademyForm() {
       <p className="text-[11px] leading-relaxed text-muted-foreground">
         Al enviar este formulario aceptás que tus datos sean usados para publicar la academia en
         ExploraGuate. Consultá nuestra{" "}
-        <a href="/legal/privacidad" className="underline hover:text-foreground">
+        <Link href="/legal/privacy" className="underline hover:text-foreground">
           política de privacidad
-        </a>
+        </Link>
         .
       </p>
 
