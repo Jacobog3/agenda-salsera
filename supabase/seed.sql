@@ -88,7 +88,7 @@ values (
   'Give Me a Leg Dancing',
   'Social salsero con entrada Q50 + 4 libras de concentrado. Noche de baile y convivencia.',
   'Salsa social with Q50 entry + 4 lbs of concentrate. A night of dancing and community.',
-  '/images/events/calendario-sociales.png',
+  '/images/events/dame-una-pata-bailando.png',
   'salsa_bachata',
   'Mixco',
   'San Cristóbal, Zona 8',
@@ -126,14 +126,14 @@ values (
   true
 );
 
--- 6. Antigua Salsa y Bachata Festival (Entrenamiento + Presentación)
+-- 6. Antigua Salsa y Bachata Festival (entrenamiento + Bachata Bootcamp Erick & Nalu + presentación)
 insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, dance_style, city, area, venue_name, address, starts_at, price_amount, currency, organizer_name, contact_url, is_featured, is_published)
 values (
   'antigua-salsa-bachata-festival-2026',
   'Antigua Salsa y Bachata Festival 2026',
   'Antigua Salsa and Bachata Festival 2026',
-  '6 días de entrenamiento del 20 de marzo al 26 de abril, con presentación final el sábado 2 de mayo. El festival de salsa y bachata más importante de Antigua.',
-  '6 training days from March 20 to April 26, with final presentation on Saturday May 2. The most important salsa and bachata festival in Antigua.',
+  '6 días de entrenamiento del 20 de marzo al 26 de abril. Incluye Bachata Bootcamp con Erick & Nalu. Presentación final: sábado 2 de mayo. Precio individual Q300, pareja Q550. El festival de salsa y bachata más importante de Antigua.',
+  '6 training days from March 20 to April 26. Includes Bachata Bootcamp with Erick & Nalu. Final presentation: Saturday May 2. Individual Q300, couple Q550. The most important salsa and bachata festival in Antigua.',
   '/images/events/antigua-festival.png',
   'salsa_bachata',
   'Antigua Guatemala',
@@ -149,30 +149,7 @@ values (
   true
 );
 
--- 7. Bachata Bootcamp - Erick & Nalu
-insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, dance_style, city, area, venue_name, address, starts_at, price_amount, currency, organizer_name, contact_url, is_featured, is_published)
-values (
-  'bachata-bootcamp-erick-nalu',
-  'Bachata Bootcamp – Erick & Nalu',
-  'Bachata Bootcamp – Erick & Nalu',
-  'Bootcamp intensivo de bachata con Erick & Nalu en el marco del Antigua Salsa y Bachata Festival.',
-  'Intensive bachata bootcamp with Erick & Nalu as part of the Antigua Salsa and Bachata Festival.',
-  '/images/events/bachata-bootcamp.png',
-  'bachata',
-  'Antigua Guatemala',
-  'Centro',
-  'Por confirmar',
-  null,
-  '2026-05-02T10:00:00-06:00',
-  null,
-  'GTQ',
-  'Erick & Nalu',
-  'https://instagram.com/antiguasalsabachatafestival',
-  false,
-  true
-);
-
--- 8. Taller de Cumbia (ADS)
+-- 7. Taller de Cumbia – ADS
 insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, dance_style, city, area, venue_name, address, starts_at, price_amount, currency, organizer_name, contact_url, is_featured, is_published)
 values (
   'taller-de-cumbia-ads-marzo',
@@ -195,7 +172,7 @@ values (
   true
 );
 
--- 9. Buena Vista Social Club - TrovaJazz
+-- 8. Buena Vista Social Club - TrovaJazz
 insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, dance_style, city, area, venue_name, address, starts_at, price_amount, currency, organizer_name, contact_url, is_featured, is_published)
 values (
   'buena-vista-social-club-trovajazz',
