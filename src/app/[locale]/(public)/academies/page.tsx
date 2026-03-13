@@ -40,7 +40,12 @@ export default async function AcademiesPage({
             ))}
           </div>
         ) : (
-          <EmptyState title={t("empty")} />
+          <EmptyState
+            title={t("empty")}
+            description={t("emptyDescription")}
+            ctaHref="mailto:info@exploraguate.com?subject=Quiero publicar mi academia"
+            ctaLabel={t("emptyCta")}
+          />
         )}
       </Container>
     </section>

@@ -98,7 +98,8 @@ async function fetchSupabaseEvents(): Promise<EventRecord[]> {
     .order("starts_at", { ascending: true });
 
   if (error) {
-    throw new Error(error.message);
+    console.error("[events] Supabase error:", error.message);
+    return [];
   }
 
   return (data ?? []).map((row) => normalizeEvent(row));

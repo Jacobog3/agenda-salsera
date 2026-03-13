@@ -152,7 +152,9 @@
   "academies": {
     "title": "Academies and schools",
     "description": "Discover academies where you can learn salsa, bachata, and other Latin rhythms.",
-    "empty": "There are no academies available right now.",
+    "empty": "No academies registered yet.",
+    "emptyDescription": "Do you run a dance academy? Contact us and we'll add it for free.",
+    "emptyCta": "Register my academy",
     "contactCta": "Contact academy"
   },
   "submitEvent": {

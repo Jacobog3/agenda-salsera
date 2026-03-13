@@ -124,20 +124,20 @@ export default async function HomePage({
                   <CalendarDays className="h-3.5 w-3.5" />
                   {t("submitEventShort")}
                 </Link>
-                <Link
-                  href="/submit-academy"
+                <a
+                  href="mailto:info@exploraguate.com?subject=Quiero publicar mi academia"
                   className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
                 >
                   <GraduationCap className="h-3.5 w-3.5" />
                   {t("submitAcademyShort")}
-                </Link>
-                <Link
-                  href="/submit-spot"
+                </a>
+                <a
+                  href="mailto:info@exploraguate.com?subject=Quiero publicar mi bar o lugar"
                   className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
                 >
                   <MapPinned className="h-3.5 w-3.5" />
                   {t("submitSpotShort")}
-                </Link>
+                </a>
               </div>
             </div>
           </div>

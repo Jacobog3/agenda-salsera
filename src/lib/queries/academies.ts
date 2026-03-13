@@ -52,7 +52,8 @@ async function fetchSupabaseAcademies(): Promise<AcademyRecord[]> {
     .eq("is_published", true);
 
   if (error) {
-    throw new Error(error.message);
+    console.error("[academies] Supabase error:", error.message);
+    return [];
   }
 
   return (data ?? []).map((row) => normalizeAcademy(row));

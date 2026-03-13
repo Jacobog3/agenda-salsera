@@ -53,7 +53,8 @@ async function fetchSupabaseSpots(): Promise<SpotRecord[]> {
     .eq("is_published", true);
 
   if (error) {
-    throw new Error(error.message);
+    console.error("[spots] Supabase error:", error.message);
+    return [];
   }
 
   return (data ?? []).map((row) => normalizeSpot(row));

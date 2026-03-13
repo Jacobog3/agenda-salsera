@@ -152,7 +152,9 @@
   "academies": {
     "title": "Academias y escuelas",
     "description": "Descubre academias para aprender salsa, bachata y otros ritmos latinos.",
-    "empty": "No hay academias disponibles en este momento.",
+    "empty": "Todavía no hay academias registradas.",
+    "emptyDescription": "¿Tenés una academia o escuela de baile? Escribinos y la agregamos gratis.",
+    "emptyCta": "Registrar mi academia",
     "contactCta": "Contactar academia"
   },
   "submitEvent": {
