@@ -43,7 +43,7 @@ export default async function AcademiesPage({
           <EmptyState
             title={t("empty")}
             description={t("emptyDescription")}
-            ctaHref="mailto:info@exploraguate.com?subject=Quiero publicar mi academia"
+            ctaHref="/submit-academy"
             ctaLabel={t("emptyCta")}
           />
         )}

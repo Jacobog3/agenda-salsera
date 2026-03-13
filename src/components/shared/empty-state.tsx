@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Search } from "lucide-react";
 
 export function EmptyState({
@@ -25,12 +26,12 @@ export function EmptyState({
         </p>
       ) : null}
       {ctaHref && ctaLabel ? (
-        <a
+        <Link
           href={ctaHref}
           className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-[0.97]"
         >
           {ctaLabel}
-        </a>
+        </Link>
       ) : null}
     </div>
   );

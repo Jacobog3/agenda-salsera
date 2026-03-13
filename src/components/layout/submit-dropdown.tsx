@@ -13,13 +13,24 @@ type Option = {
   descKey: string;
 };
 
-// Academy and spot submission are not yet ready — kept as direct email contact
 const options: Option[] = [
   {
     href: "/submit-event",
     icon: CalendarDays,
     labelKey: "submitEventLabel",
     descKey: "submitEventDesc"
+  },
+  {
+    href: "/submit-academy",
+    icon: GraduationCap,
+    labelKey: "submitAcademyLabel",
+    descKey: "submitAcademyDesc"
+  },
+  {
+    href: "/submit-spot",
+    icon: MapPinned,
+    labelKey: "submitSpotLabel",
+    descKey: "submitSpotDesc"
   }
 ];
 
