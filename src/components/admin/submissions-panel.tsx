@@ -146,11 +146,11 @@ export function SubmissionsPanel() {
               <ImageOff className="h-8 w-8 text-muted-foreground/30" />
             </div>
           )}
-          <div className="space-y-4 p-5 md:p-6">
+          <div className="space-y-4 p-4 md:p-6">
             <EditField label="Nombre del evento">
               <Input value={editingEvent.title ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, title: e.target.value }))} />
             </EditField>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
               <EditField label="Fecha"><Input type="date" value={editingEvent.date ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, date: e.target.value }))} /></EditField>
               <EditField label="Hora"><Input type="time" value={editingEvent.time ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, time: e.target.value }))} /></EditField>
               <EditField label="Precio"><Input value={editingEvent.price_text ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, price_text: e.target.value }))} /></EditField>
@@ -201,8 +201,8 @@ export function SubmissionsPanel() {
               <ImageOff className="h-8 w-8 text-muted-foreground/30" />
             </div>
           )}
-          <div className="space-y-4 p-5 md:p-6">
-            <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-4 p-4 md:p-6">
+            <div className="grid gap-3 md:grid-cols-2 md:gap-4">
               <EditField label="Nombre"><Input value={editingAcademy.name ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, name: e.target.value }))} /></EditField>
               <EditField label="Contacto"><Input value={editingAcademy.contact_name ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, contact_name: e.target.value }))} /></EditField>
             </div>
@@ -233,7 +233,7 @@ export function SubmissionsPanel() {
             </div>
             <EditField label="Dirección"><Input value={editingAcademy.address ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, address: e.target.value }))} /></EditField>
             <EditField label="Descripción"><Textarea rows={3} value={editingAcademy.description ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, description: e.target.value }))} /></EditField>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-3 md:gap-4">
               <EditField label="WhatsApp"><Input value={editingAcademy.whatsapp ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, whatsapp: e.target.value }))} /></EditField>
               <EditField label="Instagram"><Input value={editingAcademy.instagram ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, instagram: e.target.value }))} /></EditField>
               <EditField label="Web"><Input value={editingAcademy.website ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, website: e.target.value }))} /></EditField>
