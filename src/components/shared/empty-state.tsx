@@ -1,5 +1,8 @@
+import type { ComponentProps } from "react";
 import { Link } from "@/i18n/navigation";
 import { Search } from "lucide-react";
+
+type LinkHref = ComponentProps<typeof Link>["href"];
 
 export function EmptyState({
   title,
@@ -9,7 +12,7 @@ export function EmptyState({
 }: {
   title: string;
   description?: string;
-  ctaHref?: string;
+  ctaHref?: LinkHref;
   ctaLabel?: string;
 }) {
   return (
