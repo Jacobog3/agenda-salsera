@@ -4,11 +4,18 @@ import { Home, CalendarDays, MapPinned, GraduationCap } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { SubmitDropdown } from "@/components/layout/submit-dropdown";
+import { DesktopNav } from "@/components/layout/desktop-nav";
 import { Container } from "@/components/shared/container";
-import type { LucideIcon } from "lucide-react";
 
 export async function SiteHeader() {
   const t = await getTranslations("navigation");
+
+  const navItems = [
+    { href: "/" as const, icon: Home, label: t("home") },
+    { href: "/events" as const, icon: CalendarDays, label: t("events") },
+    { href: "/spots" as const, icon: MapPinned, label: t("spots") },
+    { href: "/academies" as const, icon: GraduationCap, label: t("academies") }
+  ];
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-200 bg-white">
@@ -34,13 +41,8 @@ export async function SiteHeader() {
             </span>
           </Link>
 
-          {/* Nav — desktop only, mobile uses bottom nav */}
-          <nav className="hidden flex-1 items-center justify-center gap-0.5 md:flex">
-            <NavLink href="/" icon={Home}>{t("home")}</NavLink>
-            <NavLink href="/events" icon={CalendarDays}>{t("events")}</NavLink>
-            <NavLink href="/spots" icon={MapPinned}>{t("spots")}</NavLink>
-            <NavLink href="/academies" icon={GraduationCap}>{t("academies")}</NavLink>
-          </nav>
+          {/* Nav — desktop only with active state, mobile uses bottom nav */}
+          <DesktopNav items={navItems} />
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-2">
@@ -51,25 +53,5 @@ export async function SiteHeader() {
         </div>
       </Container>
     </header>
-  );
-}
-
-function NavLink({
-  href,
-  icon: Icon,
-  children
-}: {
-  href: "/" | "/events" | "/spots" | "/academies";
-  icon: LucideIcon;
-  children: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
-    >
-      <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-      {children}
-    </Link>
   );
 }

@@ -29,6 +29,7 @@ export function AdminEventForm() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [priceAmount, setPriceAmount] = useState("");
+  const [danceStyle, setDanceStyle] = useState("salsa_bachata");
   const [city, setCity] = useState("");
   const [area, setArea] = useState("");
   const [venueName, setVenueName] = useState("");
@@ -108,6 +109,7 @@ export function AdminEventForm() {
     setDate("");
     setTime("");
     setPriceAmount("");
+    setDanceStyle("salsa_bachata");
     setCity("");
     setArea("");
     setVenueName("");
@@ -135,12 +137,13 @@ export function AdminEventForm() {
           description_es: descriptionEs,
           description_en: descriptionEn || descriptionEs,
           cover_image_url: finalImageUrl,
-          dance_style: "salsa_bachata",
+          gallery_urls: [],
+          dance_style: danceStyle,
           city,
           area: area || null,
           venue_name: venueName,
           address: address || null,
-          starts_at: `${date}T${time || "20:00"}:00`,
+          starts_at: `${date}T${time || "20:00"}:00-06:00`,
           price_amount: priceAmount ? Number(priceAmount) : null,
           currency: "GTQ",
           organizer_name: organizerName,
@@ -300,7 +303,7 @@ export function AdminEventForm() {
             required
           />
         </Field>
-        <Field label="Hora">
+        <Field label="Hora (Guatemala)">
           <Input
             type="time"
             value={time}
@@ -317,6 +320,19 @@ export function AdminEventForm() {
           />
         </Field>
       </div>
+
+      <Field label="Estilo de baile">
+        <select
+          value={danceStyle}
+          onChange={(e) => setDanceStyle(e.target.value)}
+          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <option value="salsa_bachata">Salsa y bachata</option>
+          <option value="salsa">Salsa</option>
+          <option value="bachata">Bachata</option>
+          <option value="other">Otro (cumbia, merengue…)</option>
+        </select>
+      </Field>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Ciudad *">

@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         description_es: body.description_es || "",
         description_en: body.description_en || body.description_es || "",
         cover_image_url: body.cover_image_url || "",
+        gallery_urls: Array.isArray(body.gallery_urls) ? body.gallery_urls : [],
         dance_style: body.dance_style || "salsa_bachata",
         city: body.city,
         area: body.area || null,
