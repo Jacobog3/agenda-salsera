@@ -9,7 +9,8 @@ import {
   Sparkles,
   CheckCircle2,
   AlertCircle,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react";
 
 export function AdminEventForm() {
@@ -18,6 +19,7 @@ export function AdminEventForm() {
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [whatsappText, setWhatsappText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -67,32 +69,34 @@ export function AdminEventForm() {
   }
 
   async function handleExtract() {
-    if (!preview) return;
+    if (!whatsappText.trim()) return;
     setExtracting(true);
     setErrorMsg("");
     try {
-      const res = await fetch("/api/admin/extract", {
+      const res = await fetch("/api/parse-flyer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: preview })
+        body: JSON.stringify({ text: whatsappText, type: "event" })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
 
-      if (data.title_es) setTitleEs(data.title_es);
-      if (data.title_en) setTitleEn(data.title_en);
-      if (data.description_es) setDescriptionEs(data.description_es);
-      if (data.description_en) setDescriptionEn(data.description_en);
-      if (data.date) setDate(data.date);
-      if (data.time) setTime(data.time);
-      if (data.price_amount != null) setPriceAmount(String(data.price_amount));
-      if (data.venue_name) setVenueName(data.venue_name);
-      if (data.city) setCity(data.city);
-      if (data.area) setArea(data.area);
-      if (data.address) setAddress(data.address);
-      if (data.organizer_name) setOrganizerName(data.organizer_name);
+      const d = json.data;
+      if (d.title)         setTitleEs(d.title);
+      if (d.title)         setTitleEn(d.title);
+      if (d.description)   setDescriptionEs(d.description);
+      if (d.description)   setDescriptionEn(d.description);
+      if (d.date)          setDate(d.date);
+      if (d.time)          setTime(d.time);
+      if (d.price)         setPriceAmount(d.price.replace(/[^0-9.]/g, ""));
+      if (d.venue)         setVenueName(d.venue);
+      if (d.city)          setCity(d.city);
+      if (d.address)       setAddress(d.address);
+      if (d.organizerName) setOrganizerName(d.organizerName);
+      if (d.contactLink)   setContactUrl(d.contactLink);
+      if (d.danceStyle)    setDanceStyle(d.danceStyle);
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Extraction failed");
+      setErrorMsg(err instanceof Error ? err.message : "Extracción fallida");
     } finally {
       setExtracting(false);
     }
@@ -102,6 +106,7 @@ export function AdminEventForm() {
     setFile(null);
     setPreview(null);
     setImageUrl("");
+    setWhatsappText("");
     setTitleEs("");
     setTitleEn("");
     setDescriptionEs("");
@@ -217,47 +222,48 @@ export function AdminEventForm() {
 
         <div className="flex flex-wrap items-center gap-2">
           {preview && !imageUrl && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleUpload}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Subiendo...
-                </>
-              ) : (
-                "Subir imagen"
-              )}
+            <Button type="button" variant="outline" size="sm" onClick={handleUpload} disabled={uploading}>
+              {uploading ? <><Loader2 className="h-4 w-4 animate-spin" /> Subiendo...</> : "Subir imagen"}
             </Button>
           )}
           {imageUrl && (
-            <span className="flex items-center gap-1 text-xs font-medium text-accentScale-700">
+            <span className="flex items-center gap-1 text-xs font-medium text-green-700">
               <CheckCircle2 className="h-3.5 w-3.5" /> Imagen subida
             </span>
           )}
           {preview && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleExtract}
-              disabled={extracting}
-            >
-              {extracting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Extrayendo...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" /> Extraer con IA
-                </>
-              )}
+            <Button type="button" variant="outline" size="sm" onClick={() => { setFile(null); setPreview(null); setImageUrl(""); }} className="gap-1 text-red-500 hover:text-red-600">
+              <X className="h-4 w-4" /> Quitar
             </Button>
           )}
         </div>
+      </div>
+
+      {/* WhatsApp text + Gemini extraction */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Texto del evento (WhatsApp / Instagram)
+        </label>
+        <Textarea
+          rows={5}
+          placeholder={"Pegá aquí el texto con la info del evento...\n\nEj:\n📅 Sábado 14 de Marzo\n📍 Garala Dance Studio, Arkadia\n⏰ 6:00 pm\n💰 Q50"}
+          value={whatsappText}
+          onChange={(e) => setWhatsappText(e.target.value)}
+          className="resize-none font-mono text-xs"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleExtract}
+          disabled={extracting || !whatsappText.trim()}
+          className="gap-2"
+        >
+          {extracting
+            ? <><Loader2 className="h-4 w-4 animate-spin" /> Extrayendo...</>
+            : <><Sparkles className="h-4 w-4 text-brand-500" /> Autocompletar con IA</>
+          }
+        </Button>
       </div>
 
       {/* Form fields */}
