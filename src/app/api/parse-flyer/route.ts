@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/lib/utils/env";
 
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
 const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages or flyer text about dance events in Guatemala.
 
@@ -80,10 +80,11 @@ export async function POST(request: Request) {
             ]
           }
         ],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 512
-        }
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 1024,
+        thinkingConfig: { thinkingBudget: 0 }
+      }
       })
     });
   } catch (fetchErr) {
