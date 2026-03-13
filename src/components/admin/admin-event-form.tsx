@@ -409,9 +409,9 @@ export function AdminEventForm() {
       </label>
 
       {status === "success" && (
-        <div className="flex items-center gap-2 rounded-xl bg-accentScale-50 p-4">
-          <CheckCircle2 className="h-5 w-5 text-accentScale-700" />
-          <p className="text-sm font-medium text-accentScale-700">
+        <div className="flex items-center gap-2 rounded-xl bg-green-50 p-4">
+          <CheckCircle2 className="h-5 w-5 text-green-700" />
+          <p className="text-sm font-medium text-green-700">
             Evento creado exitosamente
           </p>
         </div>
