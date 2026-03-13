@@ -27,10 +27,12 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     venueName: String(row.venue_name),
     address: row.address ? String(row.address) : null,
     startsAt: String(row.starts_at),
+    endsAt: row.ends_at ? String(row.ends_at) : null,
     priceAmount:
       row.price_amount === null || row.price_amount === undefined
         ? null
         : Number(row.price_amount),
+    priceText: row.price_text ? String(row.price_text) : null,
     currency: String(row.currency),
     organizerName: String(row.organizer_name),
     contactUrl: String(row.contact_url),

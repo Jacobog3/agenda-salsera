@@ -22,6 +22,22 @@ export function formatEventDateTime(date: string, locale: Locale) {
   }).format(new Date(date));
 }
 
+export function formatEventDateRange(startsAt: string, endsAt: string, locale: Locale) {
+  const fmt = new Intl.DateTimeFormat(locale === "es" ? "es-GT" : "en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: GT_TIMEZONE
+  });
+  const start = fmt.format(new Date(startsAt));
+  const end = new Intl.DateTimeFormat(locale === "es" ? "es-GT" : "en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: GT_TIMEZONE
+  }).format(new Date(endsAt));
+  return `${start} – ${end}`;
+}
+
 export function formatCurrency(
   amount: number | null | undefined,
   currency: string,

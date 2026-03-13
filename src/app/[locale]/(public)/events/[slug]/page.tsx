@@ -6,7 +6,7 @@ import { Container } from "@/components/shared/container";
 import { EventImageGallery } from "@/components/events/event-image-gallery";
 import { getEventBySlug } from "@/lib/queries/events";
 import { buildEventMetadata } from "@/lib/metadata/build-metadata";
-import { formatCurrency, formatEventDateTime } from "@/lib/utils/formatters";
+import { formatCurrency, formatEventDateTime, formatEventDateRange } from "@/lib/utils/formatters";
 import { Calendar, MapPin, User, Banknote } from "lucide-react";
 import { env } from "@/lib/utils/env";
 import type { Locale } from "@/types/locale";
@@ -131,7 +131,9 @@ export default async function EventDetailPage({
             <aside className="rounded-2xl bg-surface-soft p-4 md:rounded-3xl md:p-6">
               <div className="grid gap-3 md:gap-4">
                 <InfoRow icon={Calendar} label={common("date")}>
-                  {formatEventDateTime(event.startsAt, currentLocale)}
+                  {event.endsAt
+                    ? formatEventDateRange(event.startsAt, event.endsAt, currentLocale)
+                    : formatEventDateTime(event.startsAt, currentLocale)}
                 </InfoRow>
                 <InfoRow icon={MapPin} label={common("location")}>
                   <span>{event.venueName}</span>
@@ -141,7 +143,7 @@ export default async function EventDetailPage({
                   <span className="block text-muted-foreground">{event.city}</span>
                 </InfoRow>
                 <InfoRow icon={Banknote} label={common("price")}>
-                  {formatCurrency(event.priceAmount, event.currency, currentLocale)}
+                  {event.priceText ?? formatCurrency(event.priceAmount, event.currency, currentLocale)}
                 </InfoRow>
                 <InfoRow icon={User} label={common("organizer")}>
                   {event.organizerName}

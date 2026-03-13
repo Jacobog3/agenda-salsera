@@ -327,6 +327,15 @@ export function SubmitAcademyForm() {
         </div>
       )}
 
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
+        Al enviar este formulario aceptás que tus datos sean usados para publicar la academia en
+        ExploraGuate. Consultá nuestra{" "}
+        <a href="/legal/privacidad" className="underline hover:text-foreground">
+          política de privacidad
+        </a>
+        .
+      </p>
+
       <Button
         type="submit"
         size="lg"

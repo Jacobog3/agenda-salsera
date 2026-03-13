@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { AutoRotateImage } from "@/components/events/auto-rotate-image";
 import { MapPin } from "lucide-react";
-import { formatCurrency, formatEventDate } from "@/lib/utils/formatters";
+import { formatCurrency, formatEventDate, formatEventDateRange } from "@/lib/utils/formatters";
 import type { LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
@@ -42,7 +42,9 @@ export async function EventCard({
           )}
           <div className="absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-black/50 to-transparent p-3 pt-8 md:block">
             <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-foreground backdrop-blur-sm">
-              {formatEventDate(event.startsAt, locale)}
+              {event.endsAt
+                ? formatEventDateRange(event.startsAt, event.endsAt, locale)
+                : formatEventDate(event.startsAt, locale)}
             </span>
           </div>
         </div>
@@ -54,7 +56,9 @@ export async function EventCard({
               {t(`danceStyles.${event.danceStyle}`)}
             </Badge>
             <span className="text-[11px] text-muted-foreground md:hidden">
-              {formatEventDate(event.startsAt, locale)}
+              {event.endsAt
+                ? formatEventDateRange(event.startsAt, event.endsAt, locale)
+                : formatEventDate(event.startsAt, locale)}
             </span>
           </div>
 
@@ -70,7 +74,7 @@ export async function EventCard({
               </span>
             </span>
             <span className="shrink-0 font-semibold text-brand-600">
-              {formatCurrency(event.priceAmount, event.currency, locale)}
+              {event.priceText ?? formatCurrency(event.priceAmount, event.currency, locale)}
             </span>
           </div>
         </div>

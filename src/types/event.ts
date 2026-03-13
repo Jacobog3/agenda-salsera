@@ -15,7 +15,9 @@ export type EventRecord = {
   venueName: string;
   address?: string | null;
   startsAt: string;
+  endsAt?: string | null;
   priceAmount?: number | null;
+  priceText?: string | null;
   currency: string;
   organizerName: string;
   contactUrl: string;
@@ -36,7 +38,9 @@ export type LocalizedEvent = {
   venueName: string;
   address?: string | null;
   startsAt: string;
+  endsAt?: string | null;
   priceAmount?: number | null;
+  priceText?: string | null;
   currency: string;
   organizerName: string;
   contactUrl: string;
