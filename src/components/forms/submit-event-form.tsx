@@ -104,7 +104,7 @@ export function SubmitEventForm() {
       });
       const json = await res.json();
       if (!res.ok || !json.data) {
-        setParseError("No se pudo extraer la información. Revisá el texto e intentá de nuevo.");
+        setParseError(json.error || "No se pudo extraer la información. Revisá el texto e intentá de nuevo.");
         return;
       }
       const d = json.data;

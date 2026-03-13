@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/lib/utils/env";
 
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages or flyer text about dance events in Guatemala.
 
@@ -57,35 +57,49 @@ export async function POST(request: Request) {
   }
 
   if (!env.geminiApiKey) {
-    return NextResponse.json({ error: "Gemini not configured." }, { status: 503 });
+    return NextResponse.json(
+      { error: "GEMINI_API_KEY no está configurada en las variables de entorno de Vercel." },
+      { status: 503 }
+    );
   }
 
   const systemPrompt = type === "academy" ? ACADEMY_PROMPT : EVENT_PROMPT;
   const label = type === "academy" ? "Academy text to parse" : "Event text to parse";
 
-  const response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { text: systemPrompt },
-            { text: `\n\n${label}:\n${text}` }
-          ]
+  let response: Response;
+  try {
+    response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: systemPrompt },
+              { text: `\n\n${label}:\n${text}` }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 512
         }
-      ],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 512
-      }
-    })
-  });
+      })
+    });
+  } catch (fetchErr) {
+    console.error("[parse-flyer] Network error:", fetchErr);
+    return NextResponse.json({ error: "Error de red al conectar con Gemini." }, { status: 502 });
+  }
 
   if (!response.ok) {
-    const err = await response.text();
-    console.error("[parse-flyer] Gemini error:", err);
-    return NextResponse.json({ error: "Gemini request failed." }, { status: 502 });
+    const errText = await response.text();
+    console.error("[parse-flyer] Gemini error:", response.status, errText);
+    let detail = errText;
+    try { detail = JSON.parse(errText)?.error?.message ?? errText; } catch { /* ignore */ }
+    return NextResponse.json(
+      { error: `Gemini (${response.status}): ${detail}` },
+      { status: 502 }
+    );
   }
 
   const data = await response.json();
@@ -97,6 +111,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, data: parsed });
   } catch {
     console.error("[parse-flyer] Failed to parse Gemini response:", raw);
-    return NextResponse.json({ error: "Could not parse response.", raw }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo parsear la respuesta de Gemini.", raw }, { status: 500 });
   }
 }

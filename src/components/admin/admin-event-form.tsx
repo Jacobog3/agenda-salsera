@@ -79,7 +79,7 @@ export function AdminEventForm() {
         body: JSON.stringify({ text: whatsappText, type: "event" })
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
+      if (!res.ok) throw new Error(json.error || "Gemini request failed");
 
       const d = json.data;
       if (d.title)         setTitleEs(d.title);
