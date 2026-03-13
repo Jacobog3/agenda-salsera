@@ -13,6 +13,7 @@ export const sampleEvents: EventRecord[] = [
     descriptionEn:
       "A relaxed night of salsa and bachata with local DJs, intro classes, and a social atmosphere.",
     coverImageUrl: "/images/events/salsa-social-zona-10.svg",
+    galleryUrls: [],
     danceStyle: "salsa_bachata",
     city: "Ciudad de Guatemala",
     area: "Zona 10",
@@ -36,6 +37,7 @@ export const sampleEvents: EventRecord[] = [
     descriptionEn:
       "A short sunset workshop followed by a bachata social with a volcano view.",
     coverImageUrl: "/images/events/bachata-sunset-antigua.svg",
+    galleryUrls: [],
     danceStyle: "bachata",
     city: "Antigua Guatemala",
     area: "Centro",
@@ -59,6 +61,7 @@ export const sampleEvents: EventRecord[] = [
     descriptionEn:
       "An informal space to practice turns, connection, and musicality with friends.",
     coverImageUrl: "/images/events/practica-cayala.svg",
+    galleryUrls: [],
     danceStyle: "salsa",
     city: "Ciudad de Guatemala",
     area: "Cayalá",

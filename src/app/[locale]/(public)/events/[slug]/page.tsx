@@ -1,9 +1,9 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
+import { EventImageGallery } from "@/components/events/event-image-gallery";
 import { getEventBySlug } from "@/lib/queries/events";
 import { buildEventMetadata } from "@/lib/metadata/build-metadata";
 import { formatCurrency, formatEventDateTime } from "@/lib/utils/formatters";
@@ -111,17 +111,11 @@ export default async function EventDetailPage({
 
       <section className="page-section pb-24 md:pb-16">
         <Container>
-          <div className="overflow-hidden rounded-2xl md:rounded-3xl">
-            <div className="relative aspect-[2/1] md:aspect-[21/9]">
-              <Image
-                src={event.coverImageUrl}
-                alt={event.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
+          <EventImageGallery
+            coverImageUrl={event.coverImageUrl}
+            galleryUrls={event.galleryUrls}
+            alt={event.title}
+          />
 
           <div className="mt-4 grid gap-5 md:mt-8 md:grid-cols-[1.2fr_0.8fr] md:gap-10">
             <div className="space-y-3 md:space-y-4">

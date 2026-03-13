@@ -20,6 +20,7 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     descriptionEs: String(row.description_es),
     descriptionEn: String(row.description_en),
     coverImageUrl: String(row.cover_image_url),
+    galleryUrls: Array.isArray(row.gallery_urls) ? (row.gallery_urls as string[]) : [],
     danceStyle: row.dance_style as DanceStyle,
     city: String(row.city),
     area: row.area ? String(row.area) : null,

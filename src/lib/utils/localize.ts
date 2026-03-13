@@ -10,6 +10,7 @@ export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEven
     title: locale === "es" ? event.titleEs : event.titleEn,
     description: locale === "es" ? event.descriptionEs : event.descriptionEn,
     coverImageUrl: event.coverImageUrl,
+    galleryUrls: event.galleryUrls,
     danceStyle: event.danceStyle,
     city: event.city,
     area: event.area,

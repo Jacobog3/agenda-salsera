@@ -8,6 +8,7 @@ export type EventRecord = {
   descriptionEs: string;
   descriptionEn: string;
   coverImageUrl: string;
+  galleryUrls: string[];
   danceStyle: DanceStyle;
   city: string;
   area?: string | null;
@@ -28,6 +29,7 @@ export type LocalizedEvent = {
   title: string;
   description: string;
   coverImageUrl: string;
+  galleryUrls: string[];
   danceStyle: DanceStyle;
   city: string;
   area?: string | null;
