@@ -9,7 +9,7 @@ export const metadata = {
   robots: { index: false, follow: false }
 };
 
-export default async function AdminLayout({
+export default async function AdminProtectedLayout({
   children
 }: {
   children: React.ReactNode;
@@ -23,11 +23,9 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header matching site style */}
       <header className="sticky top-0 z-30 border-b border-gray-200 bg-white shadow-sm">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4 md:h-16 md:px-8">
 
-          {/* Logo + brand */}
           <div className="flex items-center gap-4">
             <Link href="/" className="flex shrink-0 items-center gap-2">
               <div className="h-8 w-8 overflow-hidden rounded-full">
@@ -47,15 +45,11 @@ export default async function AdminLayout({
               </span>
             </Link>
 
-            {/* Divider */}
             <span className="hidden h-5 w-px bg-gray-200 md:block" />
-
-            {/* Admin badge */}
             <span className="hidden rounded-md bg-brand-50 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.1em] text-brand-700 md:inline-flex">
               Admin
             </span>
 
-            {/* Nav */}
             <nav className="flex items-center gap-0.5">
               <Link
                 href="/admin"
@@ -72,7 +66,6 @@ export default async function AdminLayout({
             </nav>
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-2">
             <Link
               href="/"
@@ -90,11 +83,9 @@ export default async function AdminLayout({
               </button>
             </form>
           </div>
-
         </div>
       </header>
 
-      {/* Content */}
       <main className="mx-auto max-w-5xl px-4 py-6 md:px-8 md:py-10">
         {children}
       </main>
