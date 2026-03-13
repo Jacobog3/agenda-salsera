@@ -15,19 +15,35 @@ export default function AdminLayout({
     <div className="min-h-screen bg-background px-4 py-6 md:px-8 md:py-10">
       <div className="mx-auto max-w-3xl">
         <header className="mb-6 flex items-center justify-between md:mb-8">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-[11px] font-bold text-white">
-              EG
-            </span>
-            <span className="font-display text-base font-bold tracking-tight text-foreground">
-              Admin
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-[11px] font-bold text-white">
+                EG
+              </span>
+              <span className="font-display text-base font-bold tracking-tight text-foreground">
+                Admin
+              </span>
+            </div>
+            <nav className="flex items-center gap-1">
+              <Link
+                href="/admin"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-gray-100 hover:text-foreground"
+              >
+                Crear evento
+              </Link>
+              <Link
+                href="/admin/submissions"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-gray-100 hover:text-foreground"
+              >
+                Revisiones
+              </Link>
+            </nav>
           </div>
           <Link
             href="/"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            &larr; Volver al sitio
+            &larr; Sitio
           </Link>
         </header>
         {children}

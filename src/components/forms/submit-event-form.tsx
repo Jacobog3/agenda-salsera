@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,11 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  ImagePlus,
+  Loader2,
+  X
+} from "lucide-react";
 import {
   eventSubmissionSchema,
   type EventSubmissionValues
 } from "@/lib/validations/event-submission";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { cn } from "@/lib/utils/cn";
 
 const danceStyles: EventSubmissionValues["danceStyle"][] = [
   "salsa",
@@ -25,6 +34,13 @@ export function SubmitEventForm() {
   const t = useTranslations("submitEvent");
   const common = useTranslations("common");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [parsing, setParsing] = useState(false);
+  const [parseError, setParseError] = useState("");
+  const [whatsappText, setWhatsappText] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<EventSubmissionValues>({
     resolver: zodResolver(eventSubmissionSchema),
@@ -38,146 +54,274 @@ export function SubmitEventForm() {
       price: "",
       city: "",
       venue: "",
+      address: "",
       organizerName: "",
       contactLink: ""
     }
   });
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  function removeImage() {
+    setImageFile(null);
+    setImagePreview("");
+    form.setValue("imageUrl", "");
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function uploadImage(): Promise<string> {
+    if (!imageFile) return form.getValues("imageUrl") || "";
+    setUploading(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const ext = imageFile.name.split(".").pop() ?? "jpg";
+      const fileName = `submissions/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage
+        .from("event-images")
+        .upload(fileName, imageFile, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("event-images").getPublicUrl(fileName);
+      return data.publicUrl;
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleParse() {
+    if (!whatsappText.trim()) return;
+    setParsing(true);
+    setParseError("");
+    try {
+      const res = await fetch("/api/parse-flyer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: whatsappText })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.data) {
+        setParseError("No se pudo extraer la información. Revisá el texto e intentá de nuevo.");
+        return;
+      }
+      const d = json.data;
+      if (d.title) form.setValue("title", d.title, { shouldValidate: true });
+      if (d.date) form.setValue("date", d.date, { shouldValidate: true });
+      if (d.time) form.setValue("time", d.time, { shouldValidate: true });
+      if (d.venue) form.setValue("venue", d.venue, { shouldValidate: true });
+      if (d.address) form.setValue("address", d.address);
+      if (d.city) form.setValue("city", d.city, { shouldValidate: true });
+      if (d.price) form.setValue("price", d.price);
+      if (d.organizerName) form.setValue("organizerName", d.organizerName);
+      if (d.contactLink) form.setValue("contactLink", d.contactLink);
+      if (d.danceStyle) form.setValue("danceStyle", d.danceStyle);
+      if (d.description) form.setValue("description", d.description);
+    } catch {
+      setParseError("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setParsing(false);
+    }
+  }
+
   async function onSubmit(values: EventSubmissionValues) {
     setStatus("idle");
-
-    const response = await fetch("/api/event-submissions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values)
-    });
-
-    if (!response.ok) {
+    try {
+      const imageUrl = await uploadImage();
+      const response = await fetch("/api/event-submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, imageUrl })
+      });
+      if (!response.ok) {
+        setStatus("error");
+        return;
+      }
+      form.reset();
+      setWhatsappText("");
+      setImageFile(null);
+      setImagePreview("");
+      setStatus("success");
+    } catch {
       setStatus("error");
-      return;
     }
-
-    form.reset();
-    setStatus("success");
   }
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center gap-3 py-8 text-center md:py-10">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accentScale-50">
-          <CheckCircle2 className="h-6 w-6 text-accentScale-700" />
+      <div className="flex flex-col items-center gap-3 py-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+          <CheckCircle2 className="h-6 w-6 text-green-600" />
         </div>
-        <p className="font-display text-base font-bold text-foreground md:text-lg">
+        <p className="font-display text-lg font-bold text-foreground">
           {t("success")}
+        </p>
+        <p className="max-w-sm text-sm text-muted-foreground">
+          Revisaremos tu evento y lo publicaremos pronto.
         </p>
       </div>
     );
   }
 
   return (
-    <form className="space-y-4 md:space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field
-          label={t("fields.title")}
-          error={form.formState.errors.title?.message}
-        >
-          <Input {...form.register("title")} />
-        </Field>
-        <Field
-          label={t("fields.imageUrl")}
-          error={form.formState.errors.imageUrl?.message}
-        >
-          <Input {...form.register("imageUrl")} />
-        </Field>
-      </div>
+    <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
 
-      <Field
-        label={t("fields.description")}
-        error={form.formState.errors.description?.message}
-      >
-        <Textarea rows={3} {...form.register("description")} />
-      </Field>
-
-      <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field label={t("fields.danceStyle")}>
-          <select
-            className="flex h-11 w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-100 md:h-12 md:py-3"
-            {...form.register("danceStyle")}
+      {/* Step 1 — Flyer image */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          1. Subí el flyer
+        </p>
+        {imagePreview ? (
+          <div className="relative w-full overflow-hidden rounded-xl border border-border">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imagePreview} alt="Flyer preview" className="max-h-64 w-full object-contain" />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-surface-soft px-4 py-8 text-center transition hover:border-brand-400 hover:bg-brand-50"
           >
-            {danceStyles.map((style) => (
-              <option key={style} value={style}>
-                {common(`danceStyles.${style}`)}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field
-          label={t("fields.city")}
-          error={form.formState.errors.city?.message}
-        >
-          <Input {...form.register("city")} />
-        </Field>
+            <ImagePlus className="h-8 w-8 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">
+              Tocá para subir la imagen del flyer
+            </span>
+            <span className="text-xs text-muted-foreground/60">JPG, PNG, WEBP</span>
+          </button>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageChange}
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 md:gap-5">
-        <Field
-          label={t("fields.date")}
-          error={form.formState.errors.date?.message}
+      {/* Step 2 — WhatsApp text parser */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          2. Pegá el texto del evento
+        </p>
+        <Textarea
+          rows={5}
+          placeholder={"Pegá aquí el texto de WhatsApp o Instagram...\n\nEj:\n📅 Fecha: Sábado 14 de Marzo\n📍 Lugar: ADS Zona 5\n⏰ Hora: 12:30 pm\n💰 Costo: Q50.00"}
+          value={whatsappText}
+          onChange={(e) => setWhatsappText(e.target.value)}
+          className="resize-none font-mono text-xs"
+        />
+        {parseError && (
+          <p className="flex items-center gap-1.5 text-xs text-red-500">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {parseError}
+          </p>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!whatsappText.trim() || parsing}
+          onClick={handleParse}
+          className="gap-2"
         >
-          <Input type="date" {...form.register("date")} />
-        </Field>
-        <Field
-          label={t("fields.time")}
-          error={form.formState.errors.time?.message}
-        >
-          <Input type="time" {...form.register("time")} />
-        </Field>
-        <Field
-          label={t("fields.price")}
-          error={form.formState.errors.price?.message}
-        >
-          <Input {...form.register("price")} />
-        </Field>
+          {parsing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 text-brand-500" />
+          )}
+          {parsing ? "Extrayendo información..." : "Autocompletar con IA"}
+        </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field
-          label={t("fields.venue")}
-          error={form.formState.errors.venue?.message}
-        >
-          <Input {...form.register("venue")} />
+      {/* Step 3 — Review fields */}
+      <div className="space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          3. Revisá y completá
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+          <Field
+            label={t("fields.title")}
+            error={form.formState.errors.title?.message}
+          >
+            <Input {...form.register("title")} />
+          </Field>
+          <Field label={t("fields.danceStyle")}>
+            <select
+              className="flex h-11 w-full rounded-xl border border-border bg-surface-soft px-4 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-100 md:h-12 md:py-3"
+              {...form.register("danceStyle")}
+            >
+              {danceStyles.map((style) => (
+                <option key={style} value={style}>
+                  {common(`danceStyles.${style}`)}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3 md:gap-5">
+          <Field label={t("fields.date")} error={form.formState.errors.date?.message}>
+            <Input type="date" {...form.register("date")} />
+          </Field>
+          <Field label={t("fields.time")} error={form.formState.errors.time?.message}>
+            <Input type="time" {...form.register("time")} />
+          </Field>
+          <Field label={t("fields.price")}>
+            <Input placeholder="Q50" {...form.register("price")} />
+          </Field>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+          <Field label={t("fields.venue")} error={form.formState.errors.venue?.message}>
+            <Input placeholder="Nombre del lugar" {...form.register("venue")} />
+          </Field>
+          <Field label={t("fields.city")} error={form.formState.errors.city?.message}>
+            <Input placeholder="Ciudad" {...form.register("city")} />
+          </Field>
+        </div>
+
+        <Field label="Dirección / referencia">
+          <Input placeholder="Zona, calle, referencia" {...form.register("address")} />
         </Field>
-        <Field
-          label={t("fields.organizerName")}
-          error={form.formState.errors.organizerName?.message}
-        >
-          <Input {...form.register("organizerName")} />
+
+        <Field label={t("fields.description")}>
+          <Textarea rows={3} placeholder="Descripción del evento" {...form.register("description")} />
         </Field>
+
+        <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+          <Field label={t("fields.organizerName")}>
+            <Input placeholder="Nombre del organizador" {...form.register("organizerName")} />
+          </Field>
+          <Field label={t("fields.contactLink")}>
+            <Input placeholder="WhatsApp, web o redes" {...form.register("contactLink")} />
+          </Field>
+        </div>
       </div>
 
-      <Field
-        label={t("fields.contactLink")}
-        error={form.formState.errors.contactLink?.message}
-      >
-        <Input {...form.register("contactLink")} />
-      </Field>
-
-      {status === "error" ? (
+      {status === "error" && (
         <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 md:p-4">
           <AlertCircle className="h-4 w-4 shrink-0 text-red-500 md:h-5 md:w-5" />
-          <p className="text-xs font-medium text-red-600 md:text-sm">
-            {t("error")}
-          </p>
+          <p className="text-xs font-medium text-red-600 md:text-sm">{t("error")}</p>
         </div>
-      ) : null}
+      )}
 
       <Button
         type="submit"
         size="lg"
-        className="w-full py-3 text-sm md:w-auto md:text-base"
-        disabled={form.formState.isSubmitting}
+        className="w-full py-3 md:w-auto"
+        disabled={form.formState.isSubmitting || uploading}
       >
-        {t("cta")}
+        {uploading ? "Subiendo imagen..." : form.formState.isSubmitting ? "Enviando..." : t("cta")}
       </Button>
     </form>
   );
@@ -186,23 +330,23 @@ export function SubmitEventForm() {
 function Field({
   label,
   error,
-  children
+  children,
+  className
 }: {
   label: string;
   error?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="space-y-1.5 md:space-y-2">
+    <div className={cn("space-y-1.5 md:space-y-2", className)}>
       <Label className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-xs">
         {label}
       </Label>
       {children}
-      {error ? (
-        <p className="text-[11px] font-medium text-destructive md:text-xs">
-          {error}
-        </p>
-      ) : null}
+      {error && (
+        <p className="text-[11px] font-medium text-destructive md:text-xs">{error}</p>
+      )}
     </div>
   );
 }

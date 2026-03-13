@@ -21,16 +21,18 @@ export async function POST(request: Request) {
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase.from("event_submissions").insert({
     title: parsed.data.title,
-    description: parsed.data.description,
-    image_url: parsed.data.imageUrl,
+    description: parsed.data.description || null,
+    image_url: parsed.data.imageUrl || null,
     dance_style: parsed.data.danceStyle,
     date: parsed.data.date,
     time: parsed.data.time,
-    price_text: parsed.data.price,
+    price_text: parsed.data.price || null,
     city: parsed.data.city,
     venue_name: parsed.data.venue,
-    organizer_name: parsed.data.organizerName,
-    contact_url: parsed.data.contactLink
+    address: parsed.data.address || null,
+    organizer_name: parsed.data.organizerName || null,
+    contact_url: parsed.data.contactLink || null,
+    status: "pending"
   });
 
   if (error) {
