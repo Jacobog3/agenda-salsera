@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils/cn";
 const INTERVAL_MS = 4000;
 
 export function AutoRotateImage({
-  images,
+  images: rawImages,
   alt,
   className
 }: {
@@ -15,6 +15,7 @@ export function AutoRotateImage({
   alt: string;
   className?: string;
 }) {
+  const images = [...new Set(rawImages)];
   const [current, setCurrent] = useState(0);
 
   const advance = useCallback(() => {
@@ -42,7 +43,7 @@ export function AutoRotateImage({
     <>
       {images.map((src, i) => (
         <Image
-          key={src}
+          key={`${src}-${i}`}
           src={src}
           alt={`${alt} (${i + 1})`}
           fill

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ const defaultFields: Fields = {
 };
 
 export function SubmitAcademyForm() {
+  const f = useTranslations("forms");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState("");
@@ -98,7 +100,7 @@ export function SubmitAcademyForm() {
       });
       const json = await res.json();
       if (!res.ok || !json.data) {
-        setParseError("No se pudo extraer la información. Revisá el texto e intentá de nuevo.");
+        setParseError(f("parseFail"));
         return;
       }
       const d = json.data;
@@ -119,7 +121,7 @@ export function SubmitAcademyForm() {
         website:      d.website      || prev.website
       }));
     } catch {
-      setParseError("Error de conexión. Intentá de nuevo.");
+      setParseError(f("connectionError"));
     } finally {
       setParsing(false);
     }
@@ -156,9 +158,9 @@ export function SubmitAcademyForm() {
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
           <CheckCircle2 className="h-6 w-6 text-green-600" />
         </div>
-        <p className="font-display text-lg font-bold text-foreground">¡Recibimos tu academia!</p>
+        <p className="font-display text-lg font-bold text-foreground">{f("academySuccess")}</p>
         <p className="max-w-sm text-sm text-muted-foreground">
-          La revisaremos y la publicaremos pronto.
+          {f("academySuccessDesc")}
         </p>
       </div>
     );
@@ -170,7 +172,7 @@ export function SubmitAcademyForm() {
       {/* Step 1 — Image */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          1. Subí una imagen (logo o flyer de horario)
+          {f("step1Image")}
         </p>
         {imagePreview ? (
           <div className="relative overflow-hidden rounded-xl border border-border">
@@ -191,8 +193,8 @@ export function SubmitAcademyForm() {
             className="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-surface-soft px-4 py-8 text-center transition hover:border-brand-400 hover:bg-brand-50"
           >
             <ImagePlus className="h-8 w-8 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Subir imagen</span>
-            <span className="text-xs text-muted-foreground/60">Logo, flyer de horario, foto del estudio</span>
+            <span className="text-sm font-medium text-muted-foreground">{f("uploadImage")}</span>
+            <span className="text-xs text-muted-foreground/60">{f("uploadImageAcademy")}</span>
           </button>
         )}
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
@@ -201,11 +203,11 @@ export function SubmitAcademyForm() {
       {/* Step 2 — WhatsApp/IG text */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          2. Pegá el texto de WhatsApp o Instagram
+          {f("step2TextAcademy")}
         </p>
         <Textarea
           rows={5}
-          placeholder={"Pegá aquí la info de la academia...\n\nEj:\nGarala Dance Studio\n📍 C.C. Arkadia, zona 10\n🕐 Lunes y Miércoles 6pm · Sábados 10am\n💃 Salsa, bachata, kizomba\nNiveles: Principiante e intermedio"}
+          placeholder={f("pasteHere")}
           value={whatsappText}
           onChange={(e) => setWhatsappText(e.target.value)}
           className="resize-none font-mono text-xs"
@@ -224,57 +226,57 @@ export function SubmitAcademyForm() {
           className="gap-2"
         >
           {parsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-brand-500" />}
-          {parsing ? "Extrayendo información..." : "Autocompletar con IA"}
+          {parsing ? f("extracting") : f("autofill")}
         </Button>
       </div>
 
       {/* Step 3 — Review */}
       <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          3. Revisá y completá
+          {f("step3Review")}
         </p>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Nombre de la academia *">
+          <Field label={`${f("name")} *`}>
             <Input required value={fields.name} onChange={(e) => setField("name", e.target.value)} />
           </Field>
-          <Field label="Nombre de contacto">
+          <Field label={f("contactName")}>
             <Input value={fields.contactName} onChange={(e) => setField("contactName", e.target.value)} />
           </Field>
         </div>
 
-        <Field label="Descripción">
+        <Field label={f("description")}>
           <Textarea rows={3} value={fields.description} onChange={(e) => setField("description", e.target.value)}
-            placeholder="¿Qué enseñan? ¿Cuál es el enfoque?" />
+            placeholder={f("academyDescPlaceholder")} />
         </Field>
 
-        {/* Schedule — the most important section */}
+        {/* Schedule section */}
         <div className="rounded-xl border border-brand-100 bg-brand-50/40 p-4 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">Horarios de clases</p>
-          <Field label="Horario (días y horas)">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("scheduleLabel")}</p>
+          <Field label={f("scheduleLabel")}>
             <Input
               value={fields.scheduleText}
               onChange={(e) => setField("scheduleText", e.target.value)}
-              placeholder="Ej: Lunes y Miércoles 6pm · Sábados 10am"
+              placeholder={f("schedulePlaceholder")}
             />
           </Field>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Niveles">
+            <Field label={f("levels")}>
               <Input
                 value={fields.levels}
                 onChange={(e) => setField("levels", e.target.value)}
-                placeholder="Ej: Principiante, Intermedio, Avanzado"
+                placeholder={f("levelsPlaceholder")}
               />
             </Field>
-            <Field label="Modalidad">
+            <Field label={f("modality")}>
               <select
                 value={fields.modality}
                 onChange={(e) => setField("modality", e.target.value)}
                 className="flex h-11 w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
-                <option value="presencial">Presencial</option>
-                <option value="online">Online</option>
-                <option value="mixto">Mixto (presencial + online)</option>
+                <option value="presencial">{f("inPerson")}</option>
+                <option value="online">{f("online")}</option>
+                <option value="mixto">{f("hybrid")}</option>
               </select>
             </Field>
           </div>
@@ -285,36 +287,36 @@ export function SubmitAcademyForm() {
               onChange={(e) => setField("trialClass", e.target.checked)}
               className="h-4 w-4 rounded border-border accent-brand-600"
             />
-            <span className="text-sm text-foreground">Ofrecen clase de prueba gratuita</span>
+            <span className="text-sm text-foreground">{f("trialClass")}</span>
           </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Estilos que enseñan">
+          <Field label={f("styles")}>
             <Input value={fields.styles} onChange={(e) => setField("styles", e.target.value)}
-              placeholder="Ej: Salsa, bachata, merengue" />
+              placeholder={f("stylesPlaceholder")} />
           </Field>
-          <Field label="Ciudad *">
+          <Field label={`${f("city")} *`}>
             <Input required value={fields.city} onChange={(e) => setField("city", e.target.value)}
-              placeholder="Ej: Ciudad de Guatemala" />
+              placeholder={f("cityPlaceholder")} />
           </Field>
         </div>
 
-        <Field label="Dirección">
+        <Field label={f("address")}>
           <Input value={fields.address} onChange={(e) => setField("address", e.target.value)}
-            placeholder="Zona, mall, referencia" />
+            placeholder={f("addressPlaceholder")} />
         </Field>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <Field label="WhatsApp">
+          <Field label={f("whatsapp")}>
             <Input value={fields.whatsapp} onChange={(e) => setField("whatsapp", e.target.value)}
               placeholder="https://wa.me/502..." />
           </Field>
-          <Field label="Instagram">
+          <Field label={f("instagram")}>
             <Input value={fields.instagram} onChange={(e) => setField("instagram", e.target.value)}
               placeholder="@academia" />
           </Field>
-          <Field label="Sitio web">
+          <Field label={f("website")}>
             <Input value={fields.website} onChange={(e) => setField("website", e.target.value)}
               placeholder="https://..." />
           </Field>
@@ -324,15 +326,14 @@ export function SubmitAcademyForm() {
       {status === "error" && (
         <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3">
           <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
-          <p className="text-xs font-medium text-red-600">No se pudo enviar. Intentá de nuevo.</p>
+          <p className="text-xs font-medium text-red-600">{f("submitError")}</p>
         </div>
       )}
 
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        Al enviar este formulario aceptás que tus datos sean usados para publicar la academia en
-        ExploraGuate. Consultá nuestra{" "}
+        {f("privacyNotice")}{" "}
         <Link href="/legal/privacy" className="underline hover:text-foreground">
-          política de privacidad
+          {f("privacyLink")}
         </Link>
         .
       </p>
@@ -343,7 +344,7 @@ export function SubmitAcademyForm() {
         className="w-full py-3 md:w-auto"
         disabled={status === "submitting" || uploading}
       >
-        {uploading ? "Subiendo imagen..." : status === "submitting" ? "Enviando..." : "Enviar academia"}
+        {uploading ? f("uploading") : status === "submitting" ? f("submitting") : f("submitAcademy")}
       </Button>
     </form>
   );

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { SubmitAcademyForm } from "@/components/forms/submit-academy-form";
@@ -16,15 +17,22 @@ export async function generateMetadata({
   });
 }
 
-export default function SubmitAcademyPage() {
+export default async function SubmitAcademyPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale: locale as Locale, namespace: "submitAcademy" });
+
   return (
     <section className="page-section pb-16">
       <Container className="max-w-2xl space-y-6 md:space-y-8">
         <SectionHeading
           as="h1"
           icon={GraduationCap}
-          title="Registrar academia"
-          description="Completá el formulario y publicamos tu academia gratis. Más personas la van a encontrar."
+          title={t("pageTitle")}
+          description={t("pageDescription")}
         />
         <div className="overflow-hidden rounded-2xl border border-black/[0.04] bg-white p-5 shadow-soft md:rounded-3xl md:p-8">
           <SubmitAcademyForm />

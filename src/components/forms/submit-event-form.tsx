@@ -33,6 +33,7 @@ const danceStyles: EventSubmissionValues["danceStyle"][] = [
 
 export function SubmitEventForm() {
   const t = useTranslations("submitEvent");
+  const f = useTranslations("forms");
   const common = useTranslations("common");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [parsing, setParsing] = useState(false);
@@ -105,7 +106,7 @@ export function SubmitEventForm() {
       });
       const json = await res.json();
       if (!res.ok || !json.data) {
-        setParseError(json.error || "No se pudo extraer la información. Revisá el texto e intentá de nuevo.");
+        setParseError(json.error || f("parseFail"));
         return;
       }
       const d = json.data;
@@ -121,7 +122,7 @@ export function SubmitEventForm() {
       if (d.danceStyle) form.setValue("danceStyle", d.danceStyle);
       if (d.description) form.setValue("description", d.description);
     } catch {
-      setParseError("Error de conexión. Intentá de nuevo.");
+      setParseError(f("connectionError"));
     } finally {
       setParsing(false);
     }
@@ -160,7 +161,7 @@ export function SubmitEventForm() {
           {t("success")}
         </p>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Revisaremos tu evento y lo publicaremos pronto.
+          {f("successReview")}
         </p>
       </div>
     );
@@ -172,12 +173,12 @@ export function SubmitEventForm() {
       {/* Step 1 — Flyer image */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          1. Subí el flyer
+          {f("step1Flyer")}
         </p>
         {imagePreview ? (
           <div className="relative w-full overflow-hidden rounded-xl border border-border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imagePreview} alt="Flyer preview" className="max-h-64 w-full object-contain" />
+            <img src={imagePreview} alt="Flyer" className="max-h-64 w-full object-contain" />
             <button
               type="button"
               onClick={removeImage}
@@ -194,9 +195,9 @@ export function SubmitEventForm() {
           >
             <ImagePlus className="h-8 w-8 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">
-              Tocá para subir la imagen del flyer
+              {f("uploadImage")}
             </span>
-            <span className="text-xs text-muted-foreground/60">JPG, PNG, WEBP</span>
+            <span className="text-xs text-muted-foreground/60">{f("imageFormats")}</span>
           </button>
         )}
         <input
@@ -211,11 +212,11 @@ export function SubmitEventForm() {
       {/* Step 2 — WhatsApp text parser */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          2. Pegá el texto del evento
+          {f("step2Text")}
         </p>
         <Textarea
           rows={5}
-          placeholder={"Pegá aquí el texto de WhatsApp o Instagram...\n\nEj:\n📅 Fecha: Sábado 14 de Marzo\n📍 Lugar: ADS Zona 5\n⏰ Hora: 12:30 pm\n💰 Costo: Q50.00"}
+          placeholder={f("pasteHere")}
           value={whatsappText}
           onChange={(e) => setWhatsappText(e.target.value)}
           className="resize-none font-mono text-xs"
@@ -239,14 +240,14 @@ export function SubmitEventForm() {
           ) : (
             <Sparkles className="h-4 w-4 text-brand-500" />
           )}
-          {parsing ? "Extrayendo información..." : "Autocompletar con IA"}
+          {parsing ? f("extracting") : f("autofill")}
         </Button>
       </div>
 
       {/* Step 3 — Review fields */}
       <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          3. Revisá y completá
+          {f("step3Review")}
         </p>
 
         <div className="grid gap-4 md:grid-cols-2 md:gap-5">
@@ -278,33 +279,33 @@ export function SubmitEventForm() {
             <Input type="time" {...form.register("time")} />
           </Field>
           <Field label={t("fields.price")}>
-            <Input placeholder="Q50" {...form.register("price")} />
+            <Input placeholder={f("pricePlaceholder")} {...form.register("price")} />
           </Field>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 md:gap-5">
           <Field label={t("fields.venue")} error={form.formState.errors.venue?.message}>
-            <Input placeholder="Nombre del lugar" {...form.register("venue")} />
+            <Input placeholder={f("venuePlaceholder")} {...form.register("venue")} />
           </Field>
           <Field label={t("fields.city")} error={form.formState.errors.city?.message}>
-            <Input placeholder="Ciudad" {...form.register("city")} />
+            <Input placeholder={f("city")} {...form.register("city")} />
           </Field>
         </div>
 
-        <Field label="Dirección / referencia">
-          <Input placeholder="Zona, calle, referencia" {...form.register("address")} />
+        <Field label={f("address")}>
+          <Input placeholder={f("addressPlaceholder")} {...form.register("address")} />
         </Field>
 
         <Field label={t("fields.description")}>
-          <Textarea rows={3} placeholder="Descripción del evento" {...form.register("description")} />
+          <Textarea rows={3} placeholder={f("descriptionPlaceholder")} {...form.register("description")} />
         </Field>
 
         <div className="grid gap-4 md:grid-cols-2 md:gap-5">
           <Field label={t("fields.organizerName")}>
-            <Input placeholder="Nombre del organizador" {...form.register("organizerName")} />
+            <Input placeholder={f("organizerPlaceholder")} {...form.register("organizerName")} />
           </Field>
           <Field label={t("fields.contactLink")}>
-            <Input placeholder="WhatsApp, web o redes" {...form.register("contactLink")} />
+            <Input placeholder={f("contactPlaceholder")} {...form.register("contactLink")} />
           </Field>
         </div>
       </div>
@@ -317,10 +318,9 @@ export function SubmitEventForm() {
       )}
 
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        Al enviar este formulario aceptás que tus datos sean usados para publicar el evento en
-        ExploraGuate. Consultá nuestra{" "}
+        {f("privacyNotice")}{" "}
         <Link href="/legal/privacy" className="underline hover:text-foreground">
-          política de privacidad
+          {f("privacyLink")}
         </Link>
         .
       </p>
@@ -331,7 +331,7 @@ export function SubmitEventForm() {
         className="w-full py-3 md:w-auto"
         disabled={form.formState.isSubmitting || uploading}
       >
-        {uploading ? "Subiendo imagen..." : form.formState.isSubmitting ? "Enviando..." : t("cta")}
+        {uploading ? f("uploading") : form.formState.isSubmitting ? f("submitting") : t("cta")}
       </Button>
     </form>
   );

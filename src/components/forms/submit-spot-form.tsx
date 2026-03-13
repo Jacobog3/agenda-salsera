@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export function SubmitSpotForm() {
+  const f = useTranslations("forms");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -43,10 +46,10 @@ export function SubmitSpotForm() {
           <CheckCircle2 className="h-6 w-6 text-green-600" />
         </div>
         <p className="font-display text-lg font-bold text-foreground">
-          ¡Recibimos tu lugar!
+          {f("spotSuccess")}
         </p>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Lo revisaremos y lo publicaremos pronto. Te contactamos si necesitamos más info.
+          {f("spotSuccessDesc")}
         </p>
       </div>
     );
@@ -55,45 +58,45 @@ export function SubmitSpotForm() {
   return (
     <form className="space-y-4 md:space-y-5" onSubmit={handleSubmit}>
       <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field label="Nombre del lugar *">
+        <Field label={f("spotName")}>
           <Input name="name" required placeholder="Ej: Las Palmas, La Casbah" />
         </Field>
-        <Field label="Nombre de contacto">
-          <Input name="contact_name" placeholder="Tu nombre" />
+        <Field label={f("contactName")}>
+          <Input name="contact_name" />
         </Field>
       </div>
 
-      <Field label="Descripción">
+      <Field label={f("description")}>
         <Textarea
           name="description"
           rows={3}
-          placeholder="¿Qué tipo de música hay? ¿Qué ambiente tiene el lugar?"
+          placeholder={f("spotDescPlaceholder")}
         />
       </Field>
 
       <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field label="Ciudad *">
-          <Input name="city" required placeholder="Ej: Antigua Guatemala" />
+        <Field label={`${f("city")} *`}>
+          <Input name="city" required placeholder={f("cityPlaceholder")} />
         </Field>
-        <Field label="Dirección">
-          <Input name="address" placeholder="Zona, calle, referencia" />
-        </Field>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field label="Horario regular">
-          <Input name="schedule" placeholder="Ej: Jueves · 8 PM" />
-        </Field>
-        <Field label="Cover / Consumo mínimo">
-          <Input name="cover_charge" placeholder="Ej: Q50 o por consumo" />
+        <Field label={f("address")}>
+          <Input name="address" placeholder={f("addressPlaceholder")} />
         </Field>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-        <Field label="WhatsApp">
+        <Field label={f("spotSchedule")}>
+          <Input name="schedule" placeholder={f("spotSchedulePlaceholder")} />
+        </Field>
+        <Field label={f("spotCover")}>
+          <Input name="cover_charge" placeholder={f("spotCoverPlaceholder")} />
+        </Field>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+        <Field label={f("whatsapp")}>
           <Input name="whatsapp" placeholder="https://wa.me/502..." />
         </Field>
-        <Field label="Instagram">
+        <Field label={f("instagram")}>
           <Input name="instagram" placeholder="@lugar" />
         </Field>
       </div>
@@ -102,10 +105,18 @@ export function SubmitSpotForm() {
         <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 md:p-4">
           <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
           <p className="text-xs font-medium text-red-600">
-            No se pudo enviar. Intentá de nuevo.
+            {f("submitError")}
           </p>
         </div>
       )}
+
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
+        {f("privacyNotice")}{" "}
+        <Link href="/legal/privacy" className="underline hover:text-foreground">
+          {f("privacyLink")}
+        </Link>
+        .
+      </p>
 
       <Button
         type="submit"
@@ -113,7 +124,7 @@ export function SubmitSpotForm() {
         className="w-full py-3 md:w-auto"
         disabled={status === "submitting"}
       >
-        {status === "submitting" ? "Enviando..." : "Enviar lugar"}
+        {status === "submitting" ? f("submitting") : f("submitSpot")}
       </Button>
     </form>
   );

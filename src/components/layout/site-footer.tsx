@@ -61,7 +61,7 @@ export async function SiteFooter() {
 
               <div className="space-y-3">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                  Publicar
+                  {t("publishTitle")}
                 </p>
                 <ul className="space-y-2.5 text-sm text-gray-600">
                   <li><Link href="/submit-event" className="hover:text-brand-600 transition-colors">{navigation("submitEventLabel")}</Link></li>
@@ -72,7 +72,7 @@ export async function SiteFooter() {
 
               <div className="space-y-3">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                  Legal
+                  {t("legalTitle")}
                 </p>
                 <ul className="space-y-2.5 text-sm text-gray-600">
                   <li><Link href="/legal/terms" className="hover:text-brand-600 transition-colors">{t("terms")}</Link></li>

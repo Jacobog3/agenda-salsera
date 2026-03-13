@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { env } from "@/lib/utils/env";
 import "@/app/globals.css";
 
@@ -64,7 +63,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
-  const messages = await getMessages();
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -90,9 +88,7 @@ export default async function RootLayout({
             </Script>
           </>
         )}
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+        {children}
       </body>
     </html>
   );
