@@ -5,7 +5,7 @@ export default function GlobalNotFound() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 text-center">
       <div>
-        <p className="text-6xl font-bold text-brand-600">404</p>
+        <p className="text-4xl font-bold text-brand-600 md:text-6xl">404</p>
         <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-gray-900">
           Página no encontrada
         </h1>

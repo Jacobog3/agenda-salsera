@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <Container className="max-w-2xl">
         <div className="space-y-8">
           <div className="space-y-2 border-b border-gray-100 pb-6">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
               Política de Privacidad
             </h1>
             <p className="text-sm text-gray-400">Última actualización: marzo 2026</p>

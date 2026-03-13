@@ -47,17 +47,26 @@ export function AcademySchedule({
               {day.classes.map((cls, j) => (
                 <li
                   key={`${day.day}-${j}`}
-                  className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-4 py-3 md:flex-nowrap md:gap-4 md:px-5"
+                  className="px-3 py-2.5 sm:px-4 sm:py-3 md:px-5"
                 >
-                  <span className="w-full shrink-0 text-xs font-bold tabular-nums text-brand-700 sm:w-auto sm:min-w-[7.5rem] md:text-sm">
-                    {cls.time}
-                  </span>
-                  <span className="flex-1 text-xs font-medium text-foreground md:text-sm">
-                    {cls.name}
-                  </span>
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                    <span className="min-w-[5.5rem] shrink-0 text-[11px] font-bold tabular-nums text-brand-700 sm:min-w-[7rem] sm:text-xs md:min-w-[7.5rem] md:text-sm">
+                      {cls.time}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground sm:whitespace-normal md:text-sm">
+                      {cls.name}
+                    </span>
+                    {cls.level && (
+                      <span
+                        className={`hidden shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:inline-block md:text-xs ${getLevelColor(cls.level)}`}
+                      >
+                        {cls.level}
+                      </span>
+                    )}
+                  </div>
                   {cls.level && (
                     <span
-                      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold md:text-xs ${getLevelColor(cls.level)}`}
+                      className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:hidden ${getLevelColor(cls.level)}`}
                     >
                       {cls.level}
                     </span>

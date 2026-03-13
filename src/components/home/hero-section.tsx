@@ -32,7 +32,7 @@ export async function HeroSection({
   return (
     <section className="page-section pt-2 md:pt-6">
       <Container>
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-white to-sky-50 px-6 py-10 md:rounded-3xl md:px-14 md:py-16">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-white to-sky-50 px-4 py-8 sm:px-6 sm:py-10 md:rounded-3xl md:px-14 md:py-16">
           {/* Glow blobs */}
           <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-100/50 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-brand-50 blur-2xl" />

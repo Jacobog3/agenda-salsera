@@ -38,7 +38,7 @@ export async function SiteFooter() {
             </div>
 
             {/* Nav links */}
-            <div className="grid grid-cols-2 gap-x-12 gap-y-8 sm:grid-cols-3 md:gap-x-16">
+            <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-8 md:gap-x-12 lg:gap-x-16">
               <div className="space-y-3">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
                   {t("navigationTitle")}
