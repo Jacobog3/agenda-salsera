@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { env } from "@/lib/utils/env";
-import { routing } from "@/i18n/routing";
 import type { Locale } from "@/types/locale";
 
 type MetadataKey =
@@ -22,9 +21,22 @@ type MetadataKey =
 
 const DEFAULT_OG_IMAGE = "/images/exploraguate-logo.png";
 
+// Mirrors routing.pathnames but as a plain object to avoid importing next-intl/routing
+// in server utilities (causes RSC module-manifest issues).
+const PAGE_PATHS: Record<string, { es: string; en: string } | string> = {
+  "/": "/",
+  "/events": { es: "/eventos", en: "/events" },
+  "/spots": { es: "/lugares", en: "/spots" },
+  "/academies": { es: "/academias", en: "/academies" },
+  "/submit-event": { es: "/enviar-evento", en: "/submit-event" },
+  "/submit-academy": { es: "/enviar-academia", en: "/submit-academy" },
+  "/submit-spot": { es: "/enviar-lugar", en: "/submit-spot" },
+  "/legal/terms": { es: "/legal/terminos", en: "/legal/terms" },
+  "/legal/privacy": { es: "/legal/privacidad", en: "/legal/privacy" }
+};
+
 function getLocalizedUrl(pathname: string, locale: Locale, siteUrl: string): string {
-  const pathnames = routing.pathnames as Record<string, { es: string; en: string } | string>;
-  const entry = pathnames[pathname];
+  const entry = PAGE_PATHS[pathname];
   let localizedPath: string;
   if (!entry) {
     localizedPath = pathname;
