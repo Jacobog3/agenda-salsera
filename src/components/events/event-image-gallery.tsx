@@ -45,13 +45,13 @@ export function EventImageGallery({
 
   if (images.length === 1) {
     return (
-      <div className="overflow-hidden rounded-2xl md:rounded-3xl">
-        <div className="relative aspect-[2/1] md:aspect-[21/9]">
+      <div className="overflow-hidden rounded-2xl bg-neutral-100 md:rounded-3xl">
+        <div className="relative aspect-[3/4] md:aspect-[4/3]">
           <Image
             src={images[0]}
             alt={alt}
             fill
-            className="object-cover"
+            className="object-contain"
             priority
           />
         </div>
@@ -61,11 +61,11 @@ export function EventImageGallery({
 
   return (
     <div
-      className="overflow-hidden rounded-2xl md:rounded-3xl"
+      className="overflow-hidden rounded-2xl bg-neutral-100 md:rounded-3xl"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      <div className="relative aspect-[2/1] md:aspect-[21/9]">
+      <div className="relative aspect-[3/4] md:aspect-[4/3]">
         {images.map((src, i) => (
           <Image
             key={src}
@@ -73,7 +73,7 @@ export function EventImageGallery({
             alt={`${alt} (${i + 1}/${images.length})`}
             fill
             className={cn(
-              "object-cover transition-opacity duration-500",
+              "object-contain transition-opacity duration-500",
               i === current ? "opacity-100" : "opacity-0"
             )}
             priority={i === 0}
