@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/shared/container";
+import { Mail } from "lucide-react";
 
 export async function SiteFooter() {
   const navigation = await getTranslations("navigation");
@@ -8,96 +10,89 @@ export async function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-black/[0.04] bg-white/60 py-8 md:py-12">
-      <Container className="space-y-6 md:space-y-8">
-        <div className="grid gap-6 md:grid-cols-[1.4fr_0.7fr_0.8fr] md:gap-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-[11px] font-bold text-white">
-                EG
-              </span>
-              <p className="font-display text-lg font-bold text-foreground">
-                Exploraguate
+    <footer className="border-t border-gray-100 bg-white">
+      <Container>
+        {/* Main content */}
+        <div className="py-10 md:py-14">
+          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+
+            {/* Brand block */}
+            <div className="max-w-xs space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-9 overflow-hidden rounded-full">
+                  <Image
+                    src="/images/exploraguate-icon.png"
+                    alt="ExploraGuate"
+                    width={80}
+                    height={80}
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
+                <p className="font-display text-lg font-bold leading-none tracking-normal">
+                  <span className="text-gray-900">Explora</span>
+                  <span className="text-brand-600">Guate</span>
+                </p>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-500">
+                {t("description")}
               </p>
+              <a
+                href="mailto:info@exploraguate.com"
+                className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-brand-600"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                info@exploraguate.com
+              </a>
             </div>
-            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              {t("description")}
-            </p>
-          </div>
 
-          <div className="space-y-3 text-sm">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              {t("navigationTitle")}
-            </p>
-            <div className="flex flex-col gap-2.5 text-foreground/70">
-              <Link href="/" className="transition-colors hover:text-brand-600">
-                {navigation("home")}
-              </Link>
-              <Link href="/events" className="transition-colors hover:text-brand-600">
-                {navigation("events")}
-              </Link>
-              <Link href="/spots" className="transition-colors hover:text-brand-600">
-                {navigation("spots")}
-              </Link>
-              <Link href="/academies" className="transition-colors hover:text-brand-600">
-                {navigation("academies")}
-              </Link>
-              <Link href="/submit-event" className="transition-colors hover:text-brand-600">
-                {navigation("submitEvent")}
-              </Link>
-            </div>
-          </div>
+            {/* Nav links */}
+            <div className="grid grid-cols-2 gap-x-12 gap-y-8 sm:grid-cols-3 md:gap-x-16">
+              <div className="space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                  {t("navigationTitle")}
+                </p>
+                <ul className="space-y-2.5 text-sm text-gray-600">
+                  <li><Link href="/" className="hover:text-brand-600 transition-colors">{navigation("home")}</Link></li>
+                  <li><Link href="/events" className="hover:text-brand-600 transition-colors">{navigation("events")}</Link></li>
+                  <li><Link href="/spots" className="hover:text-brand-600 transition-colors">{navigation("spots")}</Link></li>
+                  <li><Link href="/academies" className="hover:text-brand-600 transition-colors">{navigation("academies")}</Link></li>
+                </ul>
+              </div>
 
-          <div className="space-y-3 text-sm">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              {t("contactTitle")}
-            </p>
-            <div className="flex flex-col gap-2.5 text-foreground/70">
-              <a
-                href="mailto:hola@exploraguate.com"
-                className="transition-colors hover:text-brand-600"
-              >
-                hola@exploraguate.com
-              </a>
-              <a
-                href="https://instagram.com/exploraguate"
-                target="_blank"
-                rel="noreferrer"
-                className="transition-colors hover:text-brand-600"
-              >
-                Instagram
-              </a>
-              <a
-                href="https://wa.me/50200000000"
-                target="_blank"
-                rel="noreferrer"
-                className="transition-colors hover:text-brand-600"
-              >
-                WhatsApp
-              </a>
+              <div className="space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                  Publicar
+                </p>
+                <ul className="space-y-2.5 text-sm text-gray-600">
+                  <li><Link href="/submit-event" className="hover:text-brand-600 transition-colors">{navigation("submitEventLabel")}</Link></li>
+                  <li><Link href="/submit-academy" className="hover:text-brand-600 transition-colors">{navigation("submitAcademyLabel")}</Link></li>
+                  <li><Link href="/submit-spot" className="hover:text-brand-600 transition-colors">{navigation("submitSpotLabel")}</Link></li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                  Legal
+                </p>
+                <ul className="space-y-2.5 text-sm text-gray-600">
+                  <li><Link href="/legal/terms" className="hover:text-brand-600 transition-colors">{t("terms")}</Link></li>
+                  <li><Link href="/legal/privacy" className="hover:text-brand-600 transition-colors">{t("privacy")}</Link></li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-black/[0.04] pt-4 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:pt-6">
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
-            <p>{t("rights", { year })}</p>
-            <div className="flex gap-3">
-              <Link href="/legal/terms" className="underline-offset-2 hover:text-foreground hover:underline">
-                {t("terms")}
-              </Link>
-              <Link href="/legal/privacy" className="underline-offset-2 hover:text-foreground hover:underline">
-                {t("privacy")}
-              </Link>
-            </div>
-          </div>
+        {/* Bottom bar */}
+        <div className="flex flex-col gap-2 border-t border-gray-100 py-5 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} ExploraGuate — {t("madeFor")}</p>
           <p>
             {t("developedBy")}{" "}
             <a
               href="https://guatcloud.com"
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-foreground/60 transition-colors hover:text-brand-600"
+              className="font-semibold text-gray-500 transition-colors hover:text-brand-600"
             >
               GuatCloud
             </a>

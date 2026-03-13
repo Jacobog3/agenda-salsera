@@ -1,6 +1,6 @@
-import SpotsPage, {
+import AcademiesPage, {
   generateMetadata as generateLocalizedMetadata
-} from "@/app/[locale]/(public)/spots/page";
+} from "@/app/[locale]/(public)/academies/page";
 
 export function generateMetadata() {
   return generateLocalizedMetadata({
@@ -9,7 +9,5 @@ export function generateMetadata() {
 }
 
 export default function Page() {
-  return SpotsPage({
-    params: Promise.resolve({ locale: "es" })
-  });
+  return AcademiesPage({ params: Promise.resolve({ locale: "es" }) });
 }

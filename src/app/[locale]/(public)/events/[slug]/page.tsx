@@ -5,9 +5,90 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { getEventBySlug } from "@/lib/queries/events";
+import { buildEventMetadata } from "@/lib/metadata/build-metadata";
 import { formatCurrency, formatEventDateTime } from "@/lib/utils/formatters";
 import { Calendar, MapPin, User, Banknote } from "lucide-react";
+import { env } from "@/lib/utils/env";
 import type { Locale } from "@/types/locale";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const event = await getEventBySlug(locale as Locale, slug);
+  if (!event) return {};
+  return buildEventMetadata(event, locale as Locale);
+}
+
+function EventJsonLd({ event, siteUrl, locale }: {
+  event: {
+    title: string;
+    description: string;
+    coverImageUrl: string;
+    slug: string;
+    venueName: string;
+    address?: string | null;
+    city: string;
+    startsAt: string;
+    priceAmount?: number | null;
+    currency: string;
+    organizerName: string;
+  };
+  siteUrl: string;
+  locale: Locale;
+}) {
+  const eventUrl = locale === "es"
+    ? `${siteUrl}/eventos/${event.slug}`
+    : `${siteUrl}/en/events/${event.slug}`;
+
+  const ogImage = event.coverImageUrl.startsWith("http")
+    ? event.coverImageUrl
+    : `${siteUrl}${event.coverImageUrl}`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    description: event.description,
+    url: eventUrl,
+    image: ogImage,
+    startDate: event.startsAt,
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: {
+      "@type": "Place",
+      name: event.venueName,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: event.address ?? event.venueName,
+        addressLocality: event.city,
+        addressCountry: "GT"
+      }
+    },
+    organizer: {
+      "@type": "Organization",
+      name: event.organizerName
+    },
+    ...(event.priceAmount != null && {
+      offers: {
+        "@type": "Offer",
+        price: event.priceAmount,
+        priceCurrency: event.currency,
+        availability: "https://schema.org/InStock",
+        url: eventUrl
+      }
+    })
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
 
 export default async function EventDetailPage({
   params
@@ -16,14 +97,8 @@ export default async function EventDetailPage({
 }) {
   const { locale, slug } = await params;
   const currentLocale = locale as Locale;
-  const t = await getTranslations({
-    locale: currentLocale,
-    namespace: "events"
-  });
-  const common = await getTranslations({
-    locale: currentLocale,
-    namespace: "common"
-  });
+  const t = await getTranslations({ locale: currentLocale, namespace: "events" });
+  const common = await getTranslations({ locale: currentLocale, namespace: "common" });
   const event = await getEventBySlug(currentLocale, slug);
 
   if (!event) {
@@ -32,6 +107,8 @@ export default async function EventDetailPage({
 
   return (
     <>
+      <EventJsonLd event={event} siteUrl={env.siteUrl} locale={currentLocale} />
+
       <section className="page-section pb-24 md:pb-16">
         <Container>
           <div className="overflow-hidden rounded-2xl md:rounded-3xl">
@@ -41,6 +118,7 @@ export default async function EventDetailPage({
                 alt={event.title}
                 fill
                 className="object-cover"
+                priority
               />
             </div>
           </div>
@@ -64,20 +142,12 @@ export default async function EventDetailPage({
                 <InfoRow icon={MapPin} label={common("location")}>
                   <span>{event.venueName}</span>
                   {event.address ? (
-                    <span className="block text-muted-foreground">
-                      {event.address}
-                    </span>
+                    <span className="block text-muted-foreground">{event.address}</span>
                   ) : null}
-                  <span className="block text-muted-foreground">
-                    {event.city}
-                  </span>
+                  <span className="block text-muted-foreground">{event.city}</span>
                 </InfoRow>
                 <InfoRow icon={Banknote} label={common("price")}>
-                  {formatCurrency(
-                    event.priceAmount,
-                    event.currency,
-                    currentLocale
-                  )}
+                  {formatCurrency(event.priceAmount, event.currency, currentLocale)}
                 </InfoRow>
                 <InfoRow icon={User} label={common("organizer")}>
                   {event.organizerName}

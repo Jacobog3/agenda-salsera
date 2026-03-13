@@ -2,19 +2,21 @@
 
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Home, CalendarDays, MapPinned, GraduationCap } from "lucide-react";
+import { Home, CalendarDays, MapPinned, GraduationCap, Plus } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
 
 type NavItem = {
-  href: "/" | "/events" | "/spots" | "/academies";
+  href: "/" | "/events" | "/spots" | "/academies" | "/submit-event";
   icon: typeof Home;
   labelKey: string;
+  action?: boolean;
 };
 
 const navItems: NavItem[] = [
   { href: "/", icon: Home, labelKey: "home" },
   { href: "/events", icon: CalendarDays, labelKey: "events" },
+  { href: "/submit-event", icon: Plus, labelKey: "submitEvent", action: true },
   { href: "/spots", icon: MapPinned, labelKey: "spots" },
   { href: "/academies", icon: GraduationCap, labelKey: "academies" },
 ];
@@ -24,6 +26,7 @@ const aliases: Record<string, string[]> = {
   "/events": ["/events", "/eventos"],
   "/spots": ["/spots", "/lugares"],
   "/academies": ["/academies", "/academias"],
+  "/submit-event": ["/submit-event", "/enviar-evento"],
 };
 
 function isActiveRoute(href: string, pathname: string): boolean {
@@ -49,12 +52,25 @@ export function BottomNav() {
         {navItems.map((item) => {
           const active = isActiveRoute(item.href, pathname);
           const Icon = item.icon;
+
+          if (item.action) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative -mt-4 flex h-14 w-14 flex-col items-center justify-center rounded-full bg-brand-600 shadow-lg shadow-brand-600/30 transition-all active:scale-90"
+              >
+                <Icon className="h-6 w-6 text-white" strokeWidth={2.5} />
+              </Link>
+            );
+          }
+
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 rounded-2xl px-5 py-1.5 text-[11px] font-medium transition-all active:scale-90",
+                "relative flex flex-col items-center gap-0.5 rounded-2xl px-4 py-1.5 text-[11px] font-medium transition-all active:scale-90",
                 active ? "text-brand-600" : "text-muted-foreground"
               )}
             >

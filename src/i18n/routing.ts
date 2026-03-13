@@ -34,6 +34,14 @@ export const routing = defineRouting({
       es: "/enviar-evento",
       en: "/submit-event"
     },
+    "/submit-academy": {
+      es: "/enviar-academia",
+      en: "/submit-academy"
+    },
+    "/submit-spot": {
+      es: "/enviar-lugar",
+      en: "/submit-spot"
+    },
     "/legal/terms": {
       es: "/legal/terminos",
       en: "/legal/terms"

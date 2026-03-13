@@ -11,6 +11,23 @@ const nextConfig: NextConfig = {
         hostname: "**"
       }
     ]
+  },
+  async redirects() {
+    return [
+      // Redirect root domain traffic to salsa subdomain
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "exploraguate.com" }],
+        destination: "https://salsa.exploraguate.com/:path*",
+        permanent: true
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.exploraguate.com" }],
+        destination: "https://salsa.exploraguate.com/:path*",
+        permanent: true
+      }
+    ];
   }
 };
 

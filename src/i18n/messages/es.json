@@ -41,7 +41,15 @@
     "spots": "Lugares",
     "academies": "Academias",
     "submitEvent": "Enviar evento",
-    "switchLanguage": "Cambiar idioma"
+    "switchLanguage": "Cambiar idioma",
+    "publish": "Publicar",
+    "publishWhat": "¿Qué querés publicar?",
+    "submitEventLabel": "Evento",
+    "submitEventDesc": "Concierto, social, taller o clase especial",
+    "submitAcademyLabel": "Academia",
+    "submitAcademyDesc": "Escuela o academia de baile",
+    "submitSpotLabel": "Bar / Lugar",
+    "submitSpotDesc": "Lugar donde hay salsa o bachata seguido"
   },
   "footer": {
     "description": "Agenda simple para descubrir eventos, sociales y academias de salsa y bachata en Guatemala.",
@@ -56,8 +64,12 @@
   "home": {
     "eyebrow": "Agenda salsa y bachata en Guatemala",
     "title": "Encuentra dónde bailar esta semana",
+    "heroSubtitle": "Eventos, lugares y academias de salsa y bachata en Guatemala. Todo en un solo lugar.",
     "primaryCta": "Ver agenda",
-    "secondaryCta": "Ver academias",
+    "secondaryCta": "Explorar lugares",
+    "filterToday": "Hoy",
+    "filterWeekend": "Próximos 7 días",
+    "filterMonth": "Próximos 30 días",
     "heroListTitle": "Próximo en agenda",
     "quickPills": {
       "capital": "Ciudad de Guatemala",
@@ -69,8 +81,11 @@
     "eventsTitle": "Agenda",
     "spotsTitle": "Lugares para bailar",
     "academiesTitle": "Academias",
-    "submitTitle": "¿Organizas un evento?",
-    "submitDescription": "Publícalo en minutos para que más personas lo encuentren.",
+    "submitTitle": "¿Querés publicar algo?",
+    "submitDescription": "Publicá tu evento, academia o bar en minutos. Más personas lo van a encontrar.",
+    "submitEventShort": "Publicar evento",
+    "submitAcademyShort": "Publicar academia",
+    "submitSpotShort": "Publicar bar / lugar",
     "highlightsTitle": "Exploración clara desde el celular",
     "highlights": {
       "events": "Eventos próximos",

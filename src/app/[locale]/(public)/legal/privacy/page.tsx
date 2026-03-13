@@ -1,101 +1,145 @@
 import { Container } from "@/components/shared/container";
 
 export const metadata = {
-  title: "Privacy Policy | Exploraguate",
+  title: "Política de Privacidad | ExploraGuate",
   robots: { index: true, follow: true }
 };
 
 export default function PrivacyPage() {
   return (
-    <section className="page-section">
-      <Container className="prose prose-sm mx-auto max-w-2xl text-foreground/80 prose-headings:text-foreground">
-        <h1>Privacy Policy</h1>
-        <p>Last updated: March 10, 2026</p>
+    <section className="page-section pb-16">
+      <Container className="max-w-2xl">
+        <div className="space-y-8">
+          <div className="space-y-2 border-b border-gray-100 pb-6">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-gray-900">
+              Política de Privacidad
+            </h1>
+            <p className="text-sm text-gray-400">Última actualización: marzo 2026</p>
+          </div>
 
-        <h2>1. Data Controller</h2>
-        <p>
-          This website is operated by <strong>GuatCloud</strong>. For any
-          privacy-related inquiries, contact us at{" "}
-          <a href="mailto:hola@exploraguate.com">hola@exploraguate.com</a>.
-        </p>
+          <LegalSection title="1. Responsable del tratamiento">
+            Este Sitio es operado por <strong>GuatCloud</strong>. Para consultas de
+            privacidad escribinos a{" "}
+            <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
+              info@exploraguate.com
+            </a>.
+          </LegalSection>
 
-        <h2>2. Information We Collect</h2>
-        <h3>2.1 Automatically Collected</h3>
-        <ul>
-          <li>
-            <strong>Analytics data:</strong> We use Google Analytics 4 to
-            collect anonymous usage data such as pages visited, session
-            duration, device type, and approximate geographic location. No
-            personally identifiable information is collected through analytics.
-          </li>
-          <li>
-            <strong>Cookies:</strong> We use essential cookies for site
-            functionality (e.g., language preference). Analytics cookies are
-            set by Google Analytics.
-          </li>
-        </ul>
+          <LegalSection title="2. Información que recopilamos">
+            <div className="space-y-4">
+              <div>
+                <p className="font-semibold text-gray-700">2.1 Recopilada automáticamente</p>
+                <ul className="mt-2 list-disc space-y-1.5 pl-5">
+                  <li>
+                    <strong>Analítica:</strong> Usamos Google Analytics 4 para recopilar datos
+                    anónimos de uso (páginas visitadas, duración de sesión, tipo de dispositivo,
+                    ubicación geográfica aproximada). No se recopila información personal
+                    identificable a través de analítica.
+                  </li>
+                  <li>
+                    <strong>Cookies:</strong> Usamos cookies esenciales para funcionalidad del
+                    Sitio (preferencia de idioma). Las cookies de analítica son configuradas por
+                    Google Analytics.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700">2.2 Proporcionada voluntariamente</p>
+                <ul className="mt-2 list-disc space-y-1.5 pl-5">
+                  <li>
+                    <strong>Envío de eventos:</strong> Al enviar un evento, recopilamos la
+                    información que proporcionás (título, descripción, fecha, lugar, nombre del
+                    organizador, enlace de contacto). Esta información se usa únicamente para
+                    publicar el evento en el Sitio.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </LegalSection>
 
-        <h3>2.2 Voluntarily Provided</h3>
-        <ul>
-          <li>
-            <strong>Event submissions:</strong> When you submit an event, we
-            collect the event details you provide (title, description, date,
-            venue, organizer name, contact link). This information is used
-            solely to publish the event on the Site.
-          </li>
-        </ul>
+          <LegalSection title="3. Contenido de fuentes públicas">
+            <p>
+              ExploraGuate recopila y publica información de eventos culturales y de baile
+              proveniente de publicaciones públicas en redes sociales como Instagram,
+              Facebook, WhatsApp y otras plataformas, realizadas por organizadores,
+              academias y locales de entretenimiento.
+            </p>
+            <p className="mt-3">
+              Esta información es de acceso público y no incluye datos personales de
+              usuarios privados. ExploraGuate la utiliza con fines informativos y culturales.
+              Si deseás solicitar la remoción de contenido, podés escribirnos a{" "}
+              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
+                info@exploraguate.com
+              </a>.
+            </p>
+          </LegalSection>
 
-        <h2>3. How We Use Your Information</h2>
-        <ul>
-          <li>To display and curate dance event information</li>
-          <li>To improve the Site through anonymous usage analytics</li>
-          <li>To respond to inquiries or event submissions</li>
-        </ul>
+          <LegalSection title="4. Uso de la información">
+            <ul className="list-disc space-y-1.5 pl-5">
+              <li>Publicar y curar información de eventos de baile</li>
+              <li>Mejorar el Sitio mediante analítica anónima</li>
+              <li>Responder consultas y solicitudes de envío de eventos</li>
+            </ul>
+          </LegalSection>
 
-        <h2>4. Data Sharing</h2>
-        <p>
-          We do not sell, trade, or otherwise transfer your personal
-          information to third parties. Event details submitted for
-          publication are displayed publicly on the Site as intended by the
-          submitter.
-        </p>
+          <LegalSection title="5. Compartición de datos">
+            No vendemos, comercializamos ni transferimos tu información personal a
+            terceros. Los datos de eventos enviados para publicación se muestran
+            públicamente en el Sitio según la intención del remitente.
+          </LegalSection>
 
-        <h2>5. Data Storage</h2>
-        <p>
-          Event and site data is stored on secure cloud infrastructure
-          (Supabase and Vercel). We take reasonable measures to protect your
-          information, but no internet transmission is 100% secure.
-        </p>
+          <LegalSection title="6. Almacenamiento de datos">
+            Los datos del Sitio se almacenan en infraestructura segura en la nube
+            (Supabase y Vercel). Tomamos medidas razonables para proteger tu información,
+            pero ninguna transmisión por internet es 100% segura.
+          </LegalSection>
 
-        <h2>6. Your Rights</h2>
-        <p>You may:</p>
-        <ul>
-          <li>Request deletion of any event content you have submitted</li>
-          <li>
-            Opt out of analytics tracking by using browser extensions such as
-            Google Analytics Opt-out
-          </li>
-          <li>Clear cookies through your browser settings</li>
-        </ul>
+          <LegalSection title="7. Tus derechos">
+            Podés:
+            <ul className="mt-2 list-disc space-y-1.5 pl-5">
+              <li>Solicitar la eliminación de contenido de evento que hayas enviado</li>
+              <li>Optar por no ser rastreado desactivando las cookies en tu navegador</li>
+              <li>
+                Usar la extensión oficial de Google para desactivar Google Analytics:{" "}
+                <a
+                  href="https://tools.google.com/dlpage/gaoptout"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-brand-600 hover:underline"
+                >
+                  Google Analytics Opt-out
+                </a>
+              </li>
+            </ul>
+          </LegalSection>
 
-        <h2>7. Children&apos;s Privacy</h2>
-        <p>
-          The Site is not directed at children under 13. We do not knowingly
-          collect information from children.
-        </p>
+          <LegalSection title="8. Privacidad de menores">
+            El Sitio no está dirigido a menores de 13 años. No recopilamos
+            conscientemente información de menores.
+          </LegalSection>
 
-        <h2>8. Changes to This Policy</h2>
-        <p>
-          We may update this Privacy Policy from time to time. Changes will be
-          posted on this page with an updated revision date.
-        </p>
+          <LegalSection title="9. Cambios a esta política">
+            Podemos actualizar esta Política de Privacidad. Los cambios se publicarán
+            en esta página con la fecha de revisión actualizada.
+          </LegalSection>
 
-        <h2>9. Contact</h2>
-        <p>
-          For questions about this Privacy Policy, contact us at{" "}
-          <a href="mailto:hola@exploraguate.com">hola@exploraguate.com</a>.
-        </p>
+          <LegalSection title="10. Contacto">
+            Para consultas sobre privacidad escribinos a{" "}
+            <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
+              info@exploraguate.com
+            </a>.
+          </LegalSection>
+        </div>
       </Container>
     </section>
+  );
+}
+
+function LegalSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <h2 className="text-base font-bold text-gray-900">{title}</h2>
+      <div className="text-sm leading-relaxed text-gray-600">{children}</div>
+    </div>
   );
 }

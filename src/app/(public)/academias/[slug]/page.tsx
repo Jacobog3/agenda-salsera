@@ -6,8 +6,5 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  return AcademyDetailPage({
-    params: Promise.resolve({ locale: "es", slug })
-  });
+  return AcademyDetailPage({ params: Promise.resolve({ locale: "es", slug }) });
 }

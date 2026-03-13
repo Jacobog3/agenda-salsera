@@ -1,88 +1,110 @@
 import { Container } from "@/components/shared/container";
 
 export const metadata = {
-  title: "Terms of Use | Exploraguate",
+  title: "Términos de Uso | ExploraGuate",
   robots: { index: true, follow: true }
 };
 
 export default function TermsPage() {
   return (
-    <section className="page-section">
-      <Container className="prose prose-sm mx-auto max-w-2xl text-foreground/80 prose-headings:text-foreground">
-        <h1>Terms of Use</h1>
-        <p>Last updated: March 10, 2026</p>
+    <section className="page-section pb-16">
+      <Container className="max-w-2xl">
+        <div className="space-y-8">
+          <div className="space-y-2 border-b border-gray-100 pb-6">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-gray-900">
+              Términos de Uso
+            </h1>
+            <p className="text-sm text-gray-400">Última actualización: marzo 2026</p>
+          </div>
 
-        <h2>1. Acceptance of Terms</h2>
-        <p>
-          By accessing and using <strong>exploraguate.com</strong> (the
-          &quot;Site&quot;), operated by GuatCloud, you agree to be bound by
-          these Terms of Use. If you do not agree, please do not use the Site.
-        </p>
+          <LegalSection title="1. Aceptación de los términos">
+            Al acceder y usar <strong>salsa.exploraguate.com</strong> (el &quot;Sitio&quot;),
+            operado por GuatCloud, aceptás quedar sujeto a estos Términos de Uso.
+            Si no estás de acuerdo, por favor no uses el Sitio.
+          </LegalSection>
 
-        <h2>2. Description of the Service</h2>
-        <p>
-          Exploraguate provides a curated agenda and directory of salsa, bachata,
-          and Latin dance events, venues (&quot;Spots&quot;), and academies in
-          Guatemala. The content is informational and intended to help users
-          discover dance-related activities.
-        </p>
+          <LegalSection title="2. Descripción del servicio">
+            ExploraGuate es una agenda y directorio de eventos, lugares y academias de
+            salsa, bachata y baile latino en Guatemala. El contenido es informativo y
+            tiene como fin ayudar a la comunidad a descubrir actividades de baile.
+          </LegalSection>
 
-        <h2>3. User-Submitted Content</h2>
-        <p>
-          Users may submit event information through the Site. By submitting
-          content you represent that the information is accurate and that you
-          have the right to share it. GuatCloud reserves the right to review,
-          edit, or remove any submitted content at its sole discretion.
-        </p>
+          <LegalSection title="3. Uso de información de publicaciones públicas">
+            <p>
+              Parte del contenido publicado en este Sitio proviene de publicaciones
+              realizadas públicamente en redes sociales como Instagram, Facebook,
+              WhatsApp y otras plataformas similares por organizadores de eventos,
+              academias y locales de entretenimiento.
+            </p>
+            <p className="mt-3">
+              Dicha información es de acceso público y es utilizada únicamente con
+              fines informativos y de difusión cultural, sin fines comerciales directos
+              sobre el contenido de terceros. ExploraGuate no se atribuye autoría de
+              flyers, imágenes ni descripciones originales de terceros.
+            </p>
+            <p className="mt-3">
+              Si sos propietario de contenido publicado en este Sitio y deseás que sea
+              removido o modificado, podés contactarnos a{" "}
+              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
+                info@exploraguate.com
+              </a>{" "}
+              y atenderemos tu solicitud a la brevedad.
+            </p>
+          </LegalSection>
 
-        <h2>4. Intellectual Property</h2>
-        <p>
-          All original content, design, and code on the Site are owned by
-          GuatCloud. Event flyers and promotional images remain the property of
-          their respective creators and are displayed solely for informational
-          purposes.
-        </p>
+          <LegalSection title="4. Contenido enviado por usuarios">
+            Los usuarios pueden enviar información de eventos a través del Sitio. Al
+            hacerlo, confirmás que la información es veraz y que tenés derecho a
+            compartirla. GuatCloud se reserva el derecho de revisar, editar o eliminar
+            cualquier contenido enviado a su sola discreción.
+          </LegalSection>
 
-        <h2>5. Third-Party Links</h2>
-        <p>
-          The Site may contain links to third-party websites, including social
-          media profiles and ticket platforms. GuatCloud is not responsible for
-          the content, privacy practices, or availability of those external
-          sites.
-        </p>
+          <LegalSection title="5. Propiedad intelectual">
+            El diseño, código y contenido original del Sitio son propiedad de
+            GuatCloud. Los flyers e imágenes de eventos pertenecen a sus respectivos
+            creadores y se muestran únicamente con fines informativos.
+          </LegalSection>
 
-        <h2>6. Disclaimer of Warranties</h2>
-        <p>
-          The Site and its content are provided &quot;as is&quot; without
-          warranties of any kind. GuatCloud does not guarantee the accuracy,
-          completeness, or timeliness of event information. Event details
-          (dates, prices, venues) are subject to change by the organizers.
-        </p>
+          <LegalSection title="6. Exactitud de la información">
+            ExploraGuate no garantiza la exactitud, integridad ni vigencia de la
+            información de eventos. Las fechas, precios y lugares son sujetos a cambios
+            por parte de los organizadores. Recomendamos verificar los detalles directamente
+            con el organizador antes de asistir.
+          </LegalSection>
 
-        <h2>7. Limitation of Liability</h2>
-        <p>
-          GuatCloud shall not be liable for any direct, indirect, incidental,
-          or consequential damages arising from your use of the Site or
-          reliance on any information provided.
-        </p>
+          <LegalSection title="7. Limitación de responsabilidad">
+            GuatCloud no será responsable por daños directos, indirectos, incidentales
+            o consecuentes derivados del uso del Sitio o de la confianza en la
+            información publicada.
+          </LegalSection>
 
-        <h2>8. Changes to Terms</h2>
-        <p>
-          GuatCloud may update these Terms at any time. Continued use of the
-          Site after changes constitutes acceptance of the revised Terms.
-        </p>
+          <LegalSection title="8. Cambios a los términos">
+            GuatCloud puede actualizar estos Términos en cualquier momento. El uso
+            continuado del Sitio tras los cambios implica la aceptación de los Términos
+            revisados.
+          </LegalSection>
 
-        <h2>9. Governing Law</h2>
-        <p>
-          These Terms are governed by the laws of the Republic of Guatemala.
-        </p>
+          <LegalSection title="9. Ley aplicable">
+            Estos Términos se rigen por las leyes de la República de Guatemala.
+          </LegalSection>
 
-        <h2>10. Contact</h2>
-        <p>
-          For questions about these Terms, contact us at{" "}
-          <a href="mailto:hola@exploraguate.com">hola@exploraguate.com</a>.
-        </p>
+          <LegalSection title="10. Contacto">
+            Para consultas sobre estos Términos, escribinos a{" "}
+            <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
+              info@exploraguate.com
+            </a>.
+          </LegalSection>
+        </div>
       </Container>
     </section>
+  );
+}
+
+function LegalSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <h2 className="text-base font-bold text-gray-900">{title}</h2>
+      <div className="text-sm leading-relaxed text-gray-600">{children}</div>
+    </div>
   );
 }

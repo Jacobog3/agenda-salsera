@@ -41,7 +41,15 @@
     "spots": "Spots",
     "academies": "Academies",
     "submitEvent": "Submit event",
-    "switchLanguage": "Switch language"
+    "switchLanguage": "Switch language",
+    "publish": "Publish",
+    "publishWhat": "What do you want to publish?",
+    "submitEventLabel": "Event",
+    "submitEventDesc": "Concert, social, workshop or special class",
+    "submitAcademyLabel": "Academy",
+    "submitAcademyDesc": "Dance school or academy",
+    "submitSpotLabel": "Bar / Venue",
+    "submitSpotDesc": "Place with regular salsa or bachata nights"
   },
   "footer": {
     "description": "A simple agenda to discover salsa and bachata events, socials, and academies in Guatemala.",
@@ -56,8 +64,12 @@
   "home": {
     "eyebrow": "Salsa and bachata agenda in Guatemala",
     "title": "Find where to dance this week",
+    "heroSubtitle": "Events, venues, and academies for salsa and bachata in Guatemala. All in one place.",
     "primaryCta": "View agenda",
-    "secondaryCta": "View academies",
+    "secondaryCta": "Explore spots",
+    "filterToday": "Today",
+    "filterWeekend": "Next 7 days",
+    "filterMonth": "Next 30 days",
     "heroListTitle": "Next on the agenda",
     "quickPills": {
       "capital": "Guatemala City",
@@ -69,8 +81,11 @@
     "eventsTitle": "Agenda",
     "spotsTitle": "Dance spots",
     "academiesTitle": "Academies",
-    "submitTitle": "Do you organize an event?",
-    "submitDescription": "Publish it in minutes so more people can find it.",
+    "submitTitle": "Want to publish something?",
+    "submitDescription": "Publish your event, academy or venue in minutes. More people will find it.",
+    "submitEventShort": "Publish event",
+    "submitAcademyShort": "Publish academy",
+    "submitSpotShort": "Publish bar / venue",
     "highlightsTitle": "Clear mobile-first discovery",
     "highlights": {
       "events": "Upcoming events",

@@ -1,6 +1,6 @@
-import SubmitEventPage, {
+import HomePage, {
   generateMetadata as generateLocalizedMetadata
-} from "@/app/[locale]/(public)/submit-event/page";
+} from "@/app/[locale]/(public)/page";
 
 export function generateMetadata() {
   return generateLocalizedMetadata({
@@ -9,7 +9,5 @@ export function generateMetadata() {
 }
 
 export default function Page() {
-  return SubmitEventPage({
-    params: Promise.resolve({ locale: "es" })
-  });
+  return HomePage({ params: Promise.resolve({ locale: "es" }) });
 }
