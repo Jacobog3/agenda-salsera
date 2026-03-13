@@ -196,6 +196,9 @@
   },
   "notFound": {
     "title": "Página no encontrada",
-    "description": "Lo que buscas no está disponible o fue movido."
+    "description": "Lo que buscas no está disponible o fue movido.",
+    "backHome": "Ir al inicio",
+    "browseEvents": "Ver eventos",
+    "browseSpots": "Ver lugares"
   }
 }

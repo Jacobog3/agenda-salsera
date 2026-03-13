@@ -196,6 +196,9 @@
   },
   "notFound": {
     "title": "Page not found",
-    "description": "The content you are looking for is not available or was moved."
+    "description": "The content you are looking for is not available or was moved.",
+    "backHome": "Go to home",
+    "browseEvents": "Browse events",
+    "browseSpots": "Browse spots"
   }
 }
