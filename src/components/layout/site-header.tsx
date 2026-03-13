@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
-import { Home, CalendarDays, MapPinned, GraduationCap } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { SubmitDropdown } from "@/components/layout/submit-dropdown";
@@ -10,12 +9,12 @@ import { Container } from "@/components/shared/container";
 export async function SiteHeader() {
   const t = await getTranslations("navigation");
 
-  const navItems = [
-    { href: "/" as const, icon: Home, label: t("home") },
-    { href: "/events" as const, icon: CalendarDays, label: t("events") },
-    { href: "/spots" as const, icon: MapPinned, label: t("spots") },
-    { href: "/academies" as const, icon: GraduationCap, label: t("academies") }
-  ];
+  const labels = {
+    home:      t("home"),
+    events:    t("events"),
+    spots:     t("spots"),
+    academies: t("academies")
+  };
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-200 bg-white">
@@ -42,7 +41,7 @@ export async function SiteHeader() {
           </Link>
 
           {/* Nav — desktop only with active state, mobile uses bottom nav */}
-          <DesktopNav items={navItems} />
+          <DesktopNav labels={labels} />
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-2">

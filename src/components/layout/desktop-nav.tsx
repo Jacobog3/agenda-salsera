@@ -6,16 +6,25 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
 import type { LucideIcon } from "lucide-react";
 
+type NavKey = "home" | "events" | "spots" | "academies";
+
 type NavItem = {
+  key: NavKey;
   href: "/" | "/events" | "/spots" | "/academies";
   icon: LucideIcon;
-  label: string;
 };
 
+const NAV_ITEMS: NavItem[] = [
+  { key: "home",      href: "/",          icon: Home },
+  { key: "events",    href: "/events",    icon: CalendarDays },
+  { key: "spots",     href: "/spots",     icon: MapPinned },
+  { key: "academies", href: "/academies", icon: GraduationCap }
+];
+
 const aliases: Record<string, string[]> = {
-  "/": ["/"],
-  "/events": ["/events", "/eventos"],
-  "/spots": ["/spots", "/lugares"],
+  "/":          ["/"],
+  "/events":    ["/events",    "/eventos"],
+  "/spots":     ["/spots",     "/lugares"],
   "/academies": ["/academies", "/academias"]
 };
 
@@ -26,12 +35,12 @@ function isActive(href: string, pathname: string): boolean {
   return paths.some((p) => normalized === p || normalized.startsWith(p + "/"));
 }
 
-export function DesktopNav({ items }: { items: NavItem[] }) {
+export function DesktopNav({ labels }: { labels: Record<NavKey, string> }) {
   const pathname = usePathname();
 
   return (
     <nav className="hidden flex-1 items-center justify-center gap-0.5 md:flex">
-      {items.map(({ href, icon: Icon, label }) => {
+      {NAV_ITEMS.map(({ key, href, icon: Icon }) => {
         const active = isActive(href, pathname);
         return (
           <Link
@@ -48,7 +57,7 @@ export function DesktopNav({ items }: { items: NavItem[] }) {
               className="h-4 w-4 shrink-0"
               strokeWidth={active ? 2.2 : 1.8}
             />
-            {label}
+            {labels[key]}
           </Link>
         );
       })}
