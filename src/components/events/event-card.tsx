@@ -66,7 +66,7 @@ export async function EventCard({
             {event.title}
           </h3>
 
-          <div className="flex items-center justify-between gap-2 text-xs md:mt-auto md:text-sm">
+          <div className="flex flex-col gap-1 text-xs md:mt-auto md:flex-row md:items-center md:justify-between md:gap-2 md:text-sm">
             <span className="flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
               <span className="line-clamp-1">

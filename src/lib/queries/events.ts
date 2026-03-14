@@ -49,12 +49,12 @@ export async function getEvents(
     ? await fetchSupabaseEvents()
     : sampleEvents;
 
-  const now = new Date();
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
 
   return records
     .filter((event) => {
-      // Always exclude past events
-      if (new Date(event.startsAt) < now) return false;
+      if (new Date(event.startsAt) < todayStart) return false;
 
       if (filters?.city && filters.city !== "all" && event.city !== filters.city) {
         return false;
@@ -70,7 +70,7 @@ export async function getEvents(
 
       if (filters?.dateRangeInDays && filters.dateRangeInDays !== "all") {
         const limit = new Date();
-        limit.setDate(now.getDate() + Number(filters.dateRangeInDays));
+        limit.setDate(todayStart.getDate() + Number(filters.dateRangeInDays));
         if (new Date(event.startsAt) > limit) return false;
       }
 
@@ -96,7 +96,7 @@ async function fetchSupabaseEvents(): Promise<EventRecord[]> {
     .from("events")
     .select("*")
     .eq("is_published", true)
-    .gte("starts_at", new Date().toISOString())
+    .gte("starts_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString())
     .order("starts_at", { ascending: true });
 
   if (error) {
