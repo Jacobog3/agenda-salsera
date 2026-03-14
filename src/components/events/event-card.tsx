@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { AutoRotateImage } from "@/components/events/auto-rotate-image";
 import { MapPin } from "lucide-react";
-import { formatCurrency, formatEventDate, formatEventDateRange } from "@/lib/utils/formatters";
+import { formatCardPrice, formatEventDate, formatEventDateRange } from "@/lib/utils/formatters";
 import type { LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
@@ -74,7 +74,7 @@ export async function EventCard({
               </span>
             </span>
             <span className="shrink-0 font-semibold text-brand-600">
-              {event.priceText ?? formatCurrency(event.priceAmount, event.currency, locale)}
+              {formatCardPrice(event.priceText, event.priceAmount, event.currency, locale)}
             </span>
           </div>
         </div>

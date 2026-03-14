@@ -1,87 +1,83 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
-import { MapPin, Clock, ArrowRight } from "lucide-react";
+import { MapPin, Clock, ChevronDown, Banknote } from "lucide-react";
 import type { LocalizedSpot } from "@/types/spot";
 
-export async function SpotCard({ spot }: { spot: LocalizedSpot }) {
-  const t = await getTranslations("common");
-
-  const socialLinks = [
-    spot.whatsappUrl
-      ? { href: spot.whatsappUrl, label: t("whatsapp") }
-      : null,
-    spot.instagramUrl
-      ? { href: spot.instagramUrl, label: t("instagram") }
-      : null
-  ].filter(Boolean) as Array<{ href: string; label: string }>;
+export function SpotCard({ spot }: { spot: LocalizedSpot }) {
+  const [open, setOpen] = useState(false);
+  const t = useTranslations("common");
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden bg-white">
-      <div className="relative flex aspect-[2/1] items-center justify-center overflow-hidden bg-surface-soft md:aspect-[3/2]">
-        <Image
-          src={spot.coverImageUrl}
-          alt={spot.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+    <Card className="overflow-hidden bg-white">
+      {/* Collapsed row — always visible */}
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center gap-3 p-2.5 text-left transition-colors hover:bg-surface-soft/40 md:gap-4 md:p-3"
+      >
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-soft md:h-16 md:w-16">
+          <Image
+            src={spot.coverImageUrl}
+            alt={spot.name}
+            fill
+            className="object-cover"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-display text-sm font-bold tracking-tight text-foreground md:text-base">
+            {spot.name}
+          </h3>
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground md:text-xs">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="truncate">{spot.city}</span>
+          </span>
+        </div>
+
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
-      </div>
+      </button>
 
-      <div className="flex flex-1 flex-col gap-1.5 p-3 md:gap-3 md:p-5">
-        <h3 className="font-display text-base font-bold leading-snug tracking-tight text-foreground md:text-xl">
-          {spot.name}
-        </h3>
+      {/* Expanded details */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="overflow-hidden">
+          <div className="space-y-2 border-t border-border/60 px-3 pb-3 pt-2.5 md:px-4 md:pb-4 md:pt-3">
+            {spot.schedule && (
+              <div className="flex items-start gap-2 text-xs text-muted-foreground md:text-sm">
+                <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>{spot.schedule}</span>
+              </div>
+            )}
 
-        <span className="flex items-center gap-1 text-xs text-muted-foreground md:text-sm">
-          <Clock className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
-          {spot.schedule}
-        </span>
+            {spot.address && (
+              <div className="flex items-start gap-2 text-xs text-muted-foreground md:text-sm">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>{spot.address} · {spot.city}</span>
+              </div>
+            )}
 
-        <span className="flex items-center gap-1 text-xs text-muted-foreground md:text-sm">
-          <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
-          {spot.address ? `${spot.address} · ` : ""}
-          {spot.city}
-        </span>
+            {spot.coverCharge && (
+              <div className="flex items-start gap-2 text-xs md:text-sm">
+                <Banknote className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-600" />
+                <span className="font-medium text-brand-600">
+                  {t("coverCharge")}: {spot.coverCharge}
+                </span>
+              </div>
+            )}
 
-        {spot.coverCharge && (
-          <p className="text-xs font-medium text-brand-600 md:text-sm">
-            {t("coverCharge")}: {spot.coverCharge}
-          </p>
-        )}
-
-        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground md:text-sm">
-          {spot.description}
-        </p>
-
-        <div className="mt-auto flex items-end justify-between gap-3 pt-1 md:pt-2">
-          {socialLinks.length > 0 ? (
-            <div className="flex flex-wrap gap-1 md:gap-1.5">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full border border-border bg-surface-soft/80 px-2 py-1 text-[10px] font-semibold text-foreground/70 transition-colors hover:border-brand-500 hover:text-brand-600 md:px-3 md:py-1.5 md:text-xs"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          ) : (
-            <div />
-          )}
-          <Link
-            href={{
-              pathname: "/spots/[slug]",
-              params: { slug: spot.slug }
-            }}
-            className="flex shrink-0 items-center gap-1 text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 md:text-sm"
-          >
-            {t("learnMore")}
-            <ArrowRight className="h-3 w-3 md:h-3.5 md:w-3.5" />
-          </Link>
+            {spot.description && (
+              <p className="text-xs leading-relaxed text-muted-foreground md:text-sm">
+                {spot.description}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </Card>

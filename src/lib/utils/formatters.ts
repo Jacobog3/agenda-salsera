@@ -53,3 +53,34 @@ export function formatCurrency(
     maximumFractionDigits: 0
   }).format(amount);
 }
+
+/**
+ * For listing cards: if priceText has multiple prices separated by `·`,
+ * extract the lowest number and return "Desde Q[min]" / "From Q[min]".
+ * Falls back to the full priceText or formatted priceAmount.
+ */
+export function formatCardPrice(
+  priceText: string | null | undefined,
+  priceAmount: number | null | undefined,
+  currency: string,
+  locale: Locale
+): string {
+  if (!priceText) {
+    return formatCurrency(priceAmount, currency, locale);
+  }
+
+  const segments = priceText.split(/[·|/\n]/).map((s) => s.trim()).filter(Boolean);
+  if (segments.length <= 1) return priceText;
+
+  const numbers = priceText.match(/\d+/g);
+  if (!numbers || numbers.length === 0) return priceText;
+
+  const min = Math.min(...numbers.map(Number));
+  const formatted = new Intl.NumberFormat(locale === "es" ? "es-GT" : "en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0
+  }).format(min);
+
+  return locale === "es" ? `Desde ${formatted}` : `From ${formatted}`;
+}

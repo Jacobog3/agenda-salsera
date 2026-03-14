@@ -143,7 +143,18 @@ export default async function EventDetailPage({
                   <span className="block text-muted-foreground">{event.city}</span>
                 </InfoRow>
                 <InfoRow icon={Banknote} label={common("price")}>
-                  {event.priceText ?? formatCurrency(event.priceAmount, event.currency, currentLocale)}
+                  {event.priceText && event.priceText.includes("·") ? (
+                    <div className="space-y-1">
+                      {event.priceText.split("·").map((segment, i) => (
+                        <p key={i} className="flex items-baseline gap-1.5">
+                          <span className="inline-block h-1 w-1 shrink-0 translate-y-[-1px] rounded-full bg-brand-400" />
+                          {segment.trim()}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    event.priceText ?? formatCurrency(event.priceAmount, event.currency, currentLocale)
+                  )}
                 </InfoRow>
                 <InfoRow icon={User} label={common("organizer")}>
                   {event.organizerName}
