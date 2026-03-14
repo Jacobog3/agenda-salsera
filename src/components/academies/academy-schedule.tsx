@@ -1,20 +1,6 @@
 import { CalendarDays } from "lucide-react";
 import type { ScheduleDay } from "@/types/academy";
 
-const LEVEL_COLORS: Record<string, string> = {
-  "básico": "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "principiante": "bg-sky-50 text-sky-700 border-sky-200",
-  "intermedio": "bg-amber-50 text-amber-700 border-amber-200",
-  "avanzado": "bg-rose-50 text-rose-700 border-rose-200",
-  "principiante / intermedio": "bg-sky-50 text-sky-700 border-sky-200",
-  "intermedio / avanzado": "bg-amber-50 text-amber-700 border-amber-200",
-};
-
-function getLevelColor(level: string): string {
-  const normalized = level.toLowerCase().trim();
-  return LEVEL_COLORS[normalized] ?? "bg-gray-50 text-gray-600 border-gray-200";
-}
-
 export function AcademySchedule({
   schedule,
   title
@@ -37,43 +23,34 @@ export function AcademySchedule({
             key={day.day}
             className="overflow-hidden rounded-xl border border-border bg-white shadow-sm"
           >
-            <div className="border-b border-border bg-brand-600 px-4 py-2 md:px-5">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+            <div className="border-b border-border bg-muted/60 px-4 py-2 md:px-5">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-brand-700">
                 {day.day}
               </h3>
             </div>
 
-            <ul className="divide-y divide-border/40">
+            <div className="divide-y divide-border/30">
               {day.classes.map((cls, j) => (
-                <li
+                <div
                   key={`${day.day}-${j}`}
-                  className="px-3 py-2.5 sm:px-4 sm:py-3 md:px-5"
+                  className="grid grid-cols-[5rem_1fr_auto] items-center gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_1fr_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_1fr_auto] md:gap-4 md:px-5 md:text-sm"
                 >
-                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-                    <span className="min-w-[5.5rem] shrink-0 text-[11px] font-bold tabular-nums text-brand-700 sm:min-w-[7rem] sm:text-xs md:min-w-[7.5rem] md:text-sm">
-                      {cls.time}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground sm:whitespace-normal md:text-sm">
-                      {cls.name}
-                    </span>
-                    {cls.level && (
-                      <span
-                        className={`hidden shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:inline-block md:text-xs ${getLevelColor(cls.level)}`}
-                      >
-                        {cls.level}
-                      </span>
-                    )}
-                  </div>
-                  {cls.level && (
-                    <span
-                      className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:hidden ${getLevelColor(cls.level)}`}
-                    >
+                  <span className="font-semibold tabular-nums text-muted-foreground">
+                    {cls.time}
+                  </span>
+                  <span className="min-w-0 truncate font-medium text-foreground sm:whitespace-normal">
+                    {cls.name}
+                  </span>
+                  {cls.level ? (
+                    <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 md:text-xs">
                       {cls.level}
                     </span>
+                  ) : (
+                    <span />
                   )}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         ))}
       </div>

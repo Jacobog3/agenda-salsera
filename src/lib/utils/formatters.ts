@@ -56,8 +56,8 @@ export function formatCurrency(
 
 /**
  * For listing cards: if priceText has multiple price segments,
- * find the one with the lowest numeric value and show "Desde [segment]".
- * Preserves original currency symbols from the text (Q, $, USD, etc.).
+ * find the lowest actual price (preceded by Q, $ or currency symbol)
+ * and show "Desde [price]". Only matches currency-prefixed numbers.
  */
 export function formatCardPrice(
   priceText: string | null | undefined,
@@ -72,19 +72,24 @@ export function formatCardPrice(
   const segments = priceText.split(/[·|\-\n]/).map((s) => s.trim()).filter(Boolean);
   if (segments.length <= 1) return priceText;
 
+  const pricePattern = /[Q$]\s*[\d,]+/g;
   let lowestValue = Infinity;
-  let lowestSegment = segments[0];
+  let lowestMatch = "";
 
   for (const seg of segments) {
-    const nums = seg.match(/[\d,]+/g);
-    if (!nums) continue;
-    const val = Math.min(...nums.map((n) => Number(n.replace(/,/g, ""))));
-    if (val < lowestValue) {
-      lowestValue = val;
-      lowestSegment = seg;
+    const prices = seg.match(pricePattern);
+    if (!prices) continue;
+    for (const p of prices) {
+      const val = Number(p.replace(/[^0-9]/g, ""));
+      if (val < lowestValue) {
+        lowestValue = val;
+        lowestMatch = p.trim();
+      }
     }
   }
 
+  if (lowestValue === Infinity) return priceText;
+
   const prefix = locale === "es" ? "Desde" : "From";
-  return `${prefix} ${lowestSegment}`;
+  return `${prefix} ${lowestMatch}`;
 }

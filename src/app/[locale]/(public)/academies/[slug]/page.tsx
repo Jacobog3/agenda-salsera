@@ -2,7 +2,6 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/shared/container";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { EventCard } from "@/components/events/event-card";
@@ -70,7 +69,7 @@ export default async function AcademyDetailPage({
 
   return (
     <>
-      <section className="page-section pb-24 md:pb-16">
+      <section className="page-section">
         <Container>
 
           {/* ── Facebook-style header ── */}
@@ -260,25 +259,6 @@ export default async function AcademyDetailPage({
                 </div>
               )}
 
-              {/* Primary CTA — prioritize WhatsApp > Instagram > Website */}
-              {(() => {
-                const cta = academy.whatsappUrl
-                  ? { href: academy.whatsappUrl, label: t("writeOnWhatsApp"), icon: <WhatsAppIcon className="h-4 w-4" /> }
-                  : academy.instagramUrl
-                    ? { href: academy.instagramUrl, label: t("viewOnInstagram"), icon: <InstagramIcon className="h-4 w-4" /> }
-                    : academy.websiteUrl
-                      ? { href: academy.websiteUrl, label: t("visitWebsite"), icon: <Globe className="h-4 w-4" /> }
-                      : null;
-                if (!cta) return null;
-                return (
-                  <Button asChild size="lg" className="w-full gap-2">
-                    <a href={cta.href} target="_blank" rel="noreferrer">
-                      {cta.icon}
-                      {cta.label}
-                    </a>
-                  </Button>
-                );
-              })()}
             </aside>
           </div>
 
@@ -298,25 +278,6 @@ export default async function AcademyDetailPage({
         </Container>
       </section>
 
-      {/* Mobile sticky CTA */}
-      {(() => {
-        const cta = academy.whatsappUrl
-          ? { href: academy.whatsappUrl, label: t("writeOnWhatsApp"), icon: <WhatsAppIcon className="h-4 w-4" /> }
-          : academy.instagramUrl
-            ? { href: academy.instagramUrl, label: t("viewOnInstagram"), icon: <InstagramIcon className="h-4 w-4" /> }
-            : null;
-        if (!cta) return null;
-        return (
-          <div className="fixed inset-x-0 bottom-[76px] z-30 border-t border-black/[0.06] bg-white/95 p-3 backdrop-blur-xl md:hidden">
-            <Button asChild size="lg" className="w-full gap-2">
-              <a href={cta.href} target="_blank" rel="noreferrer">
-                {cta.icon}
-                {cta.label}
-              </a>
-            </Button>
-          </div>
-        );
-      })()}
     </>
   );
 }
