@@ -42,7 +42,7 @@ export default async function AcademiesPage({
           <LastUpdatedBadge date={lastUpdated} locale={currentLocale} />
         </div>
         {academies.length ? (
-          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+          <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
             {academies.map((academy) => (
               <AcademyCard key={academy.id} academy={academy} />
             ))}

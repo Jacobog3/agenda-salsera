@@ -54,7 +54,7 @@ export default async function EventsPage({
           <FilterBar />
         </Suspense>
         {events.length ? (
-          <div className="grid gap-3 md:grid-cols-2 md:gap-6">
+          <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
             {events.map((event) => (
               <EventCard
                 key={event.id}
