@@ -29,7 +29,7 @@ export function SpotCard({ spot }: { spot: LocalizedSpot }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-display text-sm font-bold tracking-tight text-foreground md:text-base">
+          <h3 className="font-display text-sm font-bold leading-snug tracking-tight text-foreground md:text-base">
             {spot.name}
           </h3>
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground md:text-xs">

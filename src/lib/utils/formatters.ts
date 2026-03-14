@@ -55,9 +55,9 @@ export function formatCurrency(
 }
 
 /**
- * For listing cards: if priceText has multiple prices separated by `·`,
- * extract the lowest number and return "Desde Q[min]" / "From Q[min]".
- * Falls back to the full priceText or formatted priceAmount.
+ * For listing cards: if priceText has multiple price segments,
+ * find the one with the lowest numeric value and show "Desde [segment]".
+ * Preserves original currency symbols from the text (Q, $, USD, etc.).
  */
 export function formatCardPrice(
   priceText: string | null | undefined,
@@ -69,18 +69,22 @@ export function formatCardPrice(
     return formatCurrency(priceAmount, currency, locale);
   }
 
-  const segments = priceText.split(/[·|/\n]/).map((s) => s.trim()).filter(Boolean);
+  const segments = priceText.split(/[·|\-\n]/).map((s) => s.trim()).filter(Boolean);
   if (segments.length <= 1) return priceText;
 
-  const numbers = priceText.match(/\d+/g);
-  if (!numbers || numbers.length === 0) return priceText;
+  let lowestValue = Infinity;
+  let lowestSegment = segments[0];
 
-  const min = Math.min(...numbers.map(Number));
-  const formatted = new Intl.NumberFormat(locale === "es" ? "es-GT" : "en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0
-  }).format(min);
+  for (const seg of segments) {
+    const nums = seg.match(/[\d,]+/g);
+    if (!nums) continue;
+    const val = Math.min(...nums.map((n) => Number(n.replace(/,/g, ""))));
+    if (val < lowestValue) {
+      lowestValue = val;
+      lowestSegment = seg;
+    }
+  }
 
-  return locale === "es" ? `Desde ${formatted}` : `From ${formatted}`;
+  const prefix = locale === "es" ? "Desde" : "From";
+  return `${prefix} ${lowestSegment}`;
 }
