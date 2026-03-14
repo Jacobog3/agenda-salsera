@@ -7,13 +7,48 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Clock, ChevronDown, Banknote } from "lucide-react";
 import type { LocalizedSpot } from "@/types/spot";
 
-export function SpotCard({ spot }: { spot: LocalizedSpot }) {
+export function SpotCard({
+  spot,
+  expandable = false
+}: {
+  spot: LocalizedSpot;
+  expandable?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("common");
 
+  if (!expandable) {
+    return (
+      <Card className="group flex flex-row overflow-hidden bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98]">
+        <div className="relative w-[88px] shrink-0 self-stretch overflow-hidden bg-surface-soft md:w-[104px]">
+          <Image
+            src={spot.coverImageUrl}
+            alt={spot.name}
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="flex flex-1 flex-col justify-center gap-1 p-3 md:gap-1.5 md:p-4">
+          <h3 className="font-display text-sm font-bold leading-snug tracking-tight text-foreground md:text-base">
+            {spot.name}
+          </h3>
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground md:text-xs">
+            <MapPin className="h-3 w-3 shrink-0" />
+            {spot.city}
+          </span>
+          {spot.schedule && (
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground md:text-xs">
+              <Clock className="h-3 w-3 shrink-0" />
+              <span className="line-clamp-1">{spot.schedule}</span>
+            </span>
+          )}
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="overflow-hidden bg-white">
-      {/* Collapsed row — always visible */}
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -34,7 +69,7 @@ export function SpotCard({ spot }: { spot: LocalizedSpot }) {
           </h3>
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground md:text-xs">
             <MapPin className="h-3 w-3 shrink-0" />
-            <span className="truncate">{spot.city}</span>
+            {spot.city}
           </span>
         </div>
 
@@ -43,7 +78,6 @@ export function SpotCard({ spot }: { spot: LocalizedSpot }) {
         />
       </button>
 
-      {/* Expanded details */}
       <div
         className={`grid transition-[grid-template-rows] duration-200 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >

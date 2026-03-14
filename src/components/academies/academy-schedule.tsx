@@ -33,12 +33,12 @@ export function AcademySchedule({
               {day.classes.map((cls, j) => (
                 <div
                   key={`${day.day}-${j}`}
-                  className="grid grid-cols-[5rem_1fr_auto] items-center gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_1fr_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_1fr_auto] md:gap-4 md:px-5 md:text-sm"
+                  className="grid grid-cols-[5rem_1fr_auto] items-start gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_1fr_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_1fr_auto] md:gap-4 md:px-5 md:text-sm"
                 >
-                  <span className="font-semibold tabular-nums text-muted-foreground">
+                  <span className="pt-px font-semibold tabular-nums text-muted-foreground">
                     {cls.time}
                   </span>
-                  <span className="min-w-0 truncate font-medium text-foreground sm:whitespace-normal">
+                  <span className="min-w-0 font-medium text-foreground">
                     {cls.name}
                   </span>
                   {cls.level ? (

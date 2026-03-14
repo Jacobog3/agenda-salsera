@@ -44,7 +44,7 @@ export default async function SpotsPage({
         {spots.length ? (
           <div className="grid gap-3 md:grid-cols-2 md:gap-5">
             {spots.map((spot) => (
-              <SpotCard key={spot.id} spot={spot} />
+              <SpotCard key={spot.id} spot={spot} expandable />
             ))}
           </div>
         ) : (

@@ -82,7 +82,7 @@ export async function getEvents(
 
 export async function getFeaturedEvents(locale: Locale) {
   const events = await getEvents(locale);
-  return events.filter((event) => event.isFeatured).slice(0, 3);
+  return events.slice(0, 4);
 }
 
 export async function getEventBySlug(locale: Locale, slug: string) {

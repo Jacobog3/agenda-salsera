@@ -54,7 +54,7 @@ export default async function HomePage({
                 <Link href="/events">{common("viewAll")}</Link>
               </Button>
             </div>
-            <div className="grid gap-3 md:grid-cols-2 md:gap-6">
+            <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
               {events.map((event) => (
                 <EventCard
                   key={event.id}
@@ -76,7 +76,7 @@ export default async function HomePage({
                 <Link href="/spots">{common("viewAll")}</Link>
               </Button>
             </div>
-            <div className="grid gap-3 md:grid-cols-2 md:gap-5">
+            <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
               {spots.map((spot) => (
                 <SpotCard key={spot.id} spot={spot} />
               ))}
@@ -94,7 +94,7 @@ export default async function HomePage({
                 <Link href="/academies">{common("viewAll")}</Link>
               </Button>
             </div>
-            <div className="grid gap-3 md:grid-cols-2 md:gap-5">
+            <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
               {academies.map((academy) => (
                 <AcademyCard key={academy.id} academy={academy} />
               ))}
