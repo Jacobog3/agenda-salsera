@@ -42,6 +42,8 @@ export function AdminEventForm() {
   const [contactUrl, setContactUrl] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
 
+  const hasFlyerSource = Boolean(imageUrl.trim() || file);
+
   const handleFileSelect = useCallback((selectedFile: File) => {
     setFile(selectedFile);
     setImageUrl("");
@@ -56,20 +58,31 @@ export function AdminEventForm() {
     setPriceAmount(lowestPrice === null ? "" : String(lowestPrice));
   }
 
+  async function uploadSelectedFile() {
+    if (!file) return "";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Upload failed");
+    }
+
+    const nextImageUrl = String(data.url ?? "").trim();
+    setImageUrl(nextImageUrl);
+    return nextImageUrl;
+  }
+
   async function handleUpload() {
     if (!file) return;
     setUploading(true);
     setErrorMsg("");
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setImageUrl(data.url);
+      await uploadSelectedFile();
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -100,6 +113,8 @@ export function AdminEventForm() {
       if (d.description)   setDescriptionEs(d.description);
       if (d.date)          setDate(d.date);
       if (d.time)          setTime(d.time);
+      if (d.endDate)       setEndDate(d.endDate);
+      if (d.endTime)       setEndTime(d.endTime);
       if (d.price)         syncPriceFields(d.price);
       if (d.venue)         setVenueName(d.venue);
       if (d.city)          setCity(d.city);
@@ -149,7 +164,22 @@ export function AdminEventForm() {
         throw new Error("La fecha final no puede ser anterior a la fecha inicial");
       }
 
-      const finalImageUrl = imageUrl || "";
+      if (!hasFlyerSource) {
+        throw new Error("El flyer principal es obligatorio.");
+      }
+
+      let finalImageUrl = imageUrl.trim();
+      if (!finalImageUrl && file) {
+        setUploading(true);
+        finalImageUrl = await uploadSelectedFile();
+        setUploading(false);
+      }
+
+      if (!finalImageUrl) {
+        throw new Error("No se pudo obtener la imagen principal del evento.");
+      }
+
+      const resolvedEndDate = endDate || (endTime ? date : "");
 
       const res = await fetch("/api/admin/events", {
         method: "POST",
@@ -165,7 +195,7 @@ export function AdminEventForm() {
           venue_name: venueName,
           address: address || null,
           starts_at: `${date}T${time || "20:00"}:00-06:00`,
-          ends_at: endDate ? `${endDate}T${endTime || time || "20:00"}:00-06:00` : null,
+          ends_at: resolvedEndDate ? `${resolvedEndDate}T${endTime || time || "20:00"}:00-06:00` : null,
           price_amount: priceAmount ? Number(priceAmount) : null,
           price_text: priceText || null,
           currency: "GTQ",
@@ -186,6 +216,7 @@ export function AdminEventForm() {
         err instanceof Error ? err.message : "Error al crear el evento"
       );
     } finally {
+      setUploading(false);
       setSubmitting(false);
     }
   }
@@ -195,7 +226,7 @@ export function AdminEventForm() {
       {/* Image upload */}
       <div className="space-y-3">
         <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Flyer del evento
+          Flyer del evento *
         </label>
         <div
           className="relative flex min-h-[180px] cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-surface-soft/50 transition-colors hover:border-brand-400"
@@ -474,7 +505,7 @@ export function AdminEventForm() {
         type="submit"
         size="lg"
         className="w-full md:w-auto"
-        disabled={submitting || !titleEs || !date || !city || !venueName}
+        disabled={submitting || uploading || !titleEs || !date || !city || !venueName || !hasFlyerSource}
       >
         {submitting ? (
           <>

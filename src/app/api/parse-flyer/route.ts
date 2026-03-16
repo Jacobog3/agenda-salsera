@@ -8,8 +8,10 @@ const EVENT_PROMPT = `You are an assistant that extracts structured event data f
 
 Extract the following fields and return ONLY a valid JSON object with these exact keys:
 - title: event name (string)
-- date: date in YYYY-MM-DD format using year 2026 if not specified (string)
+- date: start date in YYYY-MM-DD format using year 2026 if not specified (string)
+- endDate: end date in YYYY-MM-DD format; if the flyer shows an explicit end time on the same day, use the same date value as date (string)
 - time: primary start time in HH:MM 24h format; if multiple sessions exist on the same day, use the earliest start time (string)
+- endTime: latest end time in HH:MM 24h format when the flyer provides one; if multiple sessions exist on the same day, use the latest ending time (string)
 - venue: venue/place name only, not the full address (string)
 - area: zone, mall, neighborhood, district, or short area reference such as "Zona 10", "Cayala", "Arkadia", or "Novicentro" (string)
 - address: full address or location details (string)
@@ -18,12 +20,14 @@ Extract the following fields and return ONLY a valid JSON object with these exac
 - organizerName: organizer or instructor name (string)
 - contactLink: phone number, WhatsApp link, or website URL for tickets (string)
 - danceStyle: one of "salsa", "bachata", "salsa_bachata", "other" based on event content (string)
-- description: 1-2 sentence summary of the event in Spanish. Mention multiple workshop blocks briefly if they are part of the flyer (string)
+- description: informative 2-4 sentence description in Spanish using concrete details from the flyer/text (string)
 
 Rules:
 - If a field cannot be determined, use empty string ""
 - Combine information from both the text and the flyer image when both are provided
 - Prefer explicit information from the flyer image for venue names, times, and location details
+- Keep important concrete details in description when available: workshop names, levels, instructors, key price structure, venue reference, parking, or capacity notes
+- Do not over-summarize the description into a vague generic blurb
 - For danceStyle: use "other" for cumbia, merengue, kizomba, etc.
 - For city: if text mentions "zona [number]" without city, use "Guatemala"
 - For venue vs area vs address:

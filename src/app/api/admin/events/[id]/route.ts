@@ -20,6 +20,29 @@ export async function PATCH(
   ], { force: forceAutoTranslate });
   const supabase = createSupabaseAdminClient();
 
+  const { data: existing, error: existingError } = await supabase
+    .from("events")
+    .select("cover_image_url")
+    .eq("id", id)
+    .single();
+
+  if (existingError) {
+    return NextResponse.json({ error: existingError.message }, { status: 500 });
+  }
+
+  const finalCoverImageUrl = String(
+    body.cover_image_url ?? existing?.cover_image_url ?? ""
+  ).trim();
+
+  if (!finalCoverImageUrl) {
+    return NextResponse.json(
+      { error: "El flyer principal es obligatorio." },
+      { status: 400 }
+    );
+  }
+
+  body.cover_image_url = finalCoverImageUrl;
+
   const { error } = await supabase
     .from("events")
     .update(body)

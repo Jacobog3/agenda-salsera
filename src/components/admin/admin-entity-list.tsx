@@ -272,6 +272,7 @@ export function AdminEntityList({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"active" | "expired">("active");
@@ -302,17 +303,20 @@ export function AdminEntityList({
     }
     setEditingId(item.id as string);
     setEditData(data);
+    setSaveError("");
     setDeleteConfirm(null);
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditData({});
+    setSaveError("");
   }
 
   async function saveEdit(forceAutoTranslate = false) {
     if (!editingId) return;
     setSaving(true);
+    setSaveError("");
     try {
       const payload = Object.fromEntries(
         fields.map((field) => [field.key, editData[field.key]])
@@ -361,7 +365,12 @@ export function AdminEntityList({
       if (res.ok) {
         setItems((prev) => prev.map((it) => (it.id === editingId ? { ...it, ...payload } : it)));
         cancelEdit();
+      } else {
+        const json = await res.json().catch(() => ({}));
+        setSaveError(String(json.error || "No se pudo guardar los cambios."));
       }
+    } catch {
+      setSaveError("No se pudo guardar los cambios.");
     } finally {
       setSaving(false);
     }
@@ -603,7 +612,11 @@ export function AdminEntityList({
                       );
                     })}
 
-                    <div className="flex gap-2 border-t border-gray-100 pt-3">
+                    <div className="border-t border-gray-100 pt-3">
+                      {saveError ? (
+                        <p className="mb-3 text-xs font-medium text-red-600">{saveError}</p>
+                      ) : null}
+                      <div className="flex gap-2">
                       <Button size="sm" onClick={() => saveEdit(false)} disabled={saving} className="gap-1.5">
                         {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                         Guardar
@@ -618,6 +631,7 @@ export function AdminEntityList({
                         <X className="h-3.5 w-3.5" />
                         Cancelar
                       </Button>
+                      </div>
                     </div>
                   </div>
                 )}

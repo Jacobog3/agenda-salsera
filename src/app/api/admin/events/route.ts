@@ -47,6 +47,13 @@ export async function POST(request: NextRequest) {
     { sourceKey: "description_es", targetKey: "description_en", label: "Event description" }
   ]);
 
+  if (!body.cover_image_url || !String(body.cover_image_url).trim()) {
+    return NextResponse.json(
+      { error: "El flyer principal es obligatorio." },
+      { status: 400 }
+    );
+  }
+
   if (!body.title_es || !body.city || !body.venue_name || !body.starts_at) {
     return NextResponse.json(
       { error: "Missing required fields: title, city, venue, date" },
