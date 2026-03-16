@@ -4,25 +4,32 @@ import { env } from "@/lib/utils/env";
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
-const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages or flyer text about dance events in Guatemala.
+const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages, captions, and flyer images about dance events in Guatemala.
 
 Extract the following fields and return ONLY a valid JSON object with these exact keys:
 - title: event name (string)
 - date: date in YYYY-MM-DD format using year 2026 if not specified (string)
-- time: start time in HH:MM 24h format (string)
+- time: primary start time in HH:MM 24h format; if multiple sessions exist on the same day, use the earliest start time (string)
 - venue: venue/place name only, not the full address (string)
+- area: zone, mall, neighborhood, district, or short area reference such as "Zona 10", "Cayala", "Arkadia", or "Novicentro" (string)
 - address: full address or location details (string)
 - city: city name, default "Guatemala" if zone number mentioned (string)
-- price: ALL prices as-is separated by " - " e.g. "Preventa Q50 - Puerta Q75" or "Full Pass Q1,160/$145 - 1 Taller Q260/$35 - Sociales Q160/$20" or "Gratis" (string)
+- price: ALL price options in a compact readable string separated by " · " e.g. "Preventa Q50 · Puerta Q75" or "Full Pass Q1,160/$145 · 1 Taller Q260/$35 · Sociales Q160/$20" or "Gratis" (string)
 - organizerName: organizer or instructor name (string)
 - contactLink: phone number, WhatsApp link, or website URL for tickets (string)
 - danceStyle: one of "salsa", "bachata", "salsa_bachata", "other" based on event content (string)
-- description: 1-2 sentence summary of the event in Spanish (string)
+- description: 1-2 sentence summary of the event in Spanish. Mention multiple workshop blocks briefly if they are part of the flyer (string)
 
 Rules:
 - If a field cannot be determined, use empty string ""
+- Combine information from both the text and the flyer image when both are provided
+- Prefer explicit information from the flyer image for venue names, times, and location details
 - For danceStyle: use "other" for cumbia, merengue, kizomba, etc.
 - For city: if text mentions "zona [number]" without city, use "Guatemala"
+- For venue vs area vs address:
+  - venue = studio/place/business name
+  - area = short zone or area reference
+  - address = broader location details or full reference, excluding the venue name when possible
 - For contactLink: prefer website/ticket URLs over phone numbers; if only phone use "https://wa.me/502XXXXXXXX" format
 - Remove emojis from all values
 - Return ONLY the JSON object, no markdown, no explanation`;
@@ -49,11 +56,55 @@ Rules:
 - Remove emojis from all values
 - Return ONLY the JSON object, no markdown, no explanation`;
 
-export async function POST(request: Request) {
-  const { text, type = "event" } = await request.json();
+type ParseFlyerRequest = {
+  text?: string;
+  type?: "event" | "academy";
+  imageUrl?: string;
+  imageDataUrl?: string;
+};
 
-  if (!text || typeof text !== "string" || text.trim().length < 10) {
-    return NextResponse.json({ error: "Text is too short." }, { status: 400 });
+function parseDataUrl(dataUrl: string) {
+  const match = dataUrl.match(/^data:(.+?);base64,(.+)$/);
+  if (!match) return null;
+
+  return {
+    mimeType: match[1],
+    data: match[2]
+  };
+}
+
+async function imageUrlToInlineData(imageUrl: string) {
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`No se pudo descargar la imagen (${response.status}).`);
+  }
+
+  const contentType = response.headers.get("content-type") || "image/jpeg";
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  return {
+    mimeType: contentType,
+    data: buffer.toString("base64")
+  };
+}
+
+export async function POST(request: Request) {
+  const {
+    text = "",
+    type = "event",
+    imageUrl = "",
+    imageDataUrl = ""
+  } = (await request.json()) as ParseFlyerRequest;
+  const normalizedText = typeof text === "string" ? text.trim() : "";
+  const normalizedImageUrl = typeof imageUrl === "string" ? imageUrl.trim() : "";
+  const normalizedImageDataUrl = typeof imageDataUrl === "string" ? imageDataUrl.trim() : "";
+  const hasImage = Boolean(normalizedImageUrl || normalizedImageDataUrl);
+
+  if (!hasImage && normalizedText.length < 10) {
+    return NextResponse.json(
+      { error: "Provide event text or a flyer image to extract data." },
+      { status: 400 }
+    );
   }
 
   if (!env.geminiApiKey) {
@@ -65,6 +116,39 @@ export async function POST(request: Request) {
 
   const systemPrompt = type === "academy" ? ACADEMY_PROMPT : EVENT_PROMPT;
   const label = type === "academy" ? "Academy text to parse" : "Event text to parse";
+  const parts: Array<Record<string, unknown>> = [{ text: systemPrompt }];
+
+  if (normalizedText) {
+    parts.push({ text: `\n\n${label}:\n${normalizedText}` });
+  }
+
+  if (hasImage) {
+    try {
+      const inlineData = normalizedImageDataUrl
+        ? parseDataUrl(normalizedImageDataUrl)
+        : await imageUrlToInlineData(normalizedImageUrl);
+
+      if (!inlineData) {
+        throw new Error("La imagen no se pudo leer.");
+      }
+
+      parts.push({
+        inlineData: {
+          mimeType: inlineData.mimeType,
+          data: inlineData.data
+        }
+      });
+    } catch (imageError) {
+      return NextResponse.json(
+        {
+          error: imageError instanceof Error
+            ? imageError.message
+            : "No se pudo procesar la imagen del flyer."
+        },
+        { status: 400 }
+      );
+    }
+  }
 
   let response: Response;
   try {
@@ -74,17 +158,14 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         contents: [
           {
-            parts: [
-              { text: systemPrompt },
-              { text: `\n\n${label}:\n${text}` }
-            ]
+            parts
           }
         ],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 1024,
-        thinkingConfig: { thinkingBudget: 0 }
-      }
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 1024,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
       })
     });
   } catch (fetchErr) {

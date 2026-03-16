@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { extractLowestPriceAmount } from "@/lib/utils/formatters";
 import {
   Upload,
   Sparkles,
@@ -30,6 +31,7 @@ export function AdminEventForm() {
   const [time, setTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [priceText, setPriceText] = useState("");
   const [priceAmount, setPriceAmount] = useState("");
   const [danceStyle, setDanceStyle] = useState("salsa_bachata");
   const [city, setCity] = useState("");
@@ -42,10 +44,17 @@ export function AdminEventForm() {
 
   const handleFileSelect = useCallback((selectedFile: File) => {
     setFile(selectedFile);
+    setImageUrl("");
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(selectedFile);
   }, []);
+
+  function syncPriceFields(nextPriceText: string) {
+    setPriceText(nextPriceText);
+    const lowestPrice = extractLowestPriceAmount(nextPriceText, "GTQ");
+    setPriceAmount(lowestPrice === null ? "" : String(lowestPrice));
+  }
 
   async function handleUpload() {
     if (!file) return;
@@ -69,14 +78,19 @@ export function AdminEventForm() {
   }
 
   async function handleExtract() {
-    if (!whatsappText.trim()) return;
+    if (!whatsappText.trim() && !imageUrl && !preview) return;
     setExtracting(true);
     setErrorMsg("");
     try {
       const res = await fetch("/api/parse-flyer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: whatsappText, type: "event" })
+        body: JSON.stringify({
+          text: whatsappText,
+          type: "event",
+          imageUrl,
+          imageDataUrl: imageUrl ? "" : preview
+        })
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Gemini request failed");
@@ -86,9 +100,10 @@ export function AdminEventForm() {
       if (d.description)   setDescriptionEs(d.description);
       if (d.date)          setDate(d.date);
       if (d.time)          setTime(d.time);
-      if (d.price)         setPriceAmount(d.price.replace(/[^0-9.]/g, ""));
+      if (d.price)         syncPriceFields(d.price);
       if (d.venue)         setVenueName(d.venue);
       if (d.city)          setCity(d.city);
+      if (d.area)          setArea(d.area);
       if (d.address)       setAddress(d.address);
       if (d.organizerName) setOrganizerName(d.organizerName);
       if (d.contactLink)   setContactUrl(d.contactLink);
@@ -111,6 +126,7 @@ export function AdminEventForm() {
     setTime("");
     setEndDate("");
     setEndTime("");
+    setPriceText("");
     setPriceAmount("");
     setDanceStyle("salsa_bachata");
     setCity("");
@@ -151,6 +167,7 @@ export function AdminEventForm() {
           starts_at: `${date}T${time || "20:00"}:00-06:00`,
           ends_at: endDate ? `${endDate}T${endTime || time || "20:00"}:00-06:00` : null,
           price_amount: priceAmount ? Number(priceAmount) : null,
+          price_text: priceText || null,
           currency: "GTQ",
           organizer_name: organizerName,
           contact_url: contactUrl,
@@ -252,12 +269,15 @@ export function AdminEventForm() {
           onChange={(e) => setWhatsappText(e.target.value)}
           className="resize-none font-mono text-xs"
         />
+        <p className="text-xs text-muted-foreground">
+          La IA puede usar el texto, el flyer o ambos. Si el flyer ya está subido, también se analiza.
+        </p>
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={handleExtract}
-          disabled={extracting || !whatsappText.trim()}
+          disabled={extracting || (!whatsappText.trim() && !imageUrl && !preview)}
           className="gap-2"
         >
           {extracting
@@ -290,7 +310,7 @@ export function AdminEventForm() {
         Ingresa el contenido en español. El sistema generará automáticamente la versión en inglés al guardar.
       </p>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Field label="Fecha *">
           <Input
             type="date"
@@ -321,7 +341,22 @@ export function AdminEventForm() {
             placeholder="Opcional"
           />
         </Field>
-        <Field label="Precio (Q)">
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        Si es un bootcamp o evento largo, usa fecha inicial y fecha final para que el rango se vea claro en la agenda.
+      </p>
+
+      <div className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
+        <Field label="Precios">
+          <Textarea
+            value={priceText}
+            onChange={(e) => syncPriceFields(e.target.value)}
+            rows={3}
+            placeholder={"Preventa Q250 full pass · 1 taller Q150 · Normal Q300 full pass · 1 taller Q175"}
+          />
+        </Field>
+        <Field label="Precio mínimo (Q)">
           <Input
             type="number"
             min="0"
@@ -333,7 +368,7 @@ export function AdminEventForm() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Si es un bootcamp o evento largo, usa fecha inicial y fecha final para que el rango se vea claro en la agenda.
+        Si hay varios precios, guarda el detalle en &quot;Precios&quot;. El mínimo se usa solo como apoyo para mostrar &quot;Desde Q...&quot;.
       </p>
 
       <Field label="Estilo de baile">
