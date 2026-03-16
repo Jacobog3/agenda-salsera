@@ -1,18 +1,21 @@
-import { AdminEntityList } from "@/components/admin/admin-entity-list";
+"use client";
 
-const SPOT_FIELDS = [
-  { key: "name_es", label: "Nombre (ES)" },
-  { key: "name_en", label: "Nombre (EN)" },
-  { key: "description_es", label: "Descripción (ES)", type: "textarea" as const },
-  { key: "description_en", label: "Descripción (EN)", type: "textarea" as const },
-  { key: "cover_image_url", label: "Imagen URL" },
-  { key: "city", label: "Ciudad" },
-  { key: "address", label: "Dirección" },
-  { key: "schedule", label: "Horarios" },
-  { key: "cover_charge", label: "Cover" },
-  { key: "whatsapp_url", label: "WhatsApp URL" },
-  { key: "instagram_url", label: "Instagram URL" },
-  { key: "is_published", label: "Publicado", type: "checkbox" as const }
+import { AdminEntityList } from "@/components/admin/admin-entity-list";
+import type { FieldDef } from "@/components/admin/admin-entity-list";
+
+const SPOT_FIELDS: FieldDef[] = [
+  { key: "cover_image_url", label: "Imagen", type: "image", group: "Imagen" },
+  { key: "name_es", label: "Nombre (ES)", group: "Información" },
+  { key: "name_en", label: "Nombre (EN)", group: "Información" },
+  { key: "city", label: "Ciudad", group: "Información" },
+  { key: "address", label: "Dirección", group: "Información" },
+  { key: "schedule", label: "Horarios", group: "Detalles" },
+  { key: "cover_charge", label: "Cover", group: "Detalles" },
+  { key: "whatsapp_url", label: "WhatsApp URL", group: "Contacto" },
+  { key: "instagram_url", label: "Instagram URL", group: "Contacto" },
+  { key: "description_es", label: "Descripción (ES)", type: "textarea", group: "Descripción" },
+  { key: "description_en", label: "Descripción (EN)", type: "textarea", group: "Descripción" },
+  { key: "is_published", label: "Publicado", type: "checkbox", group: "Estado" }
 ];
 
 const SPOT_COLUMNS = [
@@ -28,6 +31,7 @@ export default function AdminSpotsPage() {
       apiBase="/api/admin/spots"
       fields={SPOT_FIELDS}
       displayColumns={SPOT_COLUMNS}
+      imageKey="cover_image_url"
     />
   );
 }

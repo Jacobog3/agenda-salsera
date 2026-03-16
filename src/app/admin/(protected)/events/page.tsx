@@ -1,37 +1,47 @@
-import { AdminEntityList } from "@/components/admin/admin-entity-list";
+"use client";
 
-const EVENT_FIELDS = [
-  { key: "title_es", label: "Título (ES)" },
-  { key: "title_en", label: "Título (EN)" },
-  { key: "description_es", label: "Descripción (ES)", type: "textarea" as const },
-  { key: "description_en", label: "Descripción (EN)", type: "textarea" as const },
-  { key: "cover_image_url", label: "Imagen URL" },
-  { key: "dance_style", label: "Estilo", type: "select" as const, options: [
+import { AdminEntityList } from "@/components/admin/admin-entity-list";
+import type { FieldDef } from "@/components/admin/admin-entity-list";
+
+const EVENT_FIELDS: FieldDef[] = [
+  { key: "cover_image_url", label: "Flyer / Imagen", type: "image", group: "Imagen" },
+  { key: "title_es", label: "Título (ES)", group: "Información" },
+  { key: "title_en", label: "Título (EN)", group: "Información" },
+  { key: "dance_style", label: "Estilo", type: "select", group: "Información", options: [
     { value: "salsa", label: "Salsa" },
     { value: "bachata", label: "Bachata" },
     { value: "salsa_bachata", label: "Salsa y Bachata" },
     { value: "other", label: "Otro" }
   ]},
-  { key: "starts_at", label: "Fecha inicio" },
-  { key: "venue_name", label: "Lugar" },
-  { key: "city", label: "Ciudad" },
-  { key: "address", label: "Dirección" },
-  { key: "price_text", label: "Precios" },
-  { key: "currency", label: "Moneda" },
-  { key: "organizer_name", label: "Organizador" },
-  { key: "contact_url", label: "Contacto" },
-  { key: "is_featured", label: "Destacado", type: "checkbox" as const },
-  { key: "is_published", label: "Publicado", type: "checkbox" as const }
+  { key: "starts_at", label: "Fecha y hora", type: "datetime", group: "Fecha y lugar" },
+  { key: "venue_name", label: "Lugar", group: "Fecha y lugar" },
+  { key: "city", label: "Ciudad", group: "Fecha y lugar" },
+  { key: "address", label: "Dirección", group: "Fecha y lugar" },
+  { key: "price_text", label: "Precios", hint: "Separar con · o - (ej: Preventa Q80 · Puerta Q120)", type: "textarea", group: "Precios" },
+  { key: "currency", label: "Moneda principal", type: "select", group: "Precios", options: [
+    { value: "GTQ", label: "GTQ (Quetzales)" },
+    { value: "USD", label: "USD (Dólares)" },
+    { value: "", label: "No aplica / Gratis" }
+  ]},
+  { key: "organizer_name", label: "Organizador", group: "Contacto" },
+  { key: "contact_url", label: "Link de contacto (WhatsApp, Instagram, web)", group: "Contacto" },
+  { key: "description_es", label: "Descripción (ES)", type: "textarea", group: "Descripción" },
+  { key: "description_en", label: "Descripción (EN)", type: "textarea", group: "Descripción" },
+  { key: "is_featured", label: "Destacado", type: "checkbox", group: "Estado" },
+  { key: "is_published", label: "Publicado", type: "checkbox", group: "Estado" }
 ];
 
 const EVENT_COLUMNS = [
   { key: "title_es", label: "Título" },
-  { key: "city", label: "Ciudad" },
   { key: "starts_at", label: "Fecha", format: (v: unknown) => {
     if (!v) return "";
-    return new Date(String(v)).toLocaleDateString("es-GT", { day: "numeric", month: "short", year: "numeric" });
+    return new Date(String(v)).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
   }},
-  { key: "is_published", label: "Estado", format: (v: unknown) => v ? "✓" : "✗" }
+  { key: "price_text", label: "Precio", format: (v: unknown) => {
+    const s = String(v ?? "");
+    return s.length > 30 ? s.slice(0, 30) + "…" : s || "—";
+  }},
+  { key: "city", label: "Ciudad" }
 ];
 
 export default function AdminEventsPage() {
@@ -41,6 +51,8 @@ export default function AdminEventsPage() {
       apiBase="/api/admin/events"
       fields={EVENT_FIELDS}
       displayColumns={EVENT_COLUMNS}
+      imageKey="cover_image_url"
+      dateKey="starts_at"
     />
   );
 }

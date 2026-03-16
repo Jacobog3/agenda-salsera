@@ -127,25 +127,26 @@ values (
 );
 
 -- 6. Antigua Salsa y Bachata Festival (entrenamiento + Bachata Bootcamp Erick & Nalu + presentación)
-insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, gallery_urls, dance_style, city, area, venue_name, address, starts_at, price_amount, currency, organizer_name, contact_url, is_featured, is_published)
+insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, gallery_urls, dance_style, city, area, venue_name, address, starts_at, price_amount, price_text, currency, organizer_name, contact_url, is_featured, is_published)
 values (
   'antigua-salsa-bachata-festival-2026',
   'Antigua Salsa y Bachata Festival 2026',
   'Antigua Salsa and Bachata Festival 2026',
-  '6 días de entrenamiento del 20 de marzo al 26 de abril. Incluye Bachata Bootcamp con Erick & Nalu. Presentación final: sábado 2 de mayo. Precio individual Q300, pareja Q550. El festival de salsa y bachata más importante de Antigua.',
-  '6 training days from March 20 to April 26. Includes Bachata Bootcamp with Erick & Nalu. Final presentation: Saturday May 2. Individual Q300, couple Q550. The most important salsa and bachata festival in Antigua.',
-  '/images/events/antigua-festival.png',
-  '{/images/events/antigua-festival-bootcamp.png}',
+  'Bachata Bootcamp con Erick & Nalu. Entrenamiento intensivo de bachata: 6 sesiones del 20 de marzo al 26 de abril. Presentación final en el Antigua Salsa y Bachata Festival 2026, sábado 2 de mayo.',
+  'Bachata Bootcamp with Erick & Nalu. Intensive bachata training: 6 sessions from March 20 to April 26. Final presentation at the Antigua Salsa y Bachata Festival 2026, Saturday May 2.',
+  'https://oenwhpcyzznytpoypcfc.supabase.co/storage/v1/object/public/event-flyers/events/antigua-festival-precios.png',
+  '{https://oenwhpcyzznytpoypcfc.supabase.co/storage/v1/object/public/event-flyers/events/antigua-festival-bootcamp-erick-nalu.png}',
   'salsa_bachata',
   'Antigua Guatemala',
   'Centro',
-  'Por confirmar',
+  'Antigua Salsa y Bachata Festival',
   null,
   '2026-05-02T18:00:00-06:00',
   300,
+  'Individual Q300 · Pareja Q550',
   'GTQ',
   'Antigua Salsa y Bachata Festival',
-  'https://instagram.com/antiguasalsabachatafestival',
+  'https://antiguasbf.com',
   true,
   true
 );

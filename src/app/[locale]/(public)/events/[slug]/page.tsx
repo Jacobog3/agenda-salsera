@@ -212,7 +212,7 @@ export default async function EventDetailPage({
             </aside>
           </div>
 
-          <div className="mt-6 md:mt-8">
+          <div className="mt-8 flex justify-center border-t border-gray-100 pt-4 md:mt-10">
             <ReportForm entityType="event" entityId={event.id} />
           </div>
         </Container>
