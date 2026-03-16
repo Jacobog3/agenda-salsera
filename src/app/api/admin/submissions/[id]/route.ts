@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/admin/auth";
 
-// Reject a submission
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase
@@ -17,11 +20,13 @@ export async function DELETE(
   return NextResponse.json({ ok: true });
 }
 
-// Publish a submission → create event
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   const { id } = await params;
   const body = await request.json();
   const supabase = createSupabaseAdminClient();

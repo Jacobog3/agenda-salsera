@@ -50,6 +50,7 @@ export function SubmitAcademyForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [imageError, setImageError] = useState("");
   const [fields, setFields] = useState<Fields>(defaultFields);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -130,6 +131,11 @@ export function SubmitAcademyForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!fields.name || !fields.city) return;
+    if (!imageFile && !imagePreview) {
+      setImageError(f("imageRequired"));
+      return;
+    }
+    setImageError("");
     setStatus("submitting");
     try {
       const imageUrl = await uploadImage();
@@ -198,6 +204,12 @@ export function SubmitAcademyForm() {
           </button>
         )}
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+        {imageError && (
+          <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {imageError}
+          </p>
+        )}
       </div>
 
       {/* Step 2 — WhatsApp/IG text */}

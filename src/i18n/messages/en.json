@@ -220,6 +220,7 @@
     "uploadImage": "Tap to upload the flyer image",
     "uploadImageAcademy": "Logo, schedule flyer, studio photo",
     "imageFormats": "JPG, PNG, WEBP",
+    "imageRequired": "An image or flyer is required",
     "pasteHere": "Paste WhatsApp or Instagram text here...",
     "extracting": "Extracting info...",
     "autofill": "Autofill with AI",
@@ -297,5 +298,25 @@
     "backHome": "Go to home",
     "browseEvents": "Browse events",
     "browseSpots": "Browse spots"
+  },
+  "report": {
+    "trigger": "See something wrong? Report it",
+    "reasonLabel": "What's wrong?",
+    "selectReason": "Select a reason",
+    "reasons": {
+      "wrong_date": "Wrong date",
+      "wrong_price": "Wrong price",
+      "wrong_location": "Wrong location",
+      "event_cancelled": "Event cancelled",
+      "duplicate": "Duplicate event",
+      "other": "Other"
+    },
+    "detailsLabel": "Details (optional)",
+    "detailsPlaceholder": "Describe what should be corrected...",
+    "emailLabel": "Your email (optional)",
+    "emailPlaceholder": "For follow-up",
+    "submit": "Submit report",
+    "success": "Thank you! Your report has been submitted.",
+    "error": "Error submitting. Please try again."
   }
 }

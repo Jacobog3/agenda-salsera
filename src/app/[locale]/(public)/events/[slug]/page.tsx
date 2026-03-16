@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
+import { ReportForm } from "@/components/shared/report-form";
 import { EventImageGallery } from "@/components/events/event-image-gallery";
 import { getEventBySlug } from "@/lib/queries/events";
 import { buildEventMetadata } from "@/lib/metadata/build-metadata";
@@ -209,6 +210,10 @@ export default async function EventDetailPage({
                 );
               })()}
             </aside>
+          </div>
+
+          <div className="mt-6 md:mt-8">
+            <ReportForm entityType="event" entityId={event.id} />
           </div>
         </Container>
       </section>

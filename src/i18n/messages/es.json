@@ -220,6 +220,7 @@
     "uploadImage": "Tocá para subir la imagen del flyer",
     "uploadImageAcademy": "Logo, flyer de horario, foto del estudio",
     "imageFormats": "JPG, PNG, WEBP",
+    "imageRequired": "Se requiere una imagen o flyer",
     "pasteHere": "Pegá aquí el texto de WhatsApp o Instagram...",
     "extracting": "Extrayendo información...",
     "autofill": "Autocompletar con IA",
@@ -297,5 +298,25 @@
     "backHome": "Ir al inicio",
     "browseEvents": "Ver eventos",
     "browseSpots": "Ver lugares"
+  },
+  "report": {
+    "trigger": "¿Ves algo incorrecto? Repórtalo",
+    "reasonLabel": "¿Qué está mal?",
+    "selectReason": "Selecciona un motivo",
+    "reasons": {
+      "wrong_date": "Fecha incorrecta",
+      "wrong_price": "Precio incorrecto",
+      "wrong_location": "Ubicación incorrecta",
+      "event_cancelled": "Evento cancelado",
+      "duplicate": "Evento duplicado",
+      "other": "Otro"
+    },
+    "detailsLabel": "Detalles (opcional)",
+    "detailsPlaceholder": "Describe qué debería corregirse...",
+    "emailLabel": "Tu email (opcional)",
+    "emailPlaceholder": "Para darte seguimiento",
+    "submit": "Enviar reporte",
+    "success": "¡Gracias! Tu reporte ha sido enviado.",
+    "error": "Error al enviar. Intenta de nuevo."
   }
 }

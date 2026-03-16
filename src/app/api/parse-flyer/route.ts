@@ -13,7 +13,7 @@ Extract the following fields and return ONLY a valid JSON object with these exac
 - venue: venue/place name only, not the full address (string)
 - address: full address or location details (string)
 - city: city name, default "Guatemala" if zone number mentioned (string)
-- price: price text as-is e.g. "Q50" or "Q50.00" or "Gratis" (string)
+- price: ALL prices as-is separated by " - " e.g. "Preventa Q50 - Puerta Q75" or "Full Pass Q1,160/$145 - 1 Taller Q260/$35 - Sociales Q160/$20" or "Gratis" (string)
 - organizerName: organizer or instructor name (string)
 - contactLink: phone number, WhatsApp link, or website URL for tickets (string)
 - danceStyle: one of "salsa", "bachata", "salsa_bachata", "other" based on event content (string)

@@ -132,6 +132,10 @@ export function SubmitEventForm() {
     setStatus("idle");
     try {
       const imageUrl = await uploadImage();
+      if (!imageUrl) {
+        form.setError("imageUrl", { message: f("imageRequired") });
+        return;
+      }
       const response = await fetch("/api/event-submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -207,6 +211,12 @@ export function SubmitEventForm() {
           className="hidden"
           onChange={handleImageChange}
         />
+        {form.formState.errors.imageUrl && (
+          <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {form.formState.errors.imageUrl.message}
+          </p>
+        )}
       </div>
 
       {/* Step 2 — WhatsApp text parser */}
@@ -279,7 +289,7 @@ export function SubmitEventForm() {
             <Input type="time" {...form.register("time")} />
           </Field>
           <Field label={t("fields.price")}>
-            <Input placeholder={f("pricePlaceholder")} {...form.register("price")} />
+            <Textarea rows={2} placeholder={f("pricePlaceholder")} {...form.register("price")} className="resize-none text-sm" />
           </Field>
         </div>
 

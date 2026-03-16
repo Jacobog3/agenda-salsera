@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/admin/auth";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 
 function generateSlug(title: string): string {
@@ -14,15 +15,27 @@ function generateSlug(title: string): string {
   );
 }
 
+export async function GET(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("starts_at", { ascending: false });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ data: data ?? [] });
+}
+
 export async function POST(request: NextRequest) {
-  const session = request.cookies.get("admin_session");
-  if (!session?.value) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireAdmin(request);
+  if (denied) return denied;
 
   if (!isSupabaseConfigured) {
     return NextResponse.json(
-      { error: "Supabase is not configured. Set environment variables first." },
+      { error: "Supabase is not configured." },
       { status: 500 }
     );
   }
@@ -58,6 +71,7 @@ export async function POST(request: NextRequest) {
         address: body.address || null,
         starts_at: body.starts_at,
         price_amount: body.price_amount ?? null,
+        price_text: body.price_text || null,
         currency: body.currency || "GTQ",
         organizer_name: body.organizer_name || "",
         contact_url: body.contact_url || "",
