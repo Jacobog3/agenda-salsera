@@ -336,8 +336,8 @@ export function AdminEntityList({
               )]
             : [];
         } else if (field.type === "datetime") {
-          const dateValue = payload[getDateEditKey(field.key)];
-          const timeValue = payload[getTimeEditKey(field.key)];
+          const dateValue = editData[getDateEditKey(field.key)];
+          const timeValue = editData[getTimeEditKey(field.key)];
           if (dateValue) {
             const d = String(dateValue);
             const t = String(timeValue || "20:00");
