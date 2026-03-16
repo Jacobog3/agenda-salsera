@@ -11,6 +11,58 @@ import { Calendar, MapPin, User, Banknote, Globe, ExternalLink } from "lucide-re
 import { env } from "@/lib/utils/env";
 import type { Locale } from "@/types/locale";
 
+function EventDescription({ text }: { text: string }) {
+  const blocks = text
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="space-y-4 text-justify text-sm leading-relaxed text-muted-foreground md:text-lg md:leading-8">
+      {blocks.map((block, blockIndex) => {
+        const lines = block
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean);
+
+        if (lines.length === 0) return null;
+
+        const bulletLines = lines.filter((line) => /^[-*•]\s+/.test(line));
+        const isPureList = bulletLines.length === lines.length;
+
+        if (isPureList) {
+          return (
+            <ul key={blockIndex} className="space-y-1.5 pl-5 marker:text-brand-500">
+              {lines.map((line, lineIndex) => (
+                <li key={lineIndex}>{line.replace(/^[-*•]\s+/, "")}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        if (bulletLines.length > 0 && !/^[-*•]\s+/.test(lines[0])) {
+          const intro = lines.findIndex((line) => /^[-*•]\s+/.test(line));
+          const introLines = lines.slice(0, intro);
+          const listLines = lines.slice(intro);
+
+          return (
+            <div key={blockIndex} className="space-y-2">
+              <p>{introLines.join(" ")}</p>
+              <ul className="space-y-1.5 pl-5 marker:text-brand-500">
+                {listLines.map((line, lineIndex) => (
+                  <li key={lineIndex}>{line.replace(/^[-*•]\s+/, "")}</li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+
+        return <p key={blockIndex}>{lines.join(" ")}</p>;
+      })}
+    </div>
+  );
+}
+
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -135,6 +187,10 @@ export default async function EventDetailPage({
     notFound();
   }
 
+  const isLongEvent =
+    !!event.endsAt &&
+    new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
+
   return (
     <>
       <EventJsonLd event={event} siteUrl={env.siteUrl} locale={currentLocale} />
@@ -149,22 +205,33 @@ export default async function EventDetailPage({
 
           <div className="mt-4 grid gap-5 md:mt-8 md:grid-cols-[1.2fr_0.8fr] md:gap-10">
             <div className="space-y-3 md:space-y-4">
-              <Badge>{common(`danceStyles.${event.danceStyle}`)}</Badge>
+              <div className="flex flex-wrap gap-2">
+                <Badge>{common(`danceStyles.${event.danceStyle}`)}</Badge>
+                {isLongEvent ? <Badge>{common("longEvent")}</Badge> : null}
+              </div>
               <h1 className="font-display text-2xl font-bold tracking-tight md:text-4xl lg:text-5xl">
                 {event.title}
               </h1>
-              <p className="text-sm leading-relaxed text-muted-foreground md:text-lg md:leading-8">
-                {event.description}
-              </p>
+              <EventDescription text={event.description} />
             </div>
 
             <aside className="rounded-2xl bg-surface-soft p-4 md:rounded-3xl md:p-6">
               <div className="grid gap-3 md:gap-4">
                 <InfoRow icon={Calendar} label={common("date")}>
-                  {event.endsAt
-                    ? formatEventDateRange(event.startsAt, event.endsAt, currentLocale)
+                  {isLongEvent
+                    ? formatEventDateRange(event.startsAt, event.endsAt!, currentLocale)
                     : formatEventDateTime(event.startsAt, currentLocale)}
                 </InfoRow>
+                {isLongEvent ? (
+                  <InfoRow icon={Calendar} label={common("duration")}>
+                    <span className="block">
+                      <strong>{common("starts")}:</strong> {formatEventDateTime(event.startsAt, currentLocale)}
+                    </span>
+                    <span className="mt-1 block">
+                      <strong>{common("ends")}:</strong> {formatEventDateTime(event.endsAt!, currentLocale)}
+                    </span>
+                  </InfoRow>
+                ) : null}
                 <InfoRow icon={MapPin} label={common("location")}>
                   <span>{event.venueName}</span>
                   {event.address ? (

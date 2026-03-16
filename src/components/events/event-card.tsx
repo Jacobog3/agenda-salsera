@@ -17,6 +17,9 @@ export async function EventCard({
   locale: Locale;
 }) {
   const t = await getTranslations("common");
+  const isLongEvent =
+    !!event.endsAt &&
+    new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
 
   return (
     <Link
@@ -42,8 +45,8 @@ export async function EventCard({
           )}
           <div className="absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-black/50 to-transparent p-3 pt-8 md:block">
             <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-foreground backdrop-blur-sm">
-              {event.endsAt
-                ? formatEventDateRange(event.startsAt, event.endsAt, locale)
+              {isLongEvent
+                ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
                 : formatEventDate(event.startsAt, locale)}
             </span>
           </div>
@@ -55,9 +58,14 @@ export async function EventCard({
             <Badge className="px-2 py-px text-[10px] md:px-2.5 md:py-0.5 md:text-xs">
               {t(`danceStyles.${event.danceStyle}`)}
             </Badge>
+            {isLongEvent ? (
+              <Badge className="border border-brand-200 bg-brand-50 px-2 py-px text-[10px] text-brand-700 md:px-2.5 md:py-0.5 md:text-xs">
+                {t("longEvent")}
+              </Badge>
+            ) : null}
             <span className="text-[11px] text-muted-foreground md:hidden">
-              {event.endsAt
-                ? formatEventDateRange(event.startsAt, event.endsAt, locale)
+              {isLongEvent
+                ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
                 : formatEventDate(event.startsAt, locale)}
             </span>
           </div>

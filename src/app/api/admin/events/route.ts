@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
+import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 
 function generateSlug(title: string): string {
@@ -40,7 +41,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
+  const rawBody = await request.json();
+  const body = await autoTranslateSpanishFields(rawBody, [
+    { sourceKey: "title_es", targetKey: "title_en", label: "Event title" },
+    { sourceKey: "description_es", targetKey: "description_en", label: "Event description" }
+  ]);
 
   if (!body.title_es || !body.city || !body.venue_name || !body.starts_at) {
     return NextResponse.json(
@@ -70,6 +75,7 @@ export async function POST(request: NextRequest) {
         venue_name: body.venue_name,
         address: body.address || null,
         starts_at: body.starts_at,
+        ends_at: body.ends_at || null,
         price_amount: body.price_amount ?? null,
         price_text: body.price_text || null,
         currency: body.currency || "GTQ",

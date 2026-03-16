@@ -25,11 +25,11 @@ export function AdminEventForm() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [titleEs, setTitleEs] = useState("");
-  const [titleEn, setTitleEn] = useState("");
   const [descriptionEs, setDescriptionEs] = useState("");
-  const [descriptionEn, setDescriptionEn] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [priceAmount, setPriceAmount] = useState("");
   const [danceStyle, setDanceStyle] = useState("salsa_bachata");
   const [city, setCity] = useState("");
@@ -83,9 +83,7 @@ export function AdminEventForm() {
 
       const d = json.data;
       if (d.title)         setTitleEs(d.title);
-      if (d.title)         setTitleEn(d.title);
       if (d.description)   setDescriptionEs(d.description);
-      if (d.description)   setDescriptionEn(d.description);
       if (d.date)          setDate(d.date);
       if (d.time)          setTime(d.time);
       if (d.price)         setPriceAmount(d.price.replace(/[^0-9.]/g, ""));
@@ -108,11 +106,11 @@ export function AdminEventForm() {
     setImageUrl("");
     setWhatsappText("");
     setTitleEs("");
-    setTitleEn("");
     setDescriptionEs("");
-    setDescriptionEn("");
     setDate("");
     setTime("");
+    setEndDate("");
+    setEndTime("");
     setPriceAmount("");
     setDanceStyle("salsa_bachata");
     setCity("");
@@ -131,6 +129,10 @@ export function AdminEventForm() {
     setErrorMsg("");
 
     try {
+      if (endDate && date && new Date(endDate) < new Date(date)) {
+        throw new Error("La fecha final no puede ser anterior a la fecha inicial");
+      }
+
       const finalImageUrl = imageUrl || "";
 
       const res = await fetch("/api/admin/events", {
@@ -138,9 +140,7 @@ export function AdminEventForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title_es: titleEs,
-          title_en: titleEn || titleEs,
           description_es: descriptionEs,
-          description_en: descriptionEn || descriptionEs,
           cover_image_url: finalImageUrl,
           gallery_urls: [],
           dance_style: danceStyle,
@@ -149,6 +149,7 @@ export function AdminEventForm() {
           venue_name: venueName,
           address: address || null,
           starts_at: `${date}T${time || "20:00"}:00-06:00`,
+          ends_at: endDate ? `${endDate}T${endTime || time || "20:00"}:00-06:00` : null,
           price_amount: priceAmount ? Number(priceAmount) : null,
           currency: "GTQ",
           organizer_name: organizerName,
@@ -267,40 +268,29 @@ export function AdminEventForm() {
       </div>
 
       {/* Form fields */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Título (ES) *">
+      <div className="grid gap-4">
+        <Field label="Título *">
           <Input
             value={titleEs}
             onChange={(e) => setTitleEs(e.target.value)}
             required
           />
         </Field>
-        <Field label="Título (EN)">
-          <Input
-            value={titleEn}
-            onChange={(e) => setTitleEn(e.target.value)}
-            placeholder="Se usa el título ES si está vacío"
-          />
-        </Field>
       </div>
 
-      <Field label="Descripción (ES)">
+      <Field label="Descripción">
         <Textarea
           value={descriptionEs}
           onChange={(e) => setDescriptionEs(e.target.value)}
           rows={3}
         />
       </Field>
-      <Field label="Descripción (EN)">
-        <Textarea
-          value={descriptionEn}
-          onChange={(e) => setDescriptionEn(e.target.value)}
-          rows={3}
-          placeholder="Se usa la descripción ES si está vacío"
-        />
-      </Field>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <p className="text-xs text-muted-foreground">
+        Ingresa el contenido en español. El sistema generará automáticamente la versión en inglés al guardar.
+      </p>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <Field label="Fecha *">
           <Input
             type="date"
@@ -316,6 +306,21 @@ export function AdminEventForm() {
             onChange={(e) => setTime(e.target.value)}
           />
         </Field>
+        <Field label="Fecha final">
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </Field>
+        <Field label="Hora final">
+          <Input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            placeholder="Opcional"
+          />
+        </Field>
         <Field label="Precio (Q)">
           <Input
             type="number"
@@ -326,6 +331,10 @@ export function AdminEventForm() {
           />
         </Field>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Si es un bootcamp o evento largo, usa fecha inicial y fecha final para que el rango se vea claro en la agenda.
+      </p>
 
       <Field label="Estilo de baile">
         <select

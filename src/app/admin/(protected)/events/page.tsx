@@ -5,8 +5,8 @@ import type { FieldDef } from "@/components/admin/admin-entity-list";
 
 const EVENT_FIELDS: FieldDef[] = [
   { key: "cover_image_url", label: "Flyer / Imagen", type: "image", group: "Imagen" },
-  { key: "title_es", label: "Título (ES)", group: "Información" },
-  { key: "title_en", label: "Título (EN)", group: "Información" },
+  { key: "gallery_urls", label: "Galería", hint: "Fotos adicionales del evento", type: "image-list", group: "Imagen" },
+  { key: "title_es", label: "Título", hint: "Se traduce automáticamente al inglés", group: "Información" },
   { key: "dance_style", label: "Estilo", type: "select", group: "Información", options: [
     { value: "salsa", label: "Salsa" },
     { value: "bachata", label: "Bachata" },
@@ -14,6 +14,7 @@ const EVENT_FIELDS: FieldDef[] = [
     { value: "other", label: "Otro" }
   ]},
   { key: "starts_at", label: "Fecha y hora", type: "datetime", group: "Fecha y lugar" },
+  { key: "ends_at", label: "Fecha final", hint: "Opcional para bootcamps o eventos largos", type: "datetime", group: "Fecha y lugar" },
   { key: "venue_name", label: "Lugar", group: "Fecha y lugar" },
   { key: "city", label: "Ciudad", group: "Fecha y lugar" },
   { key: "address", label: "Dirección", group: "Fecha y lugar" },
@@ -25,17 +26,23 @@ const EVENT_FIELDS: FieldDef[] = [
   ]},
   { key: "organizer_name", label: "Organizador", group: "Contacto" },
   { key: "contact_url", label: "Link de contacto (WhatsApp, Instagram, web)", group: "Contacto" },
-  { key: "description_es", label: "Descripción (ES)", type: "textarea", group: "Descripción" },
-  { key: "description_en", label: "Descripción (EN)", type: "textarea", group: "Descripción" },
+  { key: "description_es", label: "Descripción", hint: "Se traduce automáticamente al inglés", type: "textarea", group: "Descripción" },
   { key: "is_featured", label: "Destacado", type: "checkbox", group: "Estado" },
   { key: "is_published", label: "Publicado", type: "checkbox", group: "Estado" }
 ];
 
 const EVENT_COLUMNS = [
   { key: "title_es", label: "Título" },
-  { key: "starts_at", label: "Fecha", format: (v: unknown) => {
-    if (!v) return "";
-    return new Date(String(v)).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
+  { key: "starts_at", label: "Fecha", format: (_: unknown, item?: Record<string, unknown>) => {
+    const startsAt = String(item?.starts_at ?? "");
+    const endsAt = String(item?.ends_at ?? "");
+    if (!startsAt) return "";
+    const startText = new Date(startsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
+    if (!endsAt || new Date(endsAt).toDateString() === new Date(startsAt).toDateString()) {
+      return startText;
+    }
+    const endText = new Date(endsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
+    return `${startText} - ${endText}`;
   }},
   { key: "price_text", label: "Precio", format: (v: unknown) => {
     const s = String(v ?? "");
@@ -53,6 +60,10 @@ export default function AdminEventsPage() {
       displayColumns={EVENT_COLUMNS}
       imageKey="cover_image_url"
       dateKey="starts_at"
+      autoTranslateFields={[
+        { sourceKey: "title_es", targetKey: "title_en" },
+        { sourceKey: "description_es", targetKey: "description_en" }
+      ]}
     />
   );
 }

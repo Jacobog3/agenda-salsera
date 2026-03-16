@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LogoIcon } from "@/components/brand/logo-icon";
+import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
 import {
   LogOut,
   PlusCircle,
@@ -39,7 +40,7 @@ export default async function AdminProtectedLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+    <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-30 border-b border-gray-200 bg-white shadow-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 md:h-16 md:gap-4 md:px-8">
 
@@ -71,6 +72,7 @@ export default async function AdminProtectedLayout({
           </div>
 
           <div className="flex items-center gap-2">
+            <AdminMobileNav />
             <Link
               href="/"
               className="hidden text-sm text-gray-400 transition-colors hover:text-gray-700 md:inline"
@@ -93,29 +95,6 @@ export default async function AdminProtectedLayout({
       <main className="mx-auto max-w-6xl px-4 py-5 md:px-8 md:py-10">
         {children}
       </main>
-
-      {/* Mobile bottom nav — scrollable */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-gray-200 bg-white md:hidden">
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="flex min-w-[4rem] flex-1 flex-col items-center gap-0.5 py-2 text-[9px] font-semibold text-gray-500 transition-colors active:text-brand-600"
-          >
-            <link.icon className="h-4.5 w-4.5" />
-            {link.label}
-          </Link>
-        ))}
-        <form action="/api/admin/logout" method="POST" className="flex min-w-[4rem] flex-1">
-          <button
-            type="submit"
-            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[9px] font-semibold text-gray-500 transition-colors active:text-red-600"
-          >
-            <LogOut className="h-4.5 w-4.5" />
-            Salir
-          </button>
-        </form>
-      </nav>
     </div>
   );
 }

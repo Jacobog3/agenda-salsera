@@ -20,8 +20,7 @@ const ACADEMY_FIELDS: FieldDef[] = [
   { key: "whatsapp_url", label: "WhatsApp URL", group: "Contacto" },
   { key: "instagram_url", label: "Instagram URL", group: "Contacto" },
   { key: "website_url", label: "Sitio web", group: "Contacto" },
-  { key: "description_es", label: "Descripción (ES)", type: "textarea", group: "Descripción" },
-  { key: "description_en", label: "Descripción (EN)", type: "textarea", group: "Descripción" },
+  { key: "description_es", label: "Descripción", hint: "Se traduce automáticamente al inglés", type: "textarea", group: "Descripción" },
   { key: "is_published", label: "Publicado", type: "checkbox", group: "Estado" }
 ];
 
@@ -39,6 +38,9 @@ export default function AdminAcademiesPage() {
       fields={ACADEMY_FIELDS}
       displayColumns={ACADEMY_COLUMNS}
       imageKey="cover_image_url"
+      autoTranslateFields={[
+        { sourceKey: "description_es", targetKey: "description_en" }
+      ]}
     />
   );
 }

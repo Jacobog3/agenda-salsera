@@ -26,12 +26,7 @@ const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "ExploraGuate",
-  url: SITE_URL,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${SITE_URL}/eventos?q={search_term_string}`,
-    "query-input": "required name=search_term_string"
-  }
+  url: SITE_URL
 };
 
 export const metadata: Metadata = {

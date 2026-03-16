@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { EventCard } from "@/components/events/event-card";
+import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
+import { env } from "@/lib/utils/env";
 import { getAcademyBySlug } from "@/lib/queries/academies";
 import { getFeaturedEvents } from "@/lib/queries/events";
 import {
@@ -40,6 +42,86 @@ const MODALITY_MAP: Record<string, "inPerson" | "online" | "hybrid"> = {
   mixto: "hybrid"
 };
 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const academy = await getAcademyBySlug(locale as Locale, slug);
+
+  if (!academy) return {};
+
+  const title = locale === "es"
+    ? `${academy.name} | Academia de baile en ${academy.city}`
+    : `${academy.name} | Dance academy in ${academy.city}`;
+
+  return buildDetailMetadata({
+    locale: locale as Locale,
+    title,
+    description: academy.description,
+    image: academy.coverImageUrl,
+    esPath: `/academias/${academy.slug}`,
+    enPath: `/en/academies/${academy.slug}`,
+    type: "article"
+  });
+}
+
+function AcademyJsonLd({
+  academy,
+  locale
+}: {
+  academy: {
+    name: string;
+    description: string;
+    coverImageUrl: string;
+    slug: string;
+    city: string;
+    address?: string | null;
+    stylesTaught: string[];
+    websiteUrl?: string | null;
+    instagramUrl?: string | null;
+    whatsappUrl?: string | null;
+  };
+  locale: Locale;
+}) {
+  const siteUrl = env.siteUrl;
+  const pageUrl = locale === "es"
+    ? `${siteUrl}/academias/${academy.slug}`
+    : `${siteUrl}/en/academies/${academy.slug}`;
+
+  const imageUrl = academy.coverImageUrl.startsWith("http")
+    ? academy.coverImageUrl
+    : `${siteUrl}${academy.coverImageUrl}`;
+
+  const sameAs = [academy.websiteUrl, academy.instagramUrl, academy.whatsappUrl].filter(Boolean);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: academy.name,
+    description: academy.description,
+    url: pageUrl,
+    image: imageUrl,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: academy.address ?? academy.city,
+      addressLocality: academy.city,
+      addressCountry: "GT"
+    },
+    areaServed: "Guatemala",
+    knowsAbout: academy.stylesTaught,
+    ...(sameAs.length > 0 ? { sameAs } : {})
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
 export default async function AcademyDetailPage({
   params
 }: {
@@ -69,6 +151,8 @@ export default async function AcademyDetailPage({
 
   return (
     <>
+      <AcademyJsonLd academy={academy} locale={currentLocale} />
+
       <section className="page-section">
         <Container>
 

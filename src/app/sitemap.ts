@@ -52,15 +52,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     url("/", 1.0, "daily"),
+    url("/en", 0.9, "daily"),
     url("/eventos", 0.9, "daily"),
     url("/lugares", 0.8, "weekly"),
     url("/academias", 0.8, "weekly"),
     url("/enviar-evento", 0.5, "monthly"),
+    url("/enviar-academia", 0.5, "monthly"),
+    url("/enviar-lugar", 0.5, "monthly"),
     url("/legal/terminos", 0.3, "yearly"),
     url("/legal/privacidad", 0.3, "yearly"),
     url("/en/events", 0.7, "daily"),
     url("/en/spots", 0.6, "weekly"),
     url("/en/academies", 0.6, "weekly"),
+    url("/en/submit-event", 0.4, "monthly"),
+    url("/en/submit-academy", 0.4, "monthly"),
+    url("/en/submit-spot", 0.4, "monthly"),
+    url("/en/legal/terms", 0.3, "yearly"),
+    url("/en/legal/privacy", 0.3, "yearly"),
     ...eventEntries,
     ...spotEntries,
     ...academyEntries

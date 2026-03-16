@@ -126,24 +126,59 @@ values (
   true
 );
 
--- 6. Antigua Salsa y Bachata Festival (entrenamiento + Bachata Bootcamp Erick & Nalu + presentación)
-insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, gallery_urls, dance_style, city, area, venue_name, address, starts_at, price_amount, price_text, currency, organizer_name, contact_url, is_featured, is_published)
+-- 6. Antigua Salsa y Bachata Festival 2026
+insert into public.events (slug, title_es, title_en, description_es, description_en, cover_image_url, gallery_urls, dance_style, city, area, venue_name, address, starts_at, ends_at, price_amount, price_text, currency, organizer_name, contact_url, is_featured, is_published)
 values (
   'antigua-salsa-bachata-festival-2026',
   'Antigua Salsa y Bachata Festival 2026',
   'Antigua Salsa and Bachata Festival 2026',
-  'Bachata Bootcamp con Erick & Nalu. Entrenamiento intensivo de bachata: 6 sesiones del 20 de marzo al 26 de abril. Presentación final en el Antigua Salsa y Bachata Festival 2026, sábado 2 de mayo.',
-  'Bachata Bootcamp with Erick & Nalu. Intensive bachata training: 6 sessions from March 20 to April 26. Final presentation at the Antigua Salsa y Bachata Festival 2026, Saturday May 2.',
-  'https://oenwhpcyzznytpoypcfc.supabase.co/storage/v1/object/public/event-flyers/events/antigua-festival-precios.png',
-  '{https://oenwhpcyzznytpoypcfc.supabase.co/storage/v1/object/public/event-flyers/events/antigua-festival-bootcamp-erick-nalu.png}',
+  'Antigua Salsa y Bachata Festival 2026 reúne cinco días de talleres, competencias, shows y sociales en Antigua Guatemala, del 30 de abril al 4 de mayo, con actividades en Hotel Casa Santo Domingo y Hotel Tenedor del Cerro.
+
+Incluye pre-party, competencias, talleres, shows, sociales y after party con artistas internacionales invitados.
+
+Pases disponibles:
+- Full Pass: Q1,160 / 145 USD
+- Dancer Pass: Q1,080 / 135 USD
+- Full Sociales Pass: Q760 / 95 USD
+- Pre-Party Jueves: Q160 / 20 USD
+- Viernes Pass: Q200 / 25 USD
+- Sabado Pass: Q350 / 45 USD
+- Domingo Pass: Q200 / 25 USD
+- Viernes Day Pass: Q760 / 95 USD
+- Sabado Day Pass: Q520 / 65 USD
+- Domingo Day Pass: Q800 / 100 USD
+- 1 Taller Pass: Q260 / 35 USD
+
+Mas informacion, itinerario y registro en antiguasbf.com.',
+  'Antigua Salsa and Bachata Festival 2026 brings five days of workshops, competitions, shows, and socials to Antigua Guatemala from April 30 to May 4, with activities at Hotel Casa Santo Domingo and Hotel Tenedor del Cerro.
+
+It includes pre-party, competitions, workshops, shows, socials, and after party with international guest artists.
+
+Available passes:
+- Full Pass: Q1,160 / 145 USD
+- Dancer Pass: Q1,080 / 135 USD
+- Full Sociales Pass: Q760 / 95 USD
+- Thursday Pre-Party: Q160 / 20 USD
+- Friday Pass: Q200 / 25 USD
+- Saturday Pass: Q350 / 45 USD
+- Sunday Pass: Q200 / 25 USD
+- Friday Day Pass: Q760 / 95 USD
+- Saturday Day Pass: Q520 / 65 USD
+- Sunday Day Pass: Q800 / 100 USD
+- 1 Workshop Pass: Q260 / 35 USD
+
+More info, schedule, and registration at antiguasbf.com.',
+  '/images/events/antigua-festival-artistas.png',
+  '{/images/events/antigua-festival.png,/images/events/antigua-festival-precios-pass.png,/images/events/antigua-festival-precios-sociales.png,/images/events/antigua-festival-precios-dia.png,/images/events/antigua-festival-itinerario-jueves.png,/images/events/antigua-festival-itinerario-viernes.png,/images/events/antigua-festival-itinerario-sabado.png}',
   'salsa_bachata',
   'Antigua Guatemala',
   'Centro',
-  'Antigua Salsa y Bachata Festival',
+  'Hotel Casa Santo Domingo & Hotel Tenedor del Cerro',
+  'Hotel Casa Santo Domingo, 3a Calle Oriente #28 / Hotel Tenedor del Cerro, Antigua Guatemala',
+  '2026-04-30T11:00:00-06:00',
+  '2026-05-04T01:00:00-06:00',
   null,
-  '2026-05-02T18:00:00-06:00',
-  300,
-  'Individual Q300 · Pareja Q550',
+  'Pases desde Q160 hasta Q1,160',
   'GTQ',
   'Antigua Salsa y Bachata Festival',
   'https://antiguasbf.com',

@@ -16,7 +16,7 @@ export function EventImageGallery({
   galleryUrls: string[];
   alt: string;
 }) {
-  const images = [coverImageUrl, ...galleryUrls];
+  const images = [...new Set([coverImageUrl, ...galleryUrls].filter(Boolean))];
   const [current, setCurrent] = useState(0);
   const touchStart = useRef<number | null>(null);
 
@@ -68,7 +68,7 @@ export function EventImageGallery({
       <div className="relative aspect-[3/4] md:aspect-[4/3]">
         {images.map((src, i) => (
           <Image
-            key={src}
+            key={`${src}-${i}`}
             src={src}
             alt={`${alt} (${i + 1}/${images.length})`}
             fill

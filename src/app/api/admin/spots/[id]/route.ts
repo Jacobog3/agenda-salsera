@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
+import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 
 export async function PATCH(
   request: Request,
@@ -10,7 +11,13 @@ export async function PATCH(
   if (denied) return denied;
 
   const { id } = await params;
-  const body = await request.json();
+  const rawBody = await request.json();
+  const forceAutoTranslate = Boolean(rawBody.force_auto_translate);
+  delete rawBody.force_auto_translate;
+  const body = await autoTranslateSpanishFields(rawBody, [
+    { sourceKey: "name_es", targetKey: "name_en", label: "Spot name" },
+    { sourceKey: "description_es", targetKey: "description_en", label: "Spot description" }
+  ], { force: forceAutoTranslate });
   const supabase = createSupabaseAdminClient();
 
   const { error } = await supabase

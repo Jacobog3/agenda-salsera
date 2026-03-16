@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
+import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 
 export async function DELETE(
   request: Request,
@@ -28,7 +29,10 @@ export async function POST(
   if (denied) return denied;
 
   const { id } = await params;
-  const body = await request.json();
+  const rawBody = await request.json();
+  const body = await autoTranslateSpanishFields(rawBody, [
+    { sourceKey: "description", targetKey: "description_en", label: "Academy description" }
+  ]);
   const supabase = createSupabaseAdminClient();
 
   const slug = body.name
@@ -45,7 +49,7 @@ export async function POST(
     slug,
     name: body.name,
     description_es: body.description || "",
-    description_en: body.description || "",
+    description_en: body.description_en || body.description || "",
     cover_image_url: body.image_url || "",
     city: body.city || "Guatemala",
     address: body.address || null,

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
+import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 
 export async function DELETE(
   request: Request,
@@ -28,7 +29,11 @@ export async function POST(
   if (denied) return denied;
 
   const { id } = await params;
-  const body = await request.json();
+  const rawBody = await request.json();
+  const body = await autoTranslateSpanishFields(rawBody, [
+    { sourceKey: "title", targetKey: "title_en", label: "Event title" },
+    { sourceKey: "description", targetKey: "description_en", label: "Event description" }
+  ]);
   const supabase = createSupabaseAdminClient();
 
   const slug = body.title
@@ -50,9 +55,9 @@ export async function POST(
   const { error: insertError } = await supabase.from("events").insert({
     slug,
     title_es: body.title,
-    title_en: body.title,
+    title_en: body.title_en || body.title,
     description_es: body.description || "",
-    description_en: body.description || "",
+    description_en: body.description_en || body.description || "",
     cover_image_url: body.image_url || "",
     gallery_urls: [],
     dance_style: body.dance_style || "salsa_bachata",

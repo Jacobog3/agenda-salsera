@@ -122,6 +122,62 @@ export async function buildMetadata(
   };
 }
 
+export function buildDetailMetadata(options: {
+  locale: Locale;
+  title: string;
+  description: string;
+  image: string;
+  esPath: string;
+  enPath: string;
+  type?: "website" | "article";
+}): Metadata {
+  const siteUrl = env.siteUrl;
+  const canonical = options.locale === "es"
+    ? `${siteUrl}${options.esPath}`
+    : `${siteUrl}${options.enPath}`;
+
+  const ogImage = options.image.startsWith("http")
+    ? options.image
+    : `${siteUrl}${options.image}`;
+
+  const description = options.description.slice(0, 155);
+
+  return {
+    title: `${options.title} | ExploraGuate`,
+    description,
+    metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical,
+      languages: {
+        es: `${siteUrl}${options.esPath}`,
+        en: `${siteUrl}${options.enPath}`
+      }
+    },
+    openGraph: {
+      title: options.title,
+      description,
+      siteName: "ExploraGuate",
+      locale: options.locale,
+      type: options.type ?? "article",
+      url: canonical,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: options.title
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: options.title,
+      description,
+      images: [ogImage]
+    }
+  };
+}
+
 export function buildEventMetadata(event: {
   title: string;
   description: string;
@@ -134,47 +190,13 @@ export function buildEventMetadata(event: {
   currency: string;
   organizerName: string;
 }, locale: Locale): Metadata {
-  const siteUrl = env.siteUrl;
-  const canonical = locale === "es"
-    ? `${siteUrl}/eventos/${event.slug}`
-    : `${siteUrl}/en/events/${event.slug}`;
-
-  const ogImage = event.coverImageUrl.startsWith("http")
-    ? event.coverImageUrl
-    : `${siteUrl}${event.coverImageUrl}`;
-
-  return {
-    title: `${event.title} | ExploraGuate`,
-    description: event.description.slice(0, 155),
-    metadataBase: new URL(siteUrl),
-    alternates: {
-      canonical,
-      languages: {
-        es: `${siteUrl}/eventos/${event.slug}`,
-        en: `${siteUrl}/en/events/${event.slug}`
-      }
-    },
-    openGraph: {
-      title: event.title,
-      description: event.description.slice(0, 155),
-      siteName: "ExploraGuate",
-      locale,
-      type: "article",
-      url: canonical,
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: event.title
-        }
-      ]
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: event.title,
-      description: event.description.slice(0, 155),
-      images: [ogImage]
-    }
-  };
+  return buildDetailMetadata({
+    locale,
+    title: event.title,
+    description: event.description,
+    image: event.coverImageUrl,
+    esPath: `/eventos/${event.slug}`,
+    enPath: `/en/events/${event.slug}`,
+    type: "article"
+  });
 }
