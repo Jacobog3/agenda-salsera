@@ -20,6 +20,7 @@ export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
             src={academy.coverImageUrl}
             alt={academy.name}
             fill
+            sizes="(min-width: 768px) 50vw, 104px"
             className="object-contain p-3 transition-transform duration-500 group-hover:scale-105 md:p-8"
           />
         </div>

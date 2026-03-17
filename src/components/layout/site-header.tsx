@@ -22,7 +22,7 @@ export async function SiteHeader() {
         <div className="flex h-14 items-center justify-between gap-4 md:h-16">
 
           {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Link href="/" aria-label="ExploraGuate" className="flex shrink-0 items-center gap-2">
             <LogoIcon size={36} />
             <span className="font-display text-[15px] font-bold leading-none tracking-normal">
               <span className="text-brand-600">Salsa</span>

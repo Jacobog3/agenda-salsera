@@ -17,7 +17,7 @@ export function LanguageSwitcher() {
       <span className="sr-only">{t("switchLanguage")}</span>
       <select
         aria-label={t("switchLanguage")}
-        className="appearance-none rounded-full border border-border bg-surface-soft/80 py-1.5 pl-7 pr-3 text-xs font-semibold text-foreground outline-none transition focus:border-brand-500 focus:bg-white"
+        className="min-h-11 appearance-none rounded-full border border-border bg-surface-soft/80 py-2 pl-8 pr-3 text-xs font-semibold text-foreground outline-none transition focus:border-brand-500 focus:bg-white"
         value={locale}
         onChange={(event) => {
           router.replace(

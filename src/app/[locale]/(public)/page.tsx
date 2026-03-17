@@ -51,7 +51,9 @@ export default async function HomePage({
             <div className="flex items-end justify-between gap-4">
               <SectionHeading icon={CalendarDays} title={t("eventsTitle")} />
               <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
-                <Link href="/events">{common("viewAll")}</Link>
+                <Link href="/events" aria-label={`${common("viewAll")} ${t("eventsTitle")}`}>
+                  {common("viewAll")}
+                </Link>
               </Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
@@ -73,7 +75,9 @@ export default async function HomePage({
             <div className="flex items-end justify-between gap-4">
               <SectionHeading icon={MapPinned} title={t("spotsTitle")} />
               <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
-                <Link href="/spots">{common("viewAll")}</Link>
+                <Link href="/spots" aria-label={`${common("viewAll")} ${t("spotsTitle")}`}>
+                  {common("viewAll")}
+                </Link>
               </Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
@@ -91,7 +95,9 @@ export default async function HomePage({
             <div className="flex items-end justify-between gap-4">
               <SectionHeading icon={GraduationCap} title={t("academiesTitle")} />
               <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
-                <Link href="/academies">{common("viewAll")}</Link>
+                <Link href="/academies" aria-label={`${common("viewAll")} ${t("academiesTitle")}`}>
+                  {common("viewAll")}
+                </Link>
               </Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
@@ -119,21 +125,24 @@ export default async function HomePage({
               <div className="flex shrink-0 flex-wrap gap-2 md:flex-col md:gap-2.5">
                 <Link
                   href="/submit-event"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-brand-700 shadow-md transition-all hover:bg-white/90 active:scale-[0.97]"
+                  aria-label={t("submitEventShort")}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-bold text-brand-700 shadow-md transition-all hover:bg-white/90 active:scale-[0.97]"
                 >
                   <CalendarDays className="h-3.5 w-3.5" />
                   {t("submitEventShort")}
                 </Link>
                 <Link
                   href="/submit-academy"
-                  className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
+                  aria-label={t("submitAcademyShort")}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/20 px-4 py-2.5 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
                 >
                   <GraduationCap className="h-3.5 w-3.5" />
                   {t("submitAcademyShort")}
                 </Link>
                 <Link
                   href="/submit-spot"
-                  className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
+                  aria-label={t("submitSpotShort")}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/20 px-4 py-2.5 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
                 >
                   <MapPinned className="h-3.5 w-3.5" />
                   {t("submitSpotShort")}

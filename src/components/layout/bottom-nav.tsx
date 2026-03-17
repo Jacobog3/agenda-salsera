@@ -58,9 +58,11 @@ export function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative -mt-4 flex h-14 w-14 flex-col items-center justify-center rounded-full bg-brand-600 shadow-lg shadow-brand-600/30 transition-all active:scale-90"
+                aria-label={t(item.labelKey)}
+                className="relative -mt-4 flex h-16 w-16 flex-col items-center justify-center rounded-full bg-brand-600 shadow-lg shadow-brand-600/30 transition-all active:scale-90"
               >
                 <Icon className="h-6 w-6 text-white" strokeWidth={2.5} />
+                <span className="sr-only">{t(item.labelKey)}</span>
               </Link>
             );
           }
@@ -69,8 +71,9 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={t(item.labelKey)}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 rounded-2xl px-4 py-1.5 text-[11px] font-medium transition-all active:scale-90",
+                "relative flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 rounded-2xl px-4 py-2 text-[11px] font-medium transition-all active:scale-90",
                 active ? "text-brand-600" : "text-muted-foreground"
               )}
             >

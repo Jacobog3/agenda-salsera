@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { EventCard } from "@/components/events/event-card";
 import { FilterBar } from "@/components/events/filter-bar";
@@ -50,9 +49,10 @@ export default async function EventsPage({
           <SectionHeading title={t("title")} description={t("description")} as="h1" />
           <LastUpdatedBadge date={lastUpdated} locale={currentLocale} />
         </div>
-        <Suspense fallback={<div className="h-16 md:h-20" />}>
-          <FilterBar />
-        </Suspense>
+        <FilterBar
+          currentDate={filters.date || "all"}
+          currentDanceStyle={filters.danceStyle || "all"}
+        />
         {events.length ? (
           <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
             {events.map((event) => (

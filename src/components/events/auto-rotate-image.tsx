@@ -9,10 +9,12 @@ const INTERVAL_MS = 4000;
 export function AutoRotateImage({
   images: rawImages,
   alt,
+  sizes,
   className
 }: {
   images: string[];
   alt: string;
+  sizes?: string;
   className?: string;
 }) {
   const images = [...new Set(rawImages)];
@@ -34,6 +36,7 @@ export function AutoRotateImage({
         src={images[0]}
         alt={alt}
         fill
+        sizes={sizes}
         className={cn("object-cover", className)}
       />
     );
@@ -47,6 +50,7 @@ export function AutoRotateImage({
           src={src}
           alt={`${alt} (${i + 1})`}
           fill
+          sizes={sizes}
           className={cn(
             "object-cover transition-opacity duration-700",
             i === current ? "opacity-100" : "opacity-0",

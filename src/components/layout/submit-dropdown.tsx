@@ -54,12 +54,13 @@ export function SubmitDropdown() {
       <button
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "hidden items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition-all md:inline-flex",
+          "hidden min-h-11 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all md:inline-flex",
           open
             ? "bg-brand-700 text-white"
             : "bg-brand-600 text-white hover:bg-brand-700"
         )}
         aria-expanded={open}
+        aria-label={t("publish")}
       >
         {open ? (
           <X className="h-3.5 w-3.5" />
@@ -84,7 +85,8 @@ export function SubmitDropdown() {
                   <Link
                     href={opt.href as "/submit-event"}
                     onClick={() => setOpen(false)}
-                    className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-50"
+                    aria-label={`${t(opt.labelKey)}. ${t(opt.descKey)}`}
+                    className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-gray-50"
                   >
                     <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50">
                       <Icon className="h-4 w-4 text-brand-600" />

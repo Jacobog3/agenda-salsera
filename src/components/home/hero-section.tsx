@@ -11,9 +11,10 @@ function BrandCard() {
       <Image
         src="/images/exploraguate-logo.png"
         alt="ExploraGuate"
-        width={420}
-        height={280}
-        className="h-auto w-full"
+        width={1376}
+        height={768}
+        sizes="(min-width: 1024px) 340px, 300px"
+        className="h-auto w-full max-w-[320px]"
         priority
       />
     </div>
@@ -54,13 +55,15 @@ export async function HeroSection({
               <div className="mt-6 flex flex-wrap gap-3 md:mt-8">
                 <Link
                   href="/events"
-                  className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-md active:scale-[0.97]"
+                  aria-label={`${t("primaryCta")}: ${t("eventsTitle")}`}
+                  className="rounded-full bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-md active:scale-[0.97]"
                 >
                   {t("primaryCta")}
                 </Link>
                 <Link
                   href="/spots"
-                  className="rounded-full border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow-md active:scale-[0.97]"
+                  aria-label={`${t("secondaryCta")}: ${t("spotsTitle")}`}
+                  className="rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow-md active:scale-[0.97]"
                 >
                   {t("secondaryCta")}
                 </Link>

@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { AutoRotateImage } from "@/components/events/auto-rotate-image";
 import { MapPin } from "lucide-react";
 import { formatCardPrice, formatEventDate, formatEventDateRange } from "@/lib/utils/formatters";
 import type { LocalizedEvent } from "@/types/event";
@@ -29,20 +28,13 @@ export async function EventCard({
       <Card className="group flex flex-row overflow-hidden bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98] md:flex-col">
         {/* Image: compact square on mobile, full-width on desktop */}
         <div className="relative w-[104px] shrink-0 self-stretch overflow-hidden bg-surface-soft md:w-full md:aspect-[4/3]">
-          {event.galleryUrls.length > 0 ? (
-            <AutoRotateImage
-              images={[event.coverImageUrl, ...event.galleryUrls]}
-              alt={event.title}
-              className="transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <Image
-              src={event.coverImageUrl}
-              alt={event.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          )}
+          <Image
+            src={event.coverImageUrl}
+            alt={event.title}
+            fill
+            sizes="(min-width: 768px) 50vw, 104px"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
           <div className="absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-black/50 to-transparent p-3 pt-8 md:block">
             <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-foreground backdrop-blur-sm">
               {isLongEvent
