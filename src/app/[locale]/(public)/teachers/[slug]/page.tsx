@@ -28,24 +28,71 @@ const MODALITY_MAP: Record<string, "inPerson" | "online" | "hybrid"> = {
   mixto: "hybrid"
 };
 
+function buildTeacherDescription({
+  teacher,
+  locale,
+  styleLabels
+}: {
+  teacher: NonNullable<Awaited<ReturnType<typeof getTeacherBySlug>>>;
+  locale: Locale;
+  styleLabels: string[];
+}): string {
+  if (teacher.bio && teacher.bio.trim().length >= 80) {
+    return teacher.bio.trim();
+  }
+
+  const styles = styleLabels.join(locale === "es" ? " y " : " and ");
+  const formats = teacher.classFormats?.join(locale === "es" ? " y " : " and ");
+  const levels = teacher.levels?.trim();
+
+  if (locale === "es") {
+    const parts = [
+      styles ? `Clases de ${styles}` : "Clases de baile",
+      teacher.city ? `en ${teacher.city}` : null,
+      formats ? `con formato de ${formats}` : null,
+      levels ? `para nivel ${levels}` : null
+    ].filter(Boolean);
+
+    return `${parts.join(" ")}.`.replace(/\s+\./g, ".");
+  }
+
+  const parts = [
+    styles ? `${styles} classes` : "Dance classes",
+    teacher.city ? `in ${teacher.city}` : null,
+    formats ? `with ${formats} formats` : null,
+    levels ? `for ${levels} level students` : null
+  ].filter(Boolean);
+
+  return `${parts.join(" ")}.`.replace(/\s+\./g, ".");
+}
+
 export async function generateMetadata({
   params
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const teacher = await getTeacherBySlug(locale as Locale, slug);
+  const currentLocale = locale as Locale;
+  const teacher = await getTeacherBySlug(currentLocale, slug);
 
   if (!teacher) return {};
+
+  const common = await getTranslations({ locale: currentLocale, namespace: "common" });
+  const styleLabels = teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
+  const description = buildTeacherDescription({
+    teacher,
+    locale: currentLocale,
+    styleLabels
+  });
 
   const title = locale === "es"
     ? `${teacher.name} | Maestro de baile en ${teacher.city}`
     : `${teacher.name} | Dance teacher in ${teacher.city}`;
 
   return buildDetailMetadata({
-    locale: locale as Locale,
+    locale: currentLocale,
     title,
-    description: teacher.bio,
+    description,
     image: teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png",
     esPath: `/maestros/${teacher.slug}`,
     enPath: `/en/teachers/${teacher.slug}`,
@@ -55,10 +102,12 @@ export async function generateMetadata({
 
 function TeacherJsonLd({
   teacher,
-  locale
+  locale,
+  description
 }: {
   teacher: Awaited<ReturnType<typeof getTeacherBySlug>>;
   locale: Locale;
+  description: string;
 }) {
   if (!teacher) return null;
 
@@ -74,7 +123,7 @@ function TeacherJsonLd({
     "@context": "https://schema.org",
     "@type": "Person",
     name: teacher.name,
-    description: teacher.bio,
+    description,
     url: pageUrl,
     image: imageUrl,
     address: teacher.address
@@ -113,6 +162,12 @@ export default async function TeacherDetailPage({
 
   if (!teacher) notFound();
 
+  const teacherDescription = buildTeacherDescription({
+    teacher,
+    locale: currentLocale,
+    styleLabels: teacher.stylesTaught.map((style) => common(`danceStyles.${style}`))
+  });
+
   const relatedEvents = allFeaturedEvents.filter((event) => {
     const matchesCity = event.city === teacher.city;
     const matchesStyle = teacher.stylesTaught.includes(event.danceStyle) || teacher.stylesTaught.includes("salsa_bachata");
@@ -130,7 +185,11 @@ export default async function TeacherDetailPage({
 
   return (
     <>
-      <TeacherJsonLd teacher={teacher} locale={currentLocale} />
+      <TeacherJsonLd
+        teacher={teacher}
+        locale={currentLocale}
+        description={teacherDescription}
+      />
 
       <section className="page-section">
         <Container>
@@ -201,7 +260,7 @@ export default async function TeacherDetailPage({
                   {t("aboutTitle")}
                 </h2>
                 <p className="text-sm leading-relaxed text-muted-foreground md:text-base md:leading-7">
-                  {teacher.bio}
+                  {teacherDescription}
                 </p>
               </div>
 

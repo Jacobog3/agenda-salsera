@@ -13,7 +13,8 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   return buildMetadata(locale as Locale, "submitAcademyTitle", "submitAcademyDescription", {
-    pathname: "/submit-academy"
+    pathname: "/submit-academy",
+    noIndex: true
   });
 }
 

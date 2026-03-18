@@ -12,7 +12,8 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   return buildMetadata(locale as Locale, "submitEventTitle", "submitEventDescription", {
-    pathname: "/submit-event"
+    pathname: "/submit-event",
+    noIndex: true
   });
 }
 

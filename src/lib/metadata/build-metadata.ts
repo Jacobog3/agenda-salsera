@@ -21,6 +21,10 @@ type MetadataKey =
   | "submitSpotTitle"
   | "submitSpotDescription";
 
+function sanitizeTitle(title: string): string {
+  return title.replace(/\s*\|\s*exploraguate\s*$/i, "").trim();
+}
+
 const DEFAULT_OG_IMAGE = "/images/exploraguate-logo.png";
 
 // Mirrors routing.pathnames but as a plain object to avoid importing next-intl/routing
@@ -64,10 +68,11 @@ export async function buildMetadata(
     image?: string;
     type?: "website" | "article";
     pathname?: string;
+    noIndex?: boolean;
   }
 ): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const title = overrides?.title ?? t(titleKey);
+  const title = sanitizeTitle(overrides?.title ?? t(titleKey));
   const description = overrides?.description ?? t(descriptionKey);
   const siteUrl = env.siteUrl;
   const image = overrides?.image ?? DEFAULT_OG_IMAGE;
@@ -88,10 +93,7 @@ export async function buildMetadata(
     : `${siteUrl}/en`;
 
   return {
-    title: {
-      default: title,
-      template: `%s | ExploraGuate`
-    },
+    title,
     description,
     metadataBase: new URL(siteUrl),
     alternates: {
@@ -101,6 +103,13 @@ export async function buildMetadata(
         en: enUrl
       }
     },
+    robots: overrides?.noIndex
+      ? {
+          index: false,
+          follow: true,
+          googleBot: { index: false, follow: true }
+        }
+      : undefined,
     openGraph: {
       title,
       description,
@@ -136,6 +145,7 @@ export function buildDetailMetadata(options: {
   type?: "website" | "article";
 }): Metadata {
   const siteUrl = env.siteUrl;
+  const title = sanitizeTitle(options.title);
   const canonical = options.locale === "es"
     ? `${siteUrl}${options.esPath}`
     : `${siteUrl}${options.enPath}`;
@@ -147,7 +157,7 @@ export function buildDetailMetadata(options: {
   const description = options.description.slice(0, 155);
 
   return {
-    title: `${options.title} | ExploraGuate`,
+    title,
     description,
     metadataBase: new URL(siteUrl),
     alternates: {
@@ -158,7 +168,7 @@ export function buildDetailMetadata(options: {
       }
     },
     openGraph: {
-      title: options.title,
+      title,
       description,
       siteName: "ExploraGuate",
       locale: options.locale,
@@ -169,13 +179,13 @@ export function buildDetailMetadata(options: {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: options.title
+          alt: title
         }
       ]
     },
     twitter: {
       card: "summary_large_image",
-      title: options.title,
+      title,
       description,
       images: [ogImage]
     }
