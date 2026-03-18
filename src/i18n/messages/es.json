@@ -54,6 +54,8 @@
     "submitEventDesc": "Concierto, social, taller o clase especial",
     "submitAcademyLabel": "Academia",
     "submitAcademyDesc": "Escuela o academia de baile",
+    "submitTeacherLabel": "Maestro",
+    "submitTeacherDesc": "Profesor independiente para clases, privadas o bootcamps",
     "submitSpotLabel": "Bar / Lugar",
     "submitSpotDesc": "Lugar donde hay salsa o bachata seguido"
   },
@@ -93,6 +95,7 @@
     "submitDescription": "Publicá tu evento, academia o bar en minutos. Más personas lo van a encontrar.",
     "submitEventShort": "Publicar evento",
     "submitAcademyShort": "Publicar academia",
+    "submitTeacherShort": "Publicar maestro",
     "submitSpotShort": "Publicar bar / lugar",
     "highlightsTitle": "Exploración clara desde el celular",
     "highlights": {
@@ -298,6 +301,8 @@
     "submitEventDescription": "Comparte un evento con la comunidad Exploraguate.",
     "submitAcademyTitle": "Registrar academia | Exploraguate",
     "submitAcademyDescription": "Registrá tu academia de baile en Exploraguate gratis.",
+    "submitTeacherTitle": "Registrar maestro | Exploraguate",
+    "submitTeacherDescription": "Registrá tu perfil como maestro de baile en Exploraguate gratis.",
     "submitSpotTitle": "Registrar lugar | Exploraguate",
     "submitSpotDescription": "Registrá tu bar o venue con noches de salsa en Exploraguate."
   },
@@ -309,6 +314,7 @@
     "step3Review": "3. Revisá y completá",
     "uploadImage": "Tocá para subir la imagen del flyer",
     "uploadImageAcademy": "Logo, flyer de horario, foto del estudio",
+    "uploadImageTeacher": "Foto de perfil, flyer de clases o imagen representativa",
     "imageFormats": "JPG, PNG, WEBP",
     "imageRequired": "Se requiere una imagen o flyer",
     "pasteHere": "Pegá aquí el texto de WhatsApp o Instagram...",
@@ -349,12 +355,22 @@
     "styles": "Estilos que enseñan",
     "stylesPlaceholder": "Ej: Salsa, bachata, merengue",
     "submitAcademy": "Enviar academia",
+    "submitTeacher": "Enviar maestro",
     "submitSpot": "Enviar lugar",
     "academySuccess": "¡Recibimos tu academia!",
     "academySuccessDesc": "La revisaremos y la publicaremos pronto.",
+    "teacherSuccess": "¡Recibimos tu perfil!",
+    "teacherSuccessDesc": "Lo revisaremos y lo publicaremos pronto.",
     "spotSuccess": "¡Recibimos tu lugar!",
     "spotSuccessDesc": "Lo revisaremos y lo publicaremos pronto. Te contactamos si necesitamos más info.",
     "academyDescPlaceholder": "¿Qué enseñan? ¿Cuál es el enfoque?",
+    "teacherDescPlaceholder": "¿Qué enseñas? ¿Cuál es tu enfoque o estilo de clase?",
+    "classFormatsLabel": "Formatos de clase",
+    "classFormatsPlaceholder": "Ej: Privadas, grupales, bootcamps",
+    "teachingVenuesLabel": "Dónde das clases",
+    "teachingVenuesPlaceholder": "Ej: Antigua Guatemala, domicilio, estudio privado",
+    "bookingUrlLabel": "Link para agendar",
+    "bookingUrlPlaceholder": "https://wa.me/502... o tu link de reserva",
     "spotName": "Nombre del lugar *",
     "spotDescPlaceholder": "Ambiente, tipo de música, etc.",
     "spotStyles": "Noches de baile",
@@ -377,6 +393,10 @@
   "submitAcademy": {
     "pageTitle": "Registrar academia",
     "pageDescription": "Completá el formulario y publicamos tu academia gratis. Más personas la van a encontrar."
+  },
+  "submitTeacher": {
+    "pageTitle": "Registrar maestro",
+    "pageDescription": "Comparte tu perfil como maestro de baile para que más personas puedan encontrarte y agendar clases."
   },
   "submitSpot": {
     "pageTitle": "Registrar bar o lugar",

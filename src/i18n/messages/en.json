@@ -54,6 +54,8 @@
     "submitEventDesc": "Concert, social, workshop or special class",
     "submitAcademyLabel": "Academy",
     "submitAcademyDesc": "Dance school or academy",
+    "submitTeacherLabel": "Teacher",
+    "submitTeacherDesc": "Independent instructor for classes, privates, or bootcamps",
     "submitSpotLabel": "Bar / Venue",
     "submitSpotDesc": "Place with regular salsa or bachata nights"
   },
@@ -93,6 +95,7 @@
     "submitDescription": "Publish your event, academy or venue in minutes. More people will find it.",
     "submitEventShort": "Publish event",
     "submitAcademyShort": "Publish academy",
+    "submitTeacherShort": "Publish teacher",
     "submitSpotShort": "Publish bar / venue",
     "highlightsTitle": "Clear mobile-first discovery",
     "highlights": {
@@ -298,6 +301,8 @@
     "submitEventDescription": "Share an event with the Exploraguate community.",
     "submitAcademyTitle": "Register academy | Exploraguate",
     "submitAcademyDescription": "Register your dance academy on Exploraguate for free.",
+    "submitTeacherTitle": "Register teacher | Exploraguate",
+    "submitTeacherDescription": "Register your dance teacher profile on Exploraguate for free.",
     "submitSpotTitle": "Register venue | Exploraguate",
     "submitSpotDescription": "Register your bar or venue with salsa nights on Exploraguate."
   },
@@ -309,6 +314,7 @@
     "step3Review": "3. Review and complete",
     "uploadImage": "Tap to upload the flyer image",
     "uploadImageAcademy": "Logo, schedule flyer, studio photo",
+    "uploadImageTeacher": "Profile photo, class flyer, or representative image",
     "imageFormats": "JPG, PNG, WEBP",
     "imageRequired": "An image or flyer is required",
     "pasteHere": "Paste WhatsApp or Instagram text here...",
@@ -349,12 +355,22 @@
     "styles": "Dance styles taught",
     "stylesPlaceholder": "E.g. Salsa, bachata, merengue",
     "submitAcademy": "Submit academy",
+    "submitTeacher": "Submit teacher",
     "submitSpot": "Submit venue",
     "academySuccess": "We received your academy!",
     "academySuccessDesc": "We'll review it and publish it soon.",
+    "teacherSuccess": "We received your profile!",
+    "teacherSuccessDesc": "We'll review it and publish it soon.",
     "spotSuccess": "We received your venue!",
     "spotSuccessDesc": "We'll review it and publish it soon. We'll contact you if we need more info.",
     "academyDescPlaceholder": "What do they teach? What's the focus?",
+    "teacherDescPlaceholder": "What do you teach? What's your approach or class style?",
+    "classFormatsLabel": "Class formats",
+    "classFormatsPlaceholder": "E.g. Private lessons, group classes, bootcamps",
+    "teachingVenuesLabel": "Where you teach",
+    "teachingVenuesPlaceholder": "E.g. Antigua Guatemala, home visits, private studio",
+    "bookingUrlLabel": "Booking link",
+    "bookingUrlPlaceholder": "https://wa.me/502... or your booking link",
     "spotName": "Venue name *",
     "spotDescPlaceholder": "Ambience, music type, etc.",
     "spotStyles": "Dance nights",
@@ -377,6 +393,10 @@
   "submitAcademy": {
     "pageTitle": "Register academy",
     "pageDescription": "Fill out the form and we'll publish your academy for free. More people will find it."
+  },
+  "submitTeacher": {
+    "pageTitle": "Register teacher",
+    "pageDescription": "Share your dance teacher profile so more people can find you and book classes."
   },
   "submitSpot": {
     "pageTitle": "Register bar or venue",

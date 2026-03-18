@@ -59,6 +59,7 @@ export async function SiteFooter() {
                 <ul className="space-y-1.5 text-xs text-gray-700 md:space-y-2.5 md:text-sm">
                   <li><Link href="/submit-event" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitEventLabel")}</Link></li>
                   <li><Link href="/submit-academy" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitAcademyLabel")}</Link></li>
+                  <li><Link href="/submit-teacher" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitTeacherLabel")}</Link></li>
                   <li><Link href="/submit-spot" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitSpotLabel")}</Link></li>
                 </ul>
               </div>

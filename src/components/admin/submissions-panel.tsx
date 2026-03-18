@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   CheckCircle2, XCircle, Loader2, CalendarDays, MapPin,
-  Clock, User, Tag, ExternalLink, ImageOff, RefreshCw, GraduationCap
+  Clock, User, Tag, ExternalLink, ImageOff, RefreshCw, GraduationCap, UserRound
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -27,21 +27,35 @@ type AcademySub = {
   contact_name: string | null; created_at: string;
 };
 
+type TeacherSub = {
+  id: string; name: string; description: string | null;
+  image_url: string | null; city: string; address: string | null;
+  styles: string | null; levels: string | null; modality: string;
+  class_formats: string | null; teaching_venues: string | null;
+  schedule_text: string | null; whatsapp: string | null;
+  instagram: string | null; website: string | null;
+  booking_url: string | null; contact_name: string | null;
+  created_at: string;
+};
+
 const DANCE_STYLE_LABELS: Record<string, string> = {
   salsa: "Salsa", bachata: "Bachata", salsa_bachata: "Salsa y Bachata", other: "Otro"
 };
 
-type Tab = "events" | "academies";
+type Tab = "events" | "academies" | "teachers";
 
 export function SubmissionsPanel() {
   const [tab, setTab] = useState<Tab>("events");
   const [events, setEvents] = useState<EventSub[]>([]);
   const [academies, setAcademies] = useState<AcademySub[]>([]);
+  const [teachers, setTeachers] = useState<TeacherSub[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<EventSub | null>(null);
   const [selectedAcademy, setSelectedAcademy] = useState<AcademySub | null>(null);
+  const [selectedTeacher, setSelectedTeacher] = useState<TeacherSub | null>(null);
   const [editingEvent, setEditingEvent] = useState<Partial<EventSub>>({});
   const [editingAcademy, setEditingAcademy] = useState<Partial<AcademySub>>({});
+  const [editingTeacher, setEditingTeacher] = useState<Partial<TeacherSub>>({});
   const [publishing, setPublishing] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [actionMsg, setActionMsg] = useState("");
@@ -49,13 +63,15 @@ export function SubmissionsPanel() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [evRes, acRes] = await Promise.all([
+      const [evRes, acRes, teRes] = await Promise.all([
         fetch("/api/admin/submissions"),
-        fetch("/api/admin/academy-submissions")
+        fetch("/api/admin/academy-submissions"),
+        fetch("/api/admin/teacher-submissions")
       ]);
-      const [evJson, acJson] = await Promise.all([evRes.json(), acRes.json()]);
+      const [evJson, acJson, teJson] = await Promise.all([evRes.json(), acRes.json(), teRes.json()]);
       setEvents(evJson.data ?? []);
       setAcademies(acJson.data ?? []);
+      setTeachers(teJson.data ?? []);
     } finally {
       setLoading(false);
     }
@@ -66,8 +82,10 @@ export function SubmissionsPanel() {
   function closeDetail() {
     setSelectedEvent(null);
     setSelectedAcademy(null);
+    setSelectedTeacher(null);
     setEditingEvent({});
     setEditingAcademy({});
+    setEditingTeacher({});
     setActionMsg("");
   }
 
@@ -124,6 +142,34 @@ export function SubmissionsPanel() {
     setRejecting(true);
     const res = await fetch(`/api/admin/academy-submissions/${selectedAcademy.id}`, { method: "DELETE" });
     if (res.ok) { setAcademies((prev) => prev.filter((s) => s.id !== selectedAcademy.id)); closeDetail(); }
+    setRejecting(false);
+  }
+
+  async function handlePublishTeacher() {
+    if (!selectedTeacher) return;
+    setPublishing(true);
+    setActionMsg("");
+    try {
+      const res = await fetch(`/api/admin/teacher-submissions/${selectedTeacher.id}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingTeacher)
+      });
+      if (res.ok) {
+        setTeachers((prev) => prev.filter((s) => s.id !== selectedTeacher.id));
+        setActionMsg("✅ Publicado");
+        setTimeout(closeDetail, 1200);
+      } else {
+        const err = await res.json();
+        setActionMsg(`❌ ${err.error}`);
+      }
+    } finally { setPublishing(false); }
+  }
+
+  async function handleRejectTeacher() {
+    if (!selectedTeacher) return;
+    setRejecting(true);
+    const res = await fetch(`/api/admin/teacher-submissions/${selectedTeacher.id}`, { method: "DELETE" });
+    if (res.ok) { setTeachers((prev) => prev.filter((s) => s.id !== selectedTeacher.id)); closeDetail(); }
     setRejecting(false);
   }
 
@@ -246,7 +292,68 @@ export function SubmissionsPanel() {
     );
   }
 
-  const currentCount = tab === "events" ? events.length : academies.length;
+  if (selectedTeacher) {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <button onClick={closeDetail} className="text-sm text-muted-foreground hover:text-foreground">← Volver</button>
+          <span className="text-xs text-muted-foreground">{new Date(selectedTeacher.created_at).toLocaleString("es-GT")}</span>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+          {editingTeacher.image_url ? (
+            <div className="bg-black/5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={editingTeacher.image_url} alt="Maestro" className="mx-auto max-h-52 object-contain" />
+            </div>
+          ) : (
+            <div className="flex h-28 items-center justify-center bg-surface-soft">
+              <UserRound className="h-8 w-8 text-muted-foreground/30" />
+            </div>
+          )}
+          <div className="space-y-4 p-4 md:p-6">
+            <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+              <EditField label="Nombre"><Input value={editingTeacher.name ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, name: e.target.value }))} /></EditField>
+              <EditField label="Contacto"><Input value={editingTeacher.contact_name ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, contact_name: e.target.value }))} /></EditField>
+            </div>
+            <EditField label="Descripción"><Textarea rows={3} value={editingTeacher.description ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, description: e.target.value }))} /></EditField>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EditField label="Estilos"><Input value={editingTeacher.styles ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, styles: e.target.value }))} /></EditField>
+              <EditField label="Niveles"><Input value={editingTeacher.levels ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, levels: e.target.value }))} /></EditField>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EditField label="Formatos de clase"><Input value={editingTeacher.class_formats ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, class_formats: e.target.value }))} /></EditField>
+              <EditField label="Dónde da clases"><Input value={editingTeacher.teaching_venues ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, teaching_venues: e.target.value }))} /></EditField>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EditField label="Horario"><Input value={editingTeacher.schedule_text ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, schedule_text: e.target.value }))} /></EditField>
+              <EditField label="Modalidad">
+                <select value={editingTeacher.modality ?? "presencial"} onChange={(e) => setEditingTeacher((p) => ({ ...p, modality: e.target.value }))}
+                  className="flex h-11 w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                  <option value="presencial">Presencial</option>
+                  <option value="online">Online</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </EditField>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EditField label="Ciudad"><Input value={editingTeacher.city ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, city: e.target.value }))} /></EditField>
+              <EditField label="Dirección"><Input value={editingTeacher.address ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, address: e.target.value }))} /></EditField>
+            </div>
+            <EditField label="Link para agendar"><Input value={editingTeacher.booking_url ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, booking_url: e.target.value }))} /></EditField>
+            <div className="grid gap-3 md:grid-cols-3 md:gap-4">
+              <EditField label="WhatsApp"><Input value={editingTeacher.whatsapp ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, whatsapp: e.target.value }))} /></EditField>
+              <EditField label="Instagram"><Input value={editingTeacher.instagram ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, instagram: e.target.value }))} /></EditField>
+              <EditField label="Web"><Input value={editingTeacher.website ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, website: e.target.value }))} /></EditField>
+            </div>
+            {actionMsg && <p className="text-sm font-medium text-brand-600">{actionMsg}</p>}
+            <ActionButtons onPublish={handlePublishTeacher} onReject={handleRejectTeacher} publishing={publishing} rejecting={rejecting} label="Publicar maestro" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentCount = tab === "events" ? events.length : tab === "academies" ? academies.length : teachers.length;
 
   return (
     <div className="space-y-5">
@@ -268,7 +375,8 @@ export function SubmissionsPanel() {
       <div className="flex gap-1 rounded-xl bg-surface-soft p-1">
         {([
           { key: "events" as Tab, label: "Eventos", count: events.length, icon: CalendarDays },
-          { key: "academies" as Tab, label: "Academias", count: academies.length, icon: GraduationCap }
+          { key: "academies" as Tab, label: "Academias", count: academies.length, icon: GraduationCap },
+          { key: "teachers" as Tab, label: "Maestros", count: teachers.length, icon: UserRound }
         ]).map(({ key, label, count, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
             className={cn(
@@ -323,7 +431,7 @@ export function SubmissionsPanel() {
             </button>
           ))}
         </div>
-      ) : (
+      ) : tab === "academies" ? (
         <div className="space-y-3">
           {academies.map((sub) => (
             <button key={sub.id} onClick={() => { setSelectedAcademy(sub); setEditingAcademy({ ...sub }); setActionMsg(""); }}
@@ -343,6 +451,32 @@ export function SubmissionsPanel() {
                   {sub.schedule_text && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.schedule_text}</span>}
                   {sub.levels && <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{sub.levels}</span>}
                   {sub.trial_class && <span className="flex items-center gap-1 text-green-600"><CheckCircle2 className="h-3 w-3" />Clase gratuita</span>}
+                </div>
+                <p className="text-[11px] text-muted-foreground/60">{new Date(sub.created_at).toLocaleString("es-GT")}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {teachers.map((sub) => (
+            <button key={sub.id} onClick={() => { setSelectedTeacher(sub); setEditingTeacher({ ...sub }); setActionMsg(""); }}
+              className="flex w-full items-start gap-4 overflow-hidden rounded-2xl border border-border bg-white p-4 text-left transition hover:border-brand-300 hover:shadow-sm">
+              {sub.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={sub.image_url} alt={sub.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-surface-soft">
+                  <UserRound className="h-6 w-6 text-muted-foreground/40" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="truncate font-semibold text-foreground">{sub.name}</p>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {sub.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{sub.city}</span>}
+                  {sub.class_formats && <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{sub.class_formats}</span>}
+                  {sub.schedule_text && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.schedule_text}</span>}
+                  {sub.booking_url && <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />Tiene agenda</span>}
                 </div>
                 <p className="text-[11px] text-muted-foreground/60">{new Date(sub.created_at).toLocaleString("es-GT")}</p>
               </div>

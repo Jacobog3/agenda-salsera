@@ -7,7 +7,7 @@ import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPinned, GraduationCap } from "lucide-react";
+import { CalendarDays, MapPinned, GraduationCap, UserRound } from "lucide-react";
 import { getFeaturedAcademies } from "@/lib/queries/academies";
 import { getFeaturedEvents } from "@/lib/queries/events";
 import { getFeaturedSpots } from "@/lib/queries/spots";
@@ -138,6 +138,14 @@ export default async function HomePage({
                 >
                   <GraduationCap className="h-3.5 w-3.5" />
                   {t("submitAcademyShort")}
+                </Link>
+                <Link
+                  href="/submit-teacher"
+                  aria-label={t("submitTeacherShort")}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/20 px-4 py-2.5 text-xs font-bold text-white ring-1 ring-white/30 transition-all hover:bg-white/30 active:scale-[0.97]"
+                >
+                  <UserRound className="h-3.5 w-3.5" />
+                  {t("submitTeacherShort")}
                 </Link>
                 <Link
                   href="/submit-spot"

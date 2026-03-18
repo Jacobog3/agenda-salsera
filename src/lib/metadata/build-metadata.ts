@@ -16,6 +16,8 @@ type MetadataKey =
   | "submitEventDescription"
   | "submitAcademyTitle"
   | "submitAcademyDescription"
+  | "submitTeacherTitle"
+  | "submitTeacherDescription"
   | "submitSpotTitle"
   | "submitSpotDescription";
 
@@ -31,6 +33,7 @@ const PAGE_PATHS: Record<string, { es: string; en: string } | string> = {
   "/search": { es: "/buscar", en: "/search" },
   "/submit-event": { es: "/enviar-evento", en: "/submit-event" },
   "/submit-academy": { es: "/enviar-academia", en: "/submit-academy" },
+  "/submit-teacher": { es: "/enviar-maestro", en: "/submit-teacher" },
   "/submit-spot": { es: "/enviar-lugar", en: "/submit-spot" },
   "/legal/terms": { es: "/legal/terminos", en: "/legal/terms" },
   "/legal/privacy": { es: "/legal/privacidad", en: "/legal/privacy" }

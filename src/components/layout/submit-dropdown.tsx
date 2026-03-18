@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Plus, CalendarDays, GraduationCap, MapPinned, X } from "lucide-react";
+import { Plus, CalendarDays, GraduationCap, MapPinned, UserRound, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 type Option = {
-  href: "/submit-event" | "/submit-academy" | "/submit-spot";
+  href: "/submit-event" | "/submit-academy" | "/submit-teacher" | "/submit-spot";
   icon: typeof CalendarDays;
   labelKey: string;
   descKey: string;
@@ -25,6 +25,12 @@ const options: Option[] = [
     icon: GraduationCap,
     labelKey: "submitAcademyLabel",
     descKey: "submitAcademyDesc"
+  },
+  {
+    href: "/submit-teacher",
+    icon: UserRound,
+    labelKey: "submitTeacherLabel",
+    descKey: "submitTeacherDesc"
   },
   {
     href: "/submit-spot",
@@ -83,7 +89,7 @@ export function SubmitDropdown() {
               return (
                 <li key={opt.href}>
                   <Link
-                    href={opt.href as "/submit-event"}
+                    href={opt.href}
                     onClick={() => setOpen(false)}
                     aria-label={`${t(opt.labelKey)}. ${t(opt.descKey)}`}
                     className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-gray-50"
