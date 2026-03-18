@@ -1,6 +1,10 @@
 import type { AcademyRecord, LocalizedAcademy } from "@/types/academy";
 import type { EventRecord, LocalizedEvent } from "@/types/event";
 import type { SpotRecord, LocalizedSpot } from "@/types/spot";
+import type {
+  TeacherRecord,
+  LocalizedTeacher
+} from "@/types/teacher";
 import type { Locale } from "@/types/locale";
 
 export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEvent {
@@ -71,5 +75,37 @@ export function localizeSpot(spot: SpotRecord, locale: Locale): LocalizedSpot {
     instagramUrl: spot.instagramUrl,
     googleMapsUrl: spot.googleMapsUrl,
     isFeatured: spot.isFeatured
+  };
+}
+
+export function localizeTeacher(
+  teacher: TeacherRecord,
+  locale: Locale
+): LocalizedTeacher {
+  return {
+    id: teacher.id,
+    slug: teacher.slug,
+    name: teacher.name,
+    bio: locale === "es" ? teacher.bioEs : teacher.bioEn,
+    profileImageUrl: teacher.profileImageUrl,
+    bannerImageUrl: teacher.bannerImageUrl,
+    city: teacher.city,
+    area: teacher.area,
+    address: teacher.address,
+    stylesTaught: teacher.stylesTaught,
+    levels: teacher.levels,
+    modality: teacher.modality,
+    classFormats: teacher.classFormats,
+    teachingZones: teacher.teachingZones,
+    teachingVenues: teacher.teachingVenues,
+    scheduleText: teacher.scheduleText,
+    scheduleData: teacher.scheduleData,
+    bookingUrl: teacher.bookingUrl,
+    whatsappUrl: teacher.whatsappUrl,
+    instagramUrl: teacher.instagramUrl,
+    websiteUrl: teacher.websiteUrl,
+    trialClass: teacher.trialClass,
+    priceText: teacher.priceText,
+    isFeatured: teacher.isFeatured
   };
 }

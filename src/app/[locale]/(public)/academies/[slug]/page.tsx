@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { EventCard } from "@/components/events/event-card";
+import { ReportForm } from "@/components/shared/report-form";
 import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
 import { env } from "@/lib/utils/env";
 import { getAcademyBySlug } from "@/lib/queries/academies";
@@ -359,6 +360,10 @@ export default async function AcademyDetailPage({
               </div>
             </div>
           )}
+
+          <div className="mt-8 flex justify-center border-t border-gray-100 pt-4 md:mt-10">
+            <ReportForm entityType="academy" entityId={academy.id} />
+          </div>
         </Container>
       </section>
 

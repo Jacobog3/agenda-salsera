@@ -14,6 +14,8 @@ type Report = {
   id: string;
   entity_type: string;
   entity_id: string;
+  entity_name?: string | null;
+  entity_slug?: string | null;
   reason: string;
   details: string | null;
   contact_email: string | null;
@@ -24,10 +26,19 @@ type Report = {
 const REASON_LABELS: Record<string, string> = {
   wrong_date: "Fecha incorrecta",
   wrong_price: "Precio incorrecto",
+  wrong_schedule: "Horario incorrecto",
+  wrong_contact: "Contacto incorrecto",
   wrong_location: "Ubicación incorrecta",
   event_cancelled: "Evento cancelado",
+  inactive: "Ya no está activo",
   duplicate: "Duplicado",
   other: "Otro"
+};
+
+const ENTITY_LABELS: Record<string, string> = {
+  event: "Evento",
+  academy: "Academia",
+  teacher: "Maestro"
 };
 
 export default function AdminReportsPage() {
@@ -128,7 +139,9 @@ function ReportCard({
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <Flag className={`h-3.5 w-3.5 ${isPending ? "text-amber-500" : "text-green-500"}`} />
-            <span className="text-xs font-bold uppercase text-gray-500">{report.entity_type}</span>
+            <span className="text-xs font-bold uppercase text-gray-500">
+              {ENTITY_LABELS[report.entity_type] ?? report.entity_type}
+            </span>
             <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-mono text-gray-500">
               {report.entity_id.slice(0, 8)}
             </span>
@@ -139,6 +152,17 @@ function ReportCard({
 
           {report.details && (
             <p className="text-sm text-gray-600">{report.details}</p>
+          )}
+
+          {report.entity_name && (
+            <p className="text-sm font-medium text-gray-800">
+              {report.entity_name}
+              {report.entity_slug ? (
+                <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-mono text-gray-500">
+                  {report.entity_slug}
+                </span>
+              ) : null}
+            </p>
           )}
 
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-400">

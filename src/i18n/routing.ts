@@ -31,6 +31,10 @@ export const routing = defineRouting({
       es: "/academias/[slug]",
       en: "/academies/[slug]"
     },
+    "/teachers/[slug]": {
+      es: "/maestros/[slug]",
+      en: "/teachers/[slug]"
+    },
     "/submit-event": {
       es: "/enviar-evento",
       en: "/submit-event"

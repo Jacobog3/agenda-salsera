@@ -156,11 +156,37 @@
     "contactCta": "Contactar"
   },
   "academies": {
-    "title": "Academias y escuelas",
-    "description": "Descubre academias para aprender salsa, bachata y otros ritmos latinos.",
+    "title": "Academias y Maestros",
+    "description": "Explora academias consolidadas y Maestros para aprender salsa, bachata y otros ritmos latinos.",
     "empty": "Todavía no hay academias registradas.",
     "emptyDescription": "¿Tenés una academia o escuela de baile? Escribinos y la agregamos gratis.",
     "emptyCta": "Registrar mi academia",
+    "views": {
+      "academies": "Academias",
+      "teachers": "Maestros"
+    },
+    "summaries": {
+      "academies": {
+        "title": "Escuelas y espacios para aprender con estructura",
+        "description": "Encontrá academias con horarios, niveles y contacto directo para clases regulares o programas más completos."
+      },
+      "teachers": {
+        "title": "Maestros para clases mas flexibles",
+        "description": "Descubri Maestros con enfoque en privadas, bootcamps y formatos mas personalizados para aprender sin depender de una academia fija."
+      }
+    },
+    "teasers": {
+      "academies": {
+        "eyebrow": "Tambien puedes explorar academias",
+        "description": "Si buscas horarios fijos, programas por nivel o una comunidad estable, la vista de academias sigue siendo la mejor puerta de entrada.",
+        "cta": "Ver academias"
+      },
+      "teachers": {
+        "eyebrow": "Tambien puedes explorar maestros",
+        "description": "Si prefieres una experiencia mas personalizada, puedes revisar Maestros para privadas, refuerzos o workshops puntuales.",
+        "cta": "Ver maestros"
+      }
+    },
     "contactCta": "Contactar academia",
     "writeOnWhatsApp": "Escribir por WhatsApp",
     "viewOnInstagram": "Ver en Instagram",
@@ -176,7 +202,40 @@
     "inPerson": "Presencial",
     "online": "Online",
     "hybrid": "Mixto (presencial + online)",
-    "contactTitle": "Contacto"
+    "contactTitle": "Contacto",
+    "teachers": {
+      "label": "Maestro",
+      "teachesAtLabel": "Da clases en",
+      "formatsLabel": "Formatos",
+      "whatsappAria": "Contactar por WhatsApp",
+      "instagramAria": "Ver Instagram",
+      "empty": "Todavia no hay maestros destacados.",
+      "emptyDescription": "Cuando empecemos a agregarlos, aqui vas a poder descubrir profesores por nombre, ciudad o formato de clase.",
+      "emptyCta": "Volver a academias"
+    }
+  },
+  "teachers": {
+    "aboutTitle": "Acerca de",
+    "detailsTitle": "Informacion",
+    "formatsTitle": "Formatos de clase",
+    "scheduleTitle": "Horarios",
+    "teachingTitle": "Donde da clases",
+    "bookingTitle": "Agendar clase",
+    "contactTitle": "Contacto",
+    "stylesTitle": "Estilos y niveles",
+    "trialClassLabel": "Clase de prueba",
+    "bookingCta": "Agendar clase",
+    "reportCta": "Reportar informacion incorrecta",
+    "teachingZonesLabel": "Zonas",
+    "teachingVenuesLabel": "Espacios",
+    "priceLabel": "Precio",
+    "levelsLabel": "Niveles",
+    "modalityLabel": "Modalidad",
+    "inPerson": "Presencial",
+    "online": "Online",
+    "hybrid": "Mixto (presencial + online)",
+    "noSchedule": "Consultar horarios directamente",
+    "teacherType": "Maestro de baile"
   },
   "submitEvent": {
     "title": "Envía un evento",
@@ -310,9 +369,12 @@
     "reasons": {
       "wrong_date": "Fecha incorrecta",
       "wrong_price": "Precio incorrecto",
+      "wrong_schedule": "Horario incorrecto",
+      "wrong_contact": "Contacto incorrecto",
       "wrong_location": "Ubicación incorrecta",
       "event_cancelled": "Evento cancelado",
-      "duplicate": "Evento duplicado",
+      "duplicate": "Duplicado",
+      "inactive": "Ya no está activo",
       "other": "Otro"
     },
     "detailsLabel": "Detalles (opcional)",

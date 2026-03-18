@@ -9,9 +9,12 @@ import { Flag, CheckCircle2, Loader2, X } from "lucide-react";
 const REASONS = [
   "wrong_date",
   "wrong_price",
+  "wrong_schedule",
+  "wrong_contact",
   "wrong_location",
   "event_cancelled",
   "duplicate",
+  "inactive",
   "other"
 ] as const;
 

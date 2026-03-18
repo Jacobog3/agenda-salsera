@@ -1,6 +1,7 @@
 import type { AcademyRecord } from "@/types/academy";
 import type { EventRecord } from "@/types/event";
 import type { SpotRecord } from "@/types/spot";
+import type { TeacherRecord } from "@/types/teacher";
 
 export const sampleEvents: EventRecord[] = [
   {
@@ -157,6 +158,37 @@ export const sampleSpots: SpotRecord[] = [
     whatsappUrl: null,
     instagramUrl: "https://instagram.com/lacasbah",
     googleMapsUrl: null,
+    isFeatured: true
+  }
+];
+
+export const sampleTeachers: TeacherRecord[] = [
+  {
+    id: "tch-1",
+    slug: "jose-medina",
+    name: "Jose Medina",
+    bioEs:
+      "Jose Medina es un maestro de salsa y bachata con base en Antigua Guatemala. Trabaja principalmente en clases privadas y bootcamps para alumnos que buscan una experiencia mas flexible y personalizada.",
+    bioEn:
+      "Jose Medina is a salsa and bachata teacher based in Antigua Guatemala. He mainly works through private lessons and bootcamps for students looking for a more flexible and personalized experience.",
+    profileImageUrl: "/local-images/teachers/jose-medina-profile.png",
+    bannerImageUrl: null,
+    city: "Antigua Guatemala",
+    area: null,
+    address: "Antigua Guatemala",
+    stylesTaught: ["salsa", "bachata"],
+    levels: "Principiante e intermedio",
+    modality: "presencial",
+    classFormats: ["Privadas", "Bootcamps"],
+    teachingZones: ["Antigua Guatemala"],
+    teachingVenues: ["Antigua Guatemala"],
+    scheduleText: "Sabados · 4:00 PM a 5:00 PM",
+    bookingUrl: null,
+    whatsappUrl: "https://wa.me/50235695855",
+    instagramUrl: "https://www.instagram.com/jmedinasalsa/",
+    websiteUrl: null,
+    trialClass: false,
+    priceText: null,
     isFeatured: true
   }
 ];

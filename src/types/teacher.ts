@@ -1,0 +1,58 @@
+import type { ScheduleDay } from "@/types/academy";
+import type { DanceStyle } from "@/types/event";
+
+export type TeacherRecord = {
+  id: string;
+  slug: string;
+  name: string;
+  bioEs: string;
+  bioEn: string;
+  profileImageUrl?: string | null;
+  bannerImageUrl?: string | null;
+  city: string;
+  area?: string | null;
+  address?: string | null;
+  stylesTaught: DanceStyle[];
+  levels?: string | null;
+  modality?: string | null;
+  classFormats?: string[] | null;
+  teachingZones?: string[] | null;
+  teachingVenues?: string[] | null;
+  scheduleText?: string | null;
+  scheduleData?: ScheduleDay[] | null;
+  bookingUrl?: string | null;
+  whatsappUrl?: string | null;
+  instagramUrl?: string | null;
+  websiteUrl?: string | null;
+  trialClass?: boolean;
+  priceText?: string | null;
+  isFeatured: boolean;
+  isPublished?: boolean;
+};
+
+export type LocalizedTeacher = {
+  id: string;
+  slug: string;
+  name: string;
+  bio: string;
+  profileImageUrl?: string | null;
+  bannerImageUrl?: string | null;
+  city: string;
+  area?: string | null;
+  address?: string | null;
+  stylesTaught: DanceStyle[];
+  levels?: string | null;
+  modality?: string | null;
+  classFormats?: string[] | null;
+  teachingZones?: string[] | null;
+  teachingVenues?: string[] | null;
+  scheduleText?: string | null;
+  scheduleData?: ScheduleDay[] | null;
+  bookingUrl?: string | null;
+  whatsappUrl?: string | null;
+  instagramUrl?: string | null;
+  websiteUrl?: string | null;
+  trialClass?: boolean;
+  priceText?: string | null;
+  isFeatured: boolean;
+};

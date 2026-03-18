@@ -156,11 +156,37 @@
     "contactCta": "Contact"
   },
   "academies": {
-    "title": "Academies and schools",
-    "description": "Discover academies where you can learn salsa, bachata, and other Latin rhythms.",
+    "title": "Academies and teachers",
+    "description": "Explore established academies and teachers to learn salsa, bachata, and other Latin rhythms.",
     "empty": "No academies registered yet.",
     "emptyDescription": "Do you run a dance academy? Contact us and we'll add it for free.",
     "emptyCta": "Register my academy",
+    "views": {
+      "academies": "Academies",
+      "teachers": "Teachers"
+    },
+    "summaries": {
+      "academies": {
+        "title": "Schools and spaces for structured learning",
+        "description": "Find academies with schedules, levels, and direct contact for recurring classes or more complete programs."
+      },
+      "teachers": {
+        "title": "Teachers for more flexible classes",
+        "description": "Discover teachers focused on private lessons, bootcamps, and more personalized formats without depending on a fixed academy."
+      }
+    },
+    "teasers": {
+      "academies": {
+        "eyebrow": "You can also explore academies",
+        "description": "If you are looking for fixed schedules, level-based programs, or a more stable community, the academy view is still the best starting point.",
+        "cta": "View academies"
+      },
+      "teachers": {
+        "eyebrow": "You can also explore teachers",
+        "description": "If you prefer a more personalized experience, you can browse teachers for private classes, skill refreshers, or one-off workshops.",
+        "cta": "View teachers"
+      }
+    },
     "contactCta": "Contact academy",
     "writeOnWhatsApp": "Message on WhatsApp",
     "viewOnInstagram": "View on Instagram",
@@ -176,7 +202,40 @@
     "inPerson": "In-person",
     "online": "Online",
     "hybrid": "Hybrid (in-person + online)",
-    "contactTitle": "Contact"
+    "contactTitle": "Contact",
+    "teachers": {
+      "label": "Teacher",
+      "teachesAtLabel": "Teaches in",
+      "formatsLabel": "Formats",
+      "whatsappAria": "Contact on WhatsApp",
+      "instagramAria": "View Instagram",
+      "empty": "There are no featured teachers yet.",
+      "emptyDescription": "Once we start adding them, this is where you'll be able to discover teachers by name, city, or class format.",
+      "emptyCta": "Back to academies"
+    }
+  },
+  "teachers": {
+    "aboutTitle": "About",
+    "detailsTitle": "Information",
+    "formatsTitle": "Class formats",
+    "scheduleTitle": "Schedule",
+    "teachingTitle": "Where they teach",
+    "bookingTitle": "Book a class",
+    "contactTitle": "Contact",
+    "stylesTitle": "Styles and levels",
+    "trialClassLabel": "Trial class",
+    "bookingCta": "Book a class",
+    "reportCta": "Report incorrect information",
+    "teachingZonesLabel": "Areas",
+    "teachingVenuesLabel": "Venues",
+    "priceLabel": "Price",
+    "levelsLabel": "Levels",
+    "modalityLabel": "Modality",
+    "inPerson": "In-person",
+    "online": "Online",
+    "hybrid": "Hybrid (in-person + online)",
+    "noSchedule": "Check schedule directly",
+    "teacherType": "Dance teacher"
   },
   "submitEvent": {
     "title": "Submit an event",
@@ -310,9 +369,12 @@
     "reasons": {
       "wrong_date": "Wrong date",
       "wrong_price": "Wrong price",
+      "wrong_schedule": "Wrong schedule",
+      "wrong_contact": "Wrong contact",
       "wrong_location": "Wrong location",
       "event_cancelled": "Event cancelled",
-      "duplicate": "Duplicate event",
+      "duplicate": "Duplicate",
+      "inactive": "No longer active",
       "other": "Other"
     },
     "detailsLabel": "Details (optional)",

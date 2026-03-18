@@ -3,6 +3,7 @@ import { env } from "@/lib/utils/env";
 import { getEvents } from "@/lib/queries/events";
 import { getSpots } from "@/lib/queries/spots";
 import { getAcademies } from "@/lib/queries/academies";
+import { getTeachers } from "@/lib/queries/teachers";
 
 const BASE = env.siteUrl;
 
@@ -20,10 +21,11 @@ function url(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, spots, academies] = await Promise.allSettled([
+  const [events, spots, academies, teachers] = await Promise.allSettled([
     getEvents("es"),
     getSpots("es"),
-    getAcademies("es")
+    getAcademies("es"),
+    getTeachers("es")
   ]);
 
   const eventEntries =
@@ -50,6 +52,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ])
       : [];
 
+  const teacherEntries =
+    teachers.status === "fulfilled"
+      ? teachers.value.flatMap((teacher) => [
+          url(`/maestros/${teacher.slug}`, 0.6, "monthly"),
+          url(`/en/teachers/${teacher.slug}`, 0.5, "monthly")
+        ])
+      : [];
+
   return [
     url("/", 1.0, "daily"),
     url("/en", 0.9, "daily"),
@@ -71,6 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url("/en/legal/privacy", 0.3, "yearly"),
     ...eventEntries,
     ...spotEntries,
-    ...academyEntries
+    ...academyEntries,
+    ...teacherEntries
   ];
 }
