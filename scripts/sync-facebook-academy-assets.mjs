@@ -60,6 +60,14 @@ const academies = [
   {
     slug: "escuela-cubana-de-baile",
     facebookUrl: "https://www.facebook.com/escuelacubana2022?locale=es_LA"
+  },
+  {
+    slug: "academia-tumbao-fenix-dc",
+    facebookUrl: "https://www.facebook.com/profile.php?id=100063633725346&locale=es_LA"
+  },
+  {
+    slug: "salsa-for-you-gt",
+    facebookUrl: "https://www.facebook.com/salsaforyougt?locale=es_LA"
   }
 ];
 
