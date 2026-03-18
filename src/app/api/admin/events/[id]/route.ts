@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
+import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
 export async function PATCH(
   request: Request,
@@ -22,7 +23,7 @@ export async function PATCH(
 
   const { data: existing, error: existingError } = await supabase
     .from("events")
-    .select("cover_image_url")
+    .select("slug, cover_image_url, is_published")
     .eq("id", id)
     .single();
 
@@ -43,12 +44,21 @@ export async function PATCH(
 
   body.cover_image_url = finalCoverImageUrl;
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("events")
     .update(body)
-    .eq("id", id);
+    .eq("id", id)
+    .select("slug, is_published")
+    .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await submitIndexNowEntity({
+    type: "event",
+    slug: updated?.is_published === false ? null : updated?.slug,
+    previousSlug: existing?.is_published === false ? null : existing?.slug
+  });
+
   return NextResponse.json({ ok: true });
 }
 
@@ -62,11 +72,23 @@ export async function DELETE(
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
 
+  const { data: existing } = await supabase
+    .from("events")
+    .select("slug, is_published")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("events")
     .delete()
     .eq("id", id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await submitIndexNowEntity({
+    type: "event",
+    previousSlug: existing?.is_published === false ? null : existing?.slug
+  });
+
   return NextResponse.json({ ok: true });
 }

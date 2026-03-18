@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
+import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
 export async function DELETE(
   request: Request,
@@ -52,7 +53,7 @@ export async function POST(
       ? `${body.date}T20:00:00-06:00`
       : null;
 
-  const { error: insertError } = await supabase.from("events").insert({
+  const { data: inserted, error: insertError } = await supabase.from("events").insert({
     slug,
     title_es: body.title,
     title_en: body.title_en || body.title,
@@ -73,7 +74,7 @@ export async function POST(
     contact_url: body.contact_url || null,
     is_featured: false,
     is_published: true
-  });
+  }).select("slug").single();
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
@@ -83,6 +84,8 @@ export async function POST(
     .from("event_submissions")
     .update({ status: "approved" })
     .eq("id", id);
+
+  await submitIndexNowEntity({ type: "event", slug: inserted?.slug ?? slug });
 
   return NextResponse.json({ ok: true });
 }

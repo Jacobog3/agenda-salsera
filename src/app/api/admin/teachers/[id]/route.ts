@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
+import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
 function parseStringList(value: unknown) {
   if (Array.isArray(value)) {
@@ -78,12 +79,27 @@ export async function PATCH(
   const body = normalizeTeacherPayload(translatedBody);
   const supabase = createSupabaseAdminClient();
 
-  const { error } = await supabase
+  const { data: existing } = await supabase
+    .from("teachers")
+    .select("slug, is_published")
+    .eq("id", id)
+    .maybeSingle();
+
+  const { data: updated, error } = await supabase
     .from("teachers")
     .update(body)
-    .eq("id", id);
+    .eq("id", id)
+    .select("slug, is_published")
+    .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await submitIndexNowEntity({
+    type: "teacher",
+    slug: updated?.is_published === false ? null : updated?.slug,
+    previousSlug: existing?.is_published === false ? null : existing?.slug
+  });
+
   return NextResponse.json({ ok: true });
 }
 
@@ -97,11 +113,23 @@ export async function DELETE(
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
 
+  const { data: existing } = await supabase
+    .from("teachers")
+    .select("slug, is_published")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("teachers")
     .delete()
     .eq("id", id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await submitIndexNowEntity({
+    type: "teacher",
+    previousSlug: existing?.is_published === false ? null : existing?.slug
+  });
+
   return NextResponse.json({ ok: true });
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
+import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
 function splitCommaList(value: string | null | undefined) {
   return value
@@ -56,7 +57,7 @@ export async function POST(
     ["salsa", "bachata", "salsa_bachata", "other"].includes(style)
   );
 
-  const { error: insertError } = await supabase.from("teachers").insert({
+  const { data: inserted, error: insertError } = await supabase.from("teachers").insert({
     slug,
     name: body.name,
     bio_es: body.description || "",
@@ -82,7 +83,7 @@ export async function POST(
     price_text: null,
     is_featured: false,
     is_published: true
-  });
+  }).select("slug").single();
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
@@ -92,6 +93,8 @@ export async function POST(
     .from("teacher_submissions")
     .update({ status: "approved" })
     .eq("id", id);
+
+  await submitIndexNowEntity({ type: "teacher", slug: inserted?.slug ?? slug });
 
   return NextResponse.json({ ok: true });
 }

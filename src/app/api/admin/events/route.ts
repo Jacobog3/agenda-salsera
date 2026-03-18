@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { isSupabaseConfigured } from "@/lib/utils/env";
+import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
 function generateSlug(title: string): string {
   return (
@@ -97,6 +98,8 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    await submitIndexNowEntity({ type: "event", slug: data.slug });
 
     return NextResponse.json({ id: data.id, slug: data.slug });
   } catch (err) {
