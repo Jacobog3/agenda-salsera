@@ -19,6 +19,7 @@ const ACADEMY_FIELDS: FieldDef[] = [
   { key: "trial_class", label: "Clase de prueba", type: "checkbox", group: "Clases" },
   { key: "whatsapp_url", label: "WhatsApp URL", group: "Contacto" },
   { key: "instagram_url", label: "Instagram URL", group: "Contacto" },
+  { key: "facebook_url", label: "Facebook URL", group: "Contacto" },
   { key: "website_url", label: "Sitio web", group: "Contacto" },
   { key: "description_es", label: "Descripción", hint: "Se traduce automáticamente al inglés", type: "textarea", group: "Descripción" },
   { key: "is_published", label: "Publicado", type: "checkbox", group: "Estado" }

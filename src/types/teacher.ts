@@ -23,6 +23,7 @@ export type TeacherRecord = {
   bookingUrl?: string | null;
   whatsappUrl?: string | null;
   instagramUrl?: string | null;
+  facebookUrl?: string | null;
   websiteUrl?: string | null;
   trialClass?: boolean;
   priceText?: string | null;
@@ -51,6 +52,7 @@ export type LocalizedTeacher = {
   bookingUrl?: string | null;
   whatsappUrl?: string | null;
   instagramUrl?: string | null;
+  facebookUrl?: string | null;
   websiteUrl?: string | null;
   trialClass?: boolean;
   priceText?: string | null;

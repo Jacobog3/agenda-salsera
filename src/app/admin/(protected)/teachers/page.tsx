@@ -33,6 +33,7 @@ const TEACHER_FIELDS: FieldDef[] = [
   { key: "booking_url", label: "Link para agendar", group: "Contacto" },
   { key: "whatsapp_url", label: "WhatsApp URL", group: "Contacto" },
   { key: "instagram_url", label: "Instagram URL", group: "Contacto" },
+  { key: "facebook_url", label: "Facebook URL", group: "Contacto" },
   { key: "website_url", label: "Sitio web", group: "Contacto" },
   { key: "bio_es", label: "Bio", hint: "Se traduce automáticamente al inglés", type: "textarea", group: "Bio" },
   { key: "is_featured", label: "Destacado", type: "checkbox", group: "Estado" },

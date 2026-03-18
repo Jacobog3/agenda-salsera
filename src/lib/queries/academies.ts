@@ -27,6 +27,7 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     modality: row.modality ? String(row.modality) : "presencial",
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,
     instagramUrl: row.instagram_url ? String(row.instagram_url) : null,
+    facebookUrl: row.facebook_url ? String(row.facebook_url) : null,
     websiteUrl: row.website_url ? String(row.website_url) : null,
     isFeatured: Boolean(row.is_featured)
   };

@@ -124,8 +124,9 @@ export default async function AcademyDetailPage({
   const socialLinks = [
     academy.whatsappUrl ? { href: academy.whatsappUrl, label: common("whatsapp"), type: "whatsapp" as const } : null,
     academy.instagramUrl ? { href: academy.instagramUrl, label: common("instagram"), type: "instagram" as const } : null,
+    academy.facebookUrl ? { href: academy.facebookUrl, label: common("facebook"), type: "facebook" as const } : null,
     academy.websiteUrl ? { href: academy.websiteUrl, label: common("website"), type: "website" as const } : null
-  ].filter(Boolean) as { href: string; label: string; type: "whatsapp" | "instagram" | "website" }[];
+  ].filter(Boolean) as { href: string; label: string; type: "whatsapp" | "instagram" | "facebook" | "website" }[];
 
   return (
     <>

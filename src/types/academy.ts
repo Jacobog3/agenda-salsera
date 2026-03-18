@@ -30,6 +30,7 @@ export type AcademyRecord = {
   modality?: string | null;
   whatsappUrl?: string | null;
   instagramUrl?: string | null;
+  facebookUrl?: string | null;
   websiteUrl?: string | null;
   isFeatured: boolean;
 };
@@ -52,6 +53,7 @@ export type LocalizedAcademy = {
   modality?: string | null;
   whatsappUrl?: string | null;
   instagramUrl?: string | null;
+  facebookUrl?: string | null;
   websiteUrl?: string | null;
   isFeatured: boolean;
 };

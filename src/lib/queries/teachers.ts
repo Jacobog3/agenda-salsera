@@ -36,6 +36,7 @@ function normalizeTeacher(row: Record<string, unknown>): TeacherRecord {
     bookingUrl: row.booking_url ? String(row.booking_url) : null,
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,
     instagramUrl: row.instagram_url ? String(row.instagram_url) : null,
+    facebookUrl: row.facebook_url ? String(row.facebook_url) : null,
     websiteUrl: row.website_url ? String(row.website_url) : null,
     trialClass: Boolean(row.trial_class),
     priceText: row.price_text ? String(row.price_text) : null,

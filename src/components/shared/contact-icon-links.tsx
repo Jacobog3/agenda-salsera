@@ -16,9 +16,17 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
+function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.099 4.388 23.094 10.125 24v-8.438H7.078v-3.49h3.047V9.413c0-3.03 1.792-4.705 4.533-4.705 1.313 0 2.686.236 2.686.236v2.973H15.83c-1.49 0-1.955.931-1.955 1.887v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.099 24 12.073z" />
+    </svg>
+  );
+}
+
 export type ContactIconLink = {
   href: string;
-  type: "whatsapp" | "instagram" | "website";
+  type: "whatsapp" | "instagram" | "facebook" | "website";
   label: string;
 };
 
@@ -37,6 +45,10 @@ export function ContactIconLinks({
     instagram: {
       icon: <InstagramIcon className="h-5 w-5" />,
       className: "border border-border bg-white text-foreground hover:border-brand-200 hover:text-brand-700"
+    },
+    facebook: {
+      icon: <FacebookIcon className="h-5 w-5" />,
+      className: "bg-[#1877F2] text-white hover:brightness-95"
     },
     website: {
       icon: <Globe className="h-5 w-5" />,

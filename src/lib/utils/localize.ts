@@ -54,6 +54,7 @@ export function localizeAcademy(
     modality: academy.modality,
     whatsappUrl: academy.whatsappUrl,
     instagramUrl: academy.instagramUrl,
+    facebookUrl: academy.facebookUrl,
     websiteUrl: academy.websiteUrl,
     isFeatured: academy.isFeatured
   };
@@ -103,6 +104,7 @@ export function localizeTeacher(
     bookingUrl: teacher.bookingUrl,
     whatsappUrl: teacher.whatsappUrl,
     instagramUrl: teacher.instagramUrl,
+    facebookUrl: teacher.facebookUrl,
     websiteUrl: teacher.websiteUrl,
     trialClass: teacher.trialClass,
     priceText: teacher.priceText,

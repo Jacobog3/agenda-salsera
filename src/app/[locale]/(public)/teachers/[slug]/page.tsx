@@ -177,8 +177,9 @@ export default async function TeacherDetailPage({
   const socialLinks = [
     teacher.whatsappUrl ? { href: teacher.whatsappUrl, label: common("whatsapp"), type: "whatsapp" as const } : null,
     teacher.instagramUrl ? { href: teacher.instagramUrl, label: common("instagram"), type: "instagram" as const } : null,
+    teacher.facebookUrl ? { href: teacher.facebookUrl, label: common("facebook"), type: "facebook" as const } : null,
     teacher.websiteUrl ? { href: teacher.websiteUrl, label: common("website"), type: "website" as const } : null
-  ].filter(Boolean) as { href: string; label: string; type: "whatsapp" | "instagram" | "website" }[];
+  ].filter(Boolean) as { href: string; label: string; type: "whatsapp" | "instagram" | "facebook" | "website" }[];
 
   const heroImage = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png";
   const useUnoptimizedImage = heroImage.startsWith("/local-images/");
