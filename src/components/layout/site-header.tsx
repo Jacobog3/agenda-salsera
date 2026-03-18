@@ -4,6 +4,7 @@ import { LogoIcon } from "@/components/brand/logo-icon";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { SubmitDropdown } from "@/components/layout/submit-dropdown";
 import { DesktopNav } from "@/components/layout/desktop-nav";
+import { SearchLauncher } from "@/components/search/search-launcher";
 import { Container } from "@/components/shared/container";
 
 export async function SiteHeader() {
@@ -37,6 +38,10 @@ export async function SiteHeader() {
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-2">
+            <SearchLauncher
+              label={t("search")}
+              compactLabel={t("searchCompact")}
+            />
             <LanguageSwitcher />
             <SubmitDropdown />
           </div>

@@ -44,6 +44,8 @@
     "events": "Eventos",
     "spots": "Lugares",
     "academies": "Academias",
+    "search": "Buscar",
+    "searchCompact": "Buscar en ExploraGuate",
     "submitEvent": "Enviar evento",
     "switchLanguage": "Cambiar idioma",
     "publish": "Publicar",
@@ -236,6 +238,31 @@
     "hybrid": "Mixto (presencial + online)",
     "noSchedule": "Consultar horarios directamente",
     "teacherType": "Maestro de baile"
+  },
+  "search": {
+    "pageTitle": "Busca en ExploraGuate",
+    "pageDescription": "Encuentra eventos, lugares, academias y Maestros por nombre, ciudad o estilo.",
+    "placeholder": "Busca eventos, academias, Maestros o lugares",
+    "submit": "Buscar",
+    "idleTitle": "Empieza con una busqueda",
+    "idleDescription": "Puedes buscar por nombre, ciudad, venue o estilo. Por ejemplo: salsa, Antigua, Jose Medina o bachata.",
+    "emptyTitle": "No encontramos resultados",
+    "emptyDescription": "No encontramos resultados para \"{query}\". Prueba con otro nombre, ciudad o estilo.",
+    "resultsTitle": "Resultados para \"{query}\"",
+    "resultsCount": "{count, plural, one {# resultado} other {# resultados}}",
+    "sectionCount": "{count, plural, one {# resultado} other {# resultados}}",
+    "sections": {
+      "events": "Eventos",
+      "spots": "Lugares",
+      "academies": "Academias",
+      "teachers": "Maestros"
+    },
+    "types": {
+      "event": "Evento",
+      "spot": "Lugar",
+      "academy": "Academia",
+      "teacher": "Maestro"
+    }
   },
   "submitEvent": {
     "title": "Envía un evento",

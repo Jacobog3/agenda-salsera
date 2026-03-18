@@ -44,6 +44,8 @@
     "events": "Events",
     "spots": "Spots",
     "academies": "Academies",
+    "search": "Search",
+    "searchCompact": "Search ExploraGuate",
     "submitEvent": "Submit event",
     "switchLanguage": "Switch language",
     "publish": "Publish",
@@ -236,6 +238,31 @@
     "hybrid": "Hybrid (in-person + online)",
     "noSchedule": "Check schedule directly",
     "teacherType": "Dance teacher"
+  },
+  "search": {
+    "pageTitle": "Search ExploraGuate",
+    "pageDescription": "Find events, spots, academies, and teachers by name, city, or dance style.",
+    "placeholder": "Search events, academies, teachers, or spots",
+    "submit": "Search",
+    "idleTitle": "Start with a search",
+    "idleDescription": "Search by name, city, venue, or style. For example: salsa, Antigua, Jose Medina, or bachata.",
+    "emptyTitle": "No results found",
+    "emptyDescription": "We couldn't find results for \"{query}\". Try another name, city, or style.",
+    "resultsTitle": "Results for \"{query}\"",
+    "resultsCount": "{count, plural, one {# result} other {# results}}",
+    "sectionCount": "{count, plural, one {# result} other {# results}}",
+    "sections": {
+      "events": "Events",
+      "spots": "Spots",
+      "academies": "Academies",
+      "teachers": "Teachers"
+    },
+    "types": {
+      "event": "Event",
+      "spot": "Spot",
+      "academy": "Academy",
+      "teacher": "Teacher"
+    }
   },
   "submitEvent": {
     "title": "Submit an event",

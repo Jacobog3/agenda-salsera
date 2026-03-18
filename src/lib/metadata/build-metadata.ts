@@ -28,6 +28,7 @@ const PAGE_PATHS: Record<string, { es: string; en: string } | string> = {
   "/events": { es: "/eventos", en: "/events" },
   "/spots": { es: "/lugares", en: "/spots" },
   "/academies": { es: "/academias", en: "/academies" },
+  "/search": { es: "/buscar", en: "/search" },
   "/submit-event": { es: "/enviar-evento", en: "/submit-event" },
   "/submit-academy": { es: "/enviar-academia", en: "/submit-academy" },
   "/submit-spot": { es: "/enviar-lugar", en: "/submit-spot" },

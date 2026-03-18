@@ -107,7 +107,7 @@ export default async function AcademiesPage({
               ))}
             </div>
           ) : (
-            <div className="grid gap-3 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
               {teachers.map((teacher) => (
                 <TeacherCard key={teacher.id} teacher={teacher} />
               ))}
