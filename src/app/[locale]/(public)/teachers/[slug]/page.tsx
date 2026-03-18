@@ -400,6 +400,10 @@ export default async function TeacherDetailPage({
                   </div>
                 </div>
               ) : null}
+
+              <div className="flex justify-center border-t border-gray-100 pt-4">
+                <ReportForm entityType="teacher" entityId={teacher.id} />
+              </div>
             </aside>
           </div>
 
@@ -416,9 +420,6 @@ export default async function TeacherDetailPage({
             </div>
           ) : null}
 
-          <div className="mt-8 flex justify-center border-t border-gray-100 pt-4 md:mt-10">
-            <ReportForm entityType="teacher" entityId={teacher.id} />
-          </div>
         </Container>
       </section>
     </>

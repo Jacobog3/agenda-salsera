@@ -291,6 +291,10 @@ export default async function AcademyDetailPage({
                 </div>
               )}
 
+              <div className="flex justify-center border-t border-gray-100 pt-4">
+                <ReportForm entityType="academy" entityId={academy.id} />
+              </div>
+
             </aside>
           </div>
 
@@ -308,9 +312,6 @@ export default async function AcademyDetailPage({
             </div>
           )}
 
-          <div className="mt-8 flex justify-center border-t border-gray-100 pt-4 md:mt-10">
-            <ReportForm entityType="academy" entityId={academy.id} />
-          </div>
         </Container>
       </section>
 
