@@ -45,120 +45,120 @@ export async function TeacherCard({
   const common = await getTranslations("common");
 
   return (
-    <Link
-      href={{ pathname: "/teachers/[slug]", params: { slug: teacher.slug } }}
-      className="block h-full"
-    >
-      <Card className="flex h-full flex-col overflow-hidden border-border/80 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.99]">
-      <div className="border-b border-brand-100 bg-[radial-gradient(circle_at_top_left,_rgba(220,38,38,0.12),_transparent_45%),linear-gradient(135deg,_#fff6ea,_#ffffff_65%)] p-4 md:p-5">
-        <div className="flex items-start gap-3">
-          {teacher.profileImageUrl ? (
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-brand-100 shadow-sm">
-              <Image
-                src={teacher.profileImageUrl}
-                alt={teacher.name}
-                fill
-                sizes="64px"
-                unoptimized={teacher.profileImageUrl.startsWith("/local-images/")}
-                className="object-cover"
-              />
+    <Card className="flex h-full flex-col overflow-hidden border-border/80 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.99]">
+      <Link
+        href={{ pathname: "/teachers/[slug]", params: { slug: teacher.slug } }}
+        className="flex flex-1 flex-col"
+      >
+        <div className="border-b border-brand-100 bg-[radial-gradient(circle_at_top_left,_rgba(220,38,38,0.12),_transparent_45%),linear-gradient(135deg,_#fff6ea,_#ffffff_65%)] p-4 md:p-5">
+          <div className="flex items-start gap-3">
+            {teacher.profileImageUrl ? (
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-brand-100 shadow-sm">
+                <Image
+                  src={teacher.profileImageUrl}
+                  alt={teacher.name}
+                  fill
+                  sizes="64px"
+                  unoptimized={teacher.profileImageUrl.startsWith("/local-images/")}
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand-600 font-display text-lg font-bold text-white shadow-sm">
+                {getInitials(teacher.name)}
+              </div>
+            )}
+            <div className="min-w-0 space-y-1">
+              <div className="inline-flex rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-700 ring-1 ring-brand-100">
+                {t("teachers.label")}
+              </div>
+              <h3 className="font-display text-lg font-bold leading-tight text-foreground md:text-xl">
+                {teacher.name}
+              </h3>
+              <p className="text-xs text-muted-foreground md:text-sm">
+                {teacher.city}
+                {teacher.area ? ` · ${teacher.area}` : ""}
+              </p>
             </div>
-          ) : (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand-600 font-display text-lg font-bold text-white shadow-sm">
-              {getInitials(teacher.name)}
-            </div>
-          )}
-          <div className="min-w-0 space-y-1">
-            <div className="inline-flex rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-700 ring-1 ring-brand-100">
-              {t("teachers.label")}
-            </div>
-            <h3 className="font-display text-lg font-bold leading-tight text-foreground md:text-xl">
-              {teacher.name}
-            </h3>
-            <p className="text-xs text-muted-foreground md:text-sm">
-              {teacher.city}
-              {teacher.area ? ` · ${teacher.area}` : ""}
-            </p>
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-4 md:p-5">
-        <div className="flex flex-wrap gap-1.5">
-          {teacher.stylesTaught.map((style) => (
-            <Badge key={style} variant="accent" className="px-2.5 py-0.5 text-[11px] md:text-xs">
-              {common(`danceStyles.${style}`)}
-            </Badge>
-          ))}
-        </div>
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-5">
+          <div className="flex flex-wrap gap-1.5">
+            {teacher.stylesTaught.map((style) => (
+              <Badge key={style} variant="accent" className="px-2.5 py-0.5 text-[11px] md:text-xs">
+                {common(`danceStyles.${style}`)}
+              </Badge>
+            ))}
+          </div>
 
-        <div className="grid gap-2 text-xs text-muted-foreground md:grid-cols-2 md:text-sm">
-          {teacher.teachingVenues?.length ? (
-            <div className="rounded-xl bg-surface-soft px-3 py-2">
-              <p className="font-semibold text-foreground">{t("teachers.teachesAtLabel")}</p>
-              <p>{teacher.teachingVenues.join(" · ")}</p>
+          <div className="grid gap-2 text-xs text-muted-foreground md:grid-cols-2 md:text-sm">
+            {teacher.teachingVenues?.length ? (
+              <div className="rounded-xl bg-surface-soft px-3 py-2">
+                <p className="font-semibold text-foreground">{t("teachers.teachesAtLabel")}</p>
+                <p>{teacher.teachingVenues.join(" · ")}</p>
+              </div>
+            ) : null}
+
+            {teacher.levels ? (
+              <div className="rounded-xl bg-surface-soft px-3 py-2">
+                <p className="font-semibold text-foreground">{t("levelsLabel")}</p>
+                <p>{teacher.levels}</p>
+              </div>
+            ) : null}
+          </div>
+
+          {teacher.classFormats?.length ? (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {t("teachers.formatsLabel")}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {teacher.classFormats.map((format) => (
+                  <span
+                    key={format}
+                    className="inline-flex min-h-9 items-center rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-foreground"
+                  >
+                    {format}
+                  </span>
+                ))}
+              </div>
             </div>
           ) : null}
-
-          {teacher.levels ? (
-            <div className="rounded-xl bg-surface-soft px-3 py-2">
-              <p className="font-semibold text-foreground">{t("levelsLabel")}</p>
-              <p>{teacher.levels}</p>
-            </div>
-          ) : null}
         </div>
+      </Link>
 
-        {teacher.classFormats?.length ? (
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {t("teachers.formatsLabel")}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {teacher.classFormats.map((format) => (
-                <span
-                  key={format}
-                  className="inline-flex min-h-9 items-center rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-foreground"
-                >
-                  {format}
-                </span>
-              ))}
-            </div>
+      {(teacher.whatsappUrl || teacher.instagramUrl) ? (
+        <div className="mt-auto space-y-1.5 border-t border-border/70 px-4 pb-4 pt-3 md:px-5 md:pb-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {t("contactTitle")}
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            {teacher.whatsappUrl ? (
+              <a
+                href={teacher.whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t("teachers.whatsappAria")}
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm transition-all hover:brightness-95 active:scale-[0.98]"
+              >
+                <WhatsAppIcon className="h-5 w-5" />
+              </a>
+            ) : null}
+            {teacher.instagramUrl ? (
+              <a
+                href={teacher.instagramUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t("teachers.instagramAria")}
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm transition-all hover:border-brand-200 hover:text-brand-700 active:scale-[0.98]"
+              >
+                <InstagramIcon className="h-5 w-5" />
+              </a>
+            ) : null}
           </div>
-        ) : null}
-
-        {(teacher.whatsappUrl || teacher.instagramUrl) ? (
-          <div className="mt-auto space-y-1.5 pt-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {t("contactTitle")}
-            </p>
-            <div className="flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()}>
-              {teacher.whatsappUrl ? (
-                <a
-                  href={teacher.whatsappUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={t("teachers.whatsappAria")}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm transition-all hover:brightness-95 active:scale-[0.98]"
-                >
-                  <WhatsAppIcon className="h-5 w-5" />
-                </a>
-              ) : null}
-              {teacher.instagramUrl ? (
-                <a
-                  href={teacher.instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={t("teachers.instagramAria")}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm transition-all hover:border-brand-200 hover:text-brand-700 active:scale-[0.98]"
-                >
-                  <InstagramIcon className="h-5 w-5" />
-                </a>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </Card>
-    </Link>
   );
 }
