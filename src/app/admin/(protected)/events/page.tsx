@@ -24,7 +24,10 @@ const EVENT_FIELDS: FieldDef[] = [
     { value: "USD", label: "USD (Dólares)" },
     { value: "", label: "No aplica / Gratis" }
   ]},
-  { key: "organizer_name", label: "Organizador", group: "Contacto" },
+  { key: "organizer_name", label: "Organizador visible", hint: "Texto tal como aparece en el flyer", group: "Contacto" },
+  { key: "organizer_id", label: "Organizador relacionado", type: "select", group: "Relaciones", optionsEndpoint: "/api/admin/organizers?format=options", options: [{ value: "", label: "Sin relacionar" }] },
+  { key: "academy_id", label: "Academia relacionada", type: "select", group: "Relaciones", optionsEndpoint: "/api/admin/academies?format=options", options: [{ value: "", label: "Sin relacionar" }] },
+  { key: "teacher_ids", label: "Maestros relacionados", hint: "Opcional, puedes marcar uno o varios", type: "multiselect", group: "Relaciones", optionsEndpoint: "/api/admin/teachers?format=options" },
   { key: "contact_url", label: "Link de contacto (WhatsApp, Instagram, web)", group: "Contacto" },
   { key: "description_es", label: "Descripción", hint: "Se traduce automáticamente al inglés", type: "textarea", group: "Descripción" },
   { key: "is_featured", label: "Destacado", type: "checkbox", group: "Estado" },

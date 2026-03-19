@@ -30,7 +30,13 @@
     "instagram": "Instagram",
     "facebook": "Facebook",
     "website": "Website",
+    "relatedAcademy": "Related academy",
+    "relatedTeacher": "Related teacher",
+    "relatedTeachers": "Related teachers",
+    "relatedAcademies": "Related academies",
     "relatedEvents": "Related events",
+    "upcomingAcademyEvents": "Upcoming events with this academy",
+    "suggestedEvents": "Suggested events",
     "loading": "Loading",
     "startingAt": "Starting at",
     "danceStyles": {

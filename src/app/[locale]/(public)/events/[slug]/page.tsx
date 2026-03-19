@@ -1,11 +1,17 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { ReportForm } from "@/components/shared/report-form";
 import { EventImageGallery } from "@/components/events/event-image-gallery";
 import { getEventBySlug } from "@/lib/queries/events";
 import { buildEventMetadata } from "@/lib/metadata/build-metadata";
+import {
+  getRelatedAcademyForEvent,
+  getRelatedOrganizerForEvent,
+  getRelatedTeachersForEvent
+} from "@/lib/queries/relations";
 import { formatCurrency, formatEventDateTime, formatEventDateRange } from "@/lib/utils/formatters";
 import { Calendar, MapPin, User, Banknote, Globe, ExternalLink } from "lucide-react";
 import { env } from "@/lib/utils/env";
@@ -187,6 +193,11 @@ export default async function EventDetailPage({
     notFound();
   }
 
+  const [relatedAcademy, relatedOrganizer, relatedTeachers] = await Promise.all([
+    getRelatedAcademyForEvent(currentLocale, event.academyId),
+    getRelatedOrganizerForEvent(event.organizerId),
+    getRelatedTeachersForEvent(currentLocale, event.id)
+  ]);
   const isLongEvent =
     !!event.endsAt &&
     new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
@@ -258,8 +269,33 @@ export default async function EventDetailPage({
                   })()}
                 </InfoRow>
                 <InfoRow icon={User} label={common("organizer")}>
-                  {event.organizerName}
+                  {relatedOrganizer?.name || event.organizerName}
                 </InfoRow>
+                {relatedAcademy ? (
+                  <InfoRow icon={User} label={common("relatedAcademy")}>
+                    <Link
+                      href={{ pathname: "/academies/[slug]", params: { slug: relatedAcademy.slug } }}
+                      className="font-medium text-brand-600 transition-colors hover:text-brand-700"
+                    >
+                      {relatedAcademy.name}
+                    </Link>
+                  </InfoRow>
+                ) : null}
+                {relatedTeachers.length > 0 ? (
+                  <InfoRow icon={User} label={common("relatedTeachers")}>
+                    <div className="space-y-1">
+                      {relatedTeachers.map((teacher) => (
+                        <Link
+                          key={teacher.id}
+                          href={{ pathname: "/teachers/[slug]", params: { slug: teacher.slug } }}
+                          className="block font-medium text-brand-600 transition-colors hover:text-brand-700"
+                        >
+                          {teacher.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </InfoRow>
+                ) : null}
               </div>
               {event.contactUrl && (() => {
                 const info = getContactInfo(event.contactUrl);

@@ -20,6 +20,8 @@ export type EventRecord = {
   priceText?: string | null;
   currency: string;
   organizerName: string;
+  organizerId?: string | null;
+  academyId?: string | null;
   contactUrl: string;
   externalUrl?: string | null;
   isFeatured: boolean;
@@ -43,6 +45,8 @@ export type LocalizedEvent = {
   priceText?: string | null;
   currency: string;
   organizerName: string;
+  organizerId?: string | null;
+  academyId?: string | null;
   contactUrl: string;
   externalUrl?: string | null;
   isFeatured: boolean;

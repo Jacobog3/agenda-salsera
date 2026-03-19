@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { TeacherCard } from "@/components/teachers/teacher-card";
 import { Container } from "@/components/shared/container";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { ContactIconLinks } from "@/components/shared/contact-icon-links";
@@ -10,7 +11,10 @@ import { ReportForm } from "@/components/shared/report-form";
 import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
 import { env } from "@/lib/utils/env";
 import { getAcademyBySlug } from "@/lib/queries/academies";
-import { getFeaturedEvents } from "@/lib/queries/events";
+import {
+  getEventsForAcademy,
+  getTeachersForAcademy
+} from "@/lib/queries/relations";
 import {
   MapPin,
   Music,
@@ -116,10 +120,13 @@ export default async function AcademyDetailPage({
   const t = await getTranslations({ locale: currentLocale, namespace: "academies" });
   const common = await getTranslations({ locale: currentLocale, namespace: "common" });
   const academy = await getAcademyBySlug(currentLocale, slug);
-  const relatedEvents = await getFeaturedEvents(currentLocale);
 
   if (!academy) notFound();
 
+  const [relatedEvents, relatedTeachers] = await Promise.all([
+    getEventsForAcademy(currentLocale, academy.id),
+    getTeachersForAcademy(currentLocale, academy.id)
+  ]);
   const hasBanner = !!academy.bannerImageUrl;
   const socialLinks = [
     academy.whatsappUrl ? { href: academy.whatsappUrl, label: common("whatsapp"), type: "whatsapp" as const } : null,
@@ -299,11 +306,24 @@ export default async function AcademyDetailPage({
             </aside>
           </div>
 
+          {relatedTeachers.length > 0 && (
+            <div className="mt-10 md:mt-14">
+              <h2 className="section-title mb-4 md:mb-5">
+                {common("relatedTeachers")}
+              </h2>
+              <div className="grid gap-3 md:grid-cols-3 md:gap-6">
+                {relatedTeachers.map((teacher) => (
+                  <TeacherCard key={teacher.id} teacher={teacher} />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Related events */}
           {relatedEvents.length > 0 && (
             <div className="mt-10 md:mt-14">
               <h2 className="section-title mb-4 md:mb-5">
-                {common("relatedEvents")}
+                {common("upcomingAcademyEvents")}
               </h2>
               <div className="grid gap-3 md:grid-cols-3 md:gap-6">
                 {relatedEvents.slice(0, 3).map((event) => (

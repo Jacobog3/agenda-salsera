@@ -24,8 +24,9 @@ export type FieldDef = {
   key: string;
   label: string;
   hint?: string;
-  type?: "text" | "textarea" | "date" | "time" | "datetime" | "select" | "checkbox" | "image" | "image-list";
+  type?: "text" | "textarea" | "date" | "time" | "datetime" | "select" | "multiselect" | "checkbox" | "image" | "image-list";
   options?: { value: string; label: string }[];
+  optionsEndpoint?: string;
   group?: string;
 };
 
@@ -276,6 +277,7 @@ export function AdminEntityList({
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"active" | "expired">("active");
+  const [dynamicOptions, setDynamicOptions] = useState<Record<string, { value: string; label: string }[]>>({});
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -291,6 +293,52 @@ export function AdminEntityList({
   }, [apiBase]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
+
+  useEffect(() => {
+    const endpoints = Array.from(
+      new Set(
+        fields
+          .map((field) => field.optionsEndpoint)
+          .filter((endpoint): endpoint is string => Boolean(endpoint))
+      )
+    );
+
+    if (endpoints.length === 0) return;
+
+    let cancelled = false;
+
+    async function fetchOptions() {
+      const nextEntries = await Promise.all(
+        endpoints.map(async (endpoint) => {
+          try {
+            const res = await fetch(endpoint);
+            const json = await res.json();
+            const options = Array.isArray(json.data) ? json.data : [];
+            return [endpoint, options] as const;
+          } catch {
+            return [endpoint, []] as const;
+          }
+        })
+      );
+
+      if (!cancelled) {
+        setDynamicOptions(Object.fromEntries(nextEntries));
+      }
+    }
+
+    fetchOptions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fields]);
+
+  function getFieldOptions(field: FieldDef) {
+    if (field.optionsEndpoint) {
+      return dynamicOptions[field.optionsEndpoint] ?? [];
+    }
+    return field.options ?? [];
+  }
 
   function startEdit(item: Record<string, unknown>) {
     const data = { ...item };
@@ -585,10 +633,45 @@ export function AdminEntityList({
                                       onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
                                       className="flex h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm"
                                     >
-                                      {field.options?.map((opt) => (
+                                      {getFieldOptions(field).map((opt) => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                       ))}
                                     </select>
+                                  ) : field.type === "multiselect" ? (
+                                    <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2">
+                                      {getFieldOptions(field).length === 0 ? (
+                                        <p className="text-xs text-gray-400">No hay opciones disponibles.</p>
+                                      ) : (
+                                        getFieldOptions(field).map((opt) => {
+                                          const selected = Array.isArray(editData[field.key])
+                                            ? (editData[field.key] as unknown[]).map((value) => String(value))
+                                            : [];
+                                          const checked = selected.includes(opt.value);
+
+                                          return (
+                                            <label key={opt.value} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50">
+                                              <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={(e) => {
+                                                  setEditData((prev) => {
+                                                    const current = Array.isArray(prev[field.key])
+                                                      ? (prev[field.key] as unknown[]).map((value) => String(value))
+                                                      : [];
+                                                    const next = e.target.checked
+                                                      ? [...current, opt.value]
+                                                      : current.filter((value) => value !== opt.value);
+                                                    return { ...prev, [field.key]: next };
+                                                  });
+                                                }}
+                                                className="h-4 w-4 rounded border-gray-300 accent-brand-600"
+                                              />
+                                              <span>{opt.label}</span>
+                                            </label>
+                                          );
+                                        })
+                                      )}
+                                    </div>
                                   ) : field.type === "checkbox" ? (
                                     <input
                                       type="checkbox"

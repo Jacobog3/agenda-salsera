@@ -14,10 +14,14 @@ import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { ContactIconLinks } from "@/components/shared/contact-icon-links";
 import { ReportForm } from "@/components/shared/report-form";
+import { AcademyCard } from "@/components/academies/academy-card";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { EventCard } from "@/components/events/event-card";
 import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
-import { getFeaturedEvents } from "@/lib/queries/events";
+import {
+  getAcademiesForTeacher,
+  getEventsForTeacher
+} from "@/lib/queries/relations";
 import { getTeacherBySlug } from "@/lib/queries/teachers";
 import { env } from "@/lib/utils/env";
 import type { Locale } from "@/types/locale";
@@ -117,7 +121,12 @@ function TeacherJsonLd({
     : `${siteUrl}/en/teachers/${teacher.slug}`;
   const image = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png";
   const imageUrl = image.startsWith("http") ? image : `${siteUrl}${image}`;
-  const sameAs = [teacher.instagramUrl, teacher.websiteUrl, teacher.whatsappUrl].filter(Boolean);
+  const sameAs = [
+    teacher.instagramUrl,
+    teacher.facebookUrl,
+    teacher.websiteUrl,
+    teacher.whatsappUrl
+  ].filter(Boolean);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -158,7 +167,6 @@ export default async function TeacherDetailPage({
   const t = await getTranslations({ locale: currentLocale, namespace: "teachers" });
   const common = await getTranslations({ locale: currentLocale, namespace: "common" });
   const teacher = await getTeacherBySlug(currentLocale, slug);
-  const allFeaturedEvents = await getFeaturedEvents(currentLocale);
 
   if (!teacher) notFound();
 
@@ -168,11 +176,10 @@ export default async function TeacherDetailPage({
     styleLabels: teacher.stylesTaught.map((style) => common(`danceStyles.${style}`))
   });
 
-  const relatedEvents = allFeaturedEvents.filter((event) => {
-    const matchesCity = event.city === teacher.city;
-    const matchesStyle = teacher.stylesTaught.includes(event.danceStyle) || teacher.stylesTaught.includes("salsa_bachata");
-    return matchesCity || matchesStyle;
-  }).slice(0, 3);
+  const [relatedEvents, relatedAcademies] = await Promise.all([
+    getEventsForTeacher(currentLocale, teacher.id),
+    getAcademiesForTeacher(currentLocale, teacher.id)
+  ]);
 
   const socialLinks = [
     teacher.whatsappUrl ? { href: teacher.whatsappUrl, label: common("whatsapp"), type: "whatsapp" as const } : null,
@@ -315,6 +322,19 @@ export default async function TeacherDetailPage({
                   </div>
                 </div>
               ) : null}
+
+              {relatedAcademies.length > 0 ? (
+                <div className="space-y-3">
+                  <h2 className="font-display text-lg font-bold tracking-tight md:text-xl">
+                    {common("relatedAcademies")}
+                  </h2>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {relatedAcademies.map((academy) => (
+                      <AcademyCard key={academy.id} academy={academy} />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <aside className="space-y-4 md:space-y-5">
@@ -414,7 +434,7 @@ export default async function TeacherDetailPage({
                 {common("relatedEvents")}
               </h2>
               <div className="grid gap-3 md:grid-cols-3 md:gap-6">
-                {relatedEvents.map((event) => (
+                {relatedEvents.slice(0, 3).map((event) => (
                   <EventCard key={event.id} event={event} locale={currentLocale} />
                 ))}
               </div>

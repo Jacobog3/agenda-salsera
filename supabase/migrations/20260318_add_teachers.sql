@@ -1,0 +1,112 @@
+create table if not exists public.teachers (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,
+  bio_es text not null,
+  bio_en text not null,
+  profile_image_url text,
+  banner_image_url text,
+  city text not null,
+  area text,
+  address text,
+  styles_taught text[] not null default '{}',
+  levels text,
+  modality text,
+  class_formats text[] not null default '{}',
+  teaching_zones text[] not null default '{}',
+  teaching_venues text[] not null default '{}',
+  schedule_text text,
+  schedule_data jsonb,
+  booking_url text,
+  whatsapp_url text,
+  instagram_url text,
+  website_url text,
+  trial_class boolean not null default false,
+  price_text text,
+  is_featured boolean not null default false,
+  is_published boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.teachers enable row level security;
+
+drop policy if exists "Public can read published teachers" on public.teachers;
+create policy "Public can read published teachers"
+on public.teachers
+for select
+to anon, authenticated
+using (is_published = true);
+
+insert into public.teachers (
+  slug,
+  name,
+  bio_es,
+  bio_en,
+  profile_image_url,
+  banner_image_url,
+  city,
+  area,
+  address,
+  styles_taught,
+  levels,
+  modality,
+  class_formats,
+  teaching_zones,
+  teaching_venues,
+  schedule_text,
+  booking_url,
+  whatsapp_url,
+  instagram_url,
+  website_url,
+  trial_class,
+  price_text,
+  is_featured,
+  is_published
+)
+values (
+  'jose-medina',
+  'Jose Medina',
+  'Jose Medina es un maestro de salsa y bachata con base en Antigua Guatemala. Trabaja principalmente en clases privadas y bootcamps para alumnos que buscan una experiencia mas flexible y personalizada.',
+  'Jose Medina is a salsa and bachata teacher based in Antigua Guatemala. He mainly works through private lessons and bootcamps for students looking for a more flexible and personalized experience.',
+  null,
+  null,
+  'Antigua Guatemala',
+  null,
+  'Antigua Guatemala',
+  '{"salsa","bachata"}',
+  'Principiante e intermedio',
+  'presencial',
+  '{"Privadas","Bootcamps"}',
+  '{"Antigua Guatemala"}',
+  '{"Antigua Guatemala"}',
+  'Sabados · 4:00 PM a 5:00 PM',
+  null,
+  'https://wa.me/50235695855',
+  'https://www.instagram.com/jmedinasalsa/',
+  null,
+  false,
+  null,
+  true,
+  true
+)
+on conflict (slug) do update set
+  name = excluded.name,
+  bio_es = excluded.bio_es,
+  bio_en = excluded.bio_en,
+  city = excluded.city,
+  area = excluded.area,
+  address = excluded.address,
+  styles_taught = excluded.styles_taught,
+  levels = excluded.levels,
+  modality = excluded.modality,
+  class_formats = excluded.class_formats,
+  teaching_zones = excluded.teaching_zones,
+  teaching_venues = excluded.teaching_venues,
+  schedule_text = excluded.schedule_text,
+  whatsapp_url = excluded.whatsapp_url,
+  instagram_url = excluded.instagram_url,
+  website_url = excluded.website_url,
+  trial_class = excluded.trial_class,
+  price_text = excluded.price_text,
+  is_featured = excluded.is_featured,
+  is_published = excluded.is_published;

@@ -26,6 +26,8 @@ export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEven
     priceText: event.priceText,
     currency: event.currency,
     organizerName: event.organizerName,
+    organizerId: event.organizerId,
+    academyId: event.academyId,
     contactUrl: event.contactUrl,
     externalUrl: event.externalUrl,
     isFeatured: event.isFeatured

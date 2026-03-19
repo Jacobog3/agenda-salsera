@@ -4,6 +4,16 @@ import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
+function normalizeNullableId(value: unknown) {
+  const normalized = String(value ?? "").trim();
+  return normalized || null;
+}
+
+function normalizeTeacherIds(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.map((entry) => String(entry ?? "").trim()).filter(Boolean))];
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -20,6 +30,8 @@ export async function PATCH(
     { sourceKey: "description_es", targetKey: "description_en", label: "Event description" }
   ], { force: forceAutoTranslate });
   const supabase = createSupabaseAdminClient();
+  const teacherIds = normalizeTeacherIds(body.teacher_ids);
+  delete body.teacher_ids;
 
   const { data: existing, error: existingError } = await supabase
     .from("events")
@@ -43,6 +55,8 @@ export async function PATCH(
   }
 
   body.cover_image_url = finalCoverImageUrl;
+  body.organizer_id = normalizeNullableId(body.organizer_id);
+  body.academy_id = normalizeNullableId(body.academy_id);
 
   const { data: updated, error } = await supabase
     .from("events")
@@ -52,6 +66,30 @@ export async function PATCH(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  const { error: deleteTeacherLinksError } = await supabase
+    .from("event_teachers")
+    .delete()
+    .eq("event_id", id);
+
+  if (deleteTeacherLinksError) {
+    return NextResponse.json({ error: deleteTeacherLinksError.message }, { status: 500 });
+  }
+
+  if (teacherIds.length > 0) {
+    const { error: insertTeacherLinksError } = await supabase
+      .from("event_teachers")
+      .insert(
+        teacherIds.map((teacherId) => ({
+          event_id: id,
+          teacher_id: teacherId
+        }))
+      );
+
+    if (insertTeacherLinksError) {
+      return NextResponse.json({ error: insertTeacherLinksError.message }, { status: 500 });
+    }
+  }
 
   await submitIndexNowEntity({
     type: "event",

@@ -7,4 +7,5 @@ coverage
 dist
 *.log
 repositories/
-supabase/migrations/
+supabase/.temp/
+supabase/supabase/.temp/

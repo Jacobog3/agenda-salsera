@@ -5,6 +5,16 @@ import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
+function normalizeNullableId(value: unknown) {
+  const normalized = String(value ?? "").trim();
+  return normalized || null;
+}
+
+function normalizeTeacherIds(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.map((entry) => String(entry ?? "").trim()).filter(Boolean))];
+}
+
 function generateSlug(title: string): string {
   return (
     title
@@ -24,11 +34,18 @@ export async function GET(request: NextRequest) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("events")
-    .select("*")
+    .select("*, event_teachers(teacher_id)")
     .order("starts_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ data: data ?? [] });
+  return NextResponse.json({
+    data: (data ?? []).map((event) => ({
+      ...event,
+      teacher_ids: Array.isArray(event.event_teachers)
+        ? event.event_teachers.map((row: { teacher_id: string }) => row.teacher_id)
+        : []
+    }))
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -63,6 +80,7 @@ export async function POST(request: NextRequest) {
   }
 
   const slug = generateSlug(body.title_es);
+  const teacherIds = normalizeTeacherIds(body.teacher_ids);
 
   try {
     const supabase = createSupabaseAdminClient();
@@ -88,6 +106,8 @@ export async function POST(request: NextRequest) {
         price_text: body.price_text || null,
         currency: body.currency || "GTQ",
         organizer_name: body.organizer_name || "",
+        organizer_id: normalizeNullableId(body.organizer_id),
+        academy_id: normalizeNullableId(body.academy_id),
         contact_url: body.contact_url || "",
         is_featured: body.is_featured || false,
         is_published: true
@@ -97,6 +117,21 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (teacherIds.length > 0) {
+      const { error: teacherLinkError } = await supabase
+        .from("event_teachers")
+        .insert(
+          teacherIds.map((teacherId) => ({
+            event_id: data.id,
+            teacher_id: teacherId
+          }))
+        );
+
+      if (teacherLinkError) {
+        return NextResponse.json({ error: teacherLinkError.message }, { status: 500 });
+      }
     }
 
     await submitIndexNowEntity({ type: "event", slug: data.slug });
