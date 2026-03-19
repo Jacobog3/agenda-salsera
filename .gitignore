@@ -7,5 +7,7 @@ coverage
 dist
 *.log
 repositories/
+tsconfig.tsbuildinfo
+src/lib/relations/
 supabase/.temp/
 supabase/supabase/.temp/
