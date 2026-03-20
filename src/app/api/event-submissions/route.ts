@@ -46,7 +46,15 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    console.error("[event-submissions] Failed to create submission", {
+      error: error.message,
+      title: parsed.data.title,
+      city: parsed.data.city
+    });
+    return NextResponse.json(
+      { ok: false, error: "No pudimos enviar tu evento ahorita. Intenta de nuevo más tarde." },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ ok: true });

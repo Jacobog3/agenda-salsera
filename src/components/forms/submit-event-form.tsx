@@ -21,8 +21,8 @@ import {
   eventSubmissionSchema,
   type EventSubmissionValues
 } from "@/lib/validations/event-submission";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils/cn";
+import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
 
 const danceStyles: EventSubmissionValues["danceStyle"][] = [
   "salsa",
@@ -108,15 +108,7 @@ export function SubmitEventForm() {
     if (!imageFile) return form.getValues("imageUrl") || "";
     setUploading(true);
     try {
-      const supabase = createSupabaseBrowserClient();
-      const ext = imageFile.name.split(".").pop() ?? "jpg";
-      const fileName = `submissions/events/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage
-        .from("event-flyers")
-        .upload(fileName, imageFile, { upsert: true });
-      if (error) throw error;
-      const { data } = supabase.storage.from("event-flyers").getPublicUrl(fileName);
-      return data.publicUrl;
+      return await uploadSubmissionImage(imageFile, "events");
     } finally {
       setUploading(false);
     }

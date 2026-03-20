@@ -45,8 +45,15 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    console.error("[spot-submissions]", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[spot-submissions] Failed to create submission", {
+      error: error.message,
+      name: body.name,
+      city: body.city
+    });
+    return NextResponse.json(
+      { error: "No pudimos enviar tu lugar ahorita. Intenta de nuevo más tarde." },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ ok: true });
