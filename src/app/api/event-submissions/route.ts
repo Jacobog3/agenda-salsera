@@ -8,7 +8,17 @@ export async function POST(request: Request) {
   const parsed = eventSubmissionSchema.safeParse(payload);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid payload." }, { status: 400 });
+    const flattened = parsed.error.flatten().fieldErrors;
+    const fieldErrors = Object.fromEntries(
+      Object.entries(flattened)
+        .filter(([, value]) => Array.isArray(value) && value.length > 0)
+        .map(([key, value]) => [key, value[0]])
+    );
+
+    return NextResponse.json(
+      { error: "Review the required fields.", fieldErrors },
+      { status: 400 }
+    );
   }
 
   if (!env.supabaseUrl || !env.supabaseServiceRoleKey) {

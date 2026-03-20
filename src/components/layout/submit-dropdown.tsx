@@ -3,42 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Plus, CalendarDays, GraduationCap, MapPinned, UserRound, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-
-type Option = {
-  href: "/submit-event" | "/submit-academy" | "/submit-teacher" | "/submit-spot";
-  icon: typeof CalendarDays;
-  labelKey: string;
-  descKey: string;
-};
-
-const options: Option[] = [
-  {
-    href: "/submit-event",
-    icon: CalendarDays,
-    labelKey: "submitEventLabel",
-    descKey: "submitEventDesc"
-  },
-  {
-    href: "/submit-academy",
-    icon: GraduationCap,
-    labelKey: "submitAcademyLabel",
-    descKey: "submitAcademyDesc"
-  },
-  {
-    href: "/submit-teacher",
-    icon: UserRound,
-    labelKey: "submitTeacherLabel",
-    descKey: "submitTeacherDesc"
-  },
-  {
-    href: "/submit-spot",
-    icon: MapPinned,
-    labelKey: "submitSpotLabel",
-    descKey: "submitSpotDesc"
-  }
-];
+import { submitOptions } from "@/components/layout/submit-options";
 
 export function SubmitDropdown() {
   const t = useTranslations("navigation");
@@ -84,7 +51,7 @@ export function SubmitDropdown() {
             </p>
           </div>
           <ul className="pb-2">
-            {options.map((opt) => {
+            {submitOptions.map((opt) => {
               const Icon = opt.icon;
               return (
                 <li key={opt.href}>

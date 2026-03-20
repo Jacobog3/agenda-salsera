@@ -4,9 +4,25 @@ import { isSupabaseConfigured } from "@/lib/utils/env";
 
 export async function POST(request: Request) {
   const body = await request.json();
+  const fieldErrors: Record<string, string> = {};
 
-  if (!body.name || !body.city) {
-    return NextResponse.json({ error: "Missing required fields: name, city" }, { status: 400 });
+  if (!String(body.name ?? "").trim()) {
+    fieldErrors.name = "required";
+  }
+
+  if (!String(body.city ?? "").trim()) {
+    fieldErrors.city = "required";
+  }
+
+  if (!String(body.image_url ?? "").trim()) {
+    fieldErrors.imageUrl = "required";
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return NextResponse.json(
+      { error: "Review the required fields.", fieldErrors },
+      { status: 400 }
+    );
   }
 
   if (!isSupabaseConfigured) {

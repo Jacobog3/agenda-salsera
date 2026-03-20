@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { getLocale } from "next-intl/server";
 import { env } from "@/lib/utils/env";
@@ -30,6 +30,7 @@ const websiteJsonLd = {
 };
 
 export const metadata: Metadata = {
+  applicationName: "ExploraGuate",
   title: {
     default: "ExploraGuate — Salsa y bachata en Guatemala",
     template: "%s | ExploraGuate"
@@ -42,6 +43,12 @@ export const metadata: Metadata = {
     type: "website",
     images: [`${SITE_URL}/images/exploraguate-logo.png`]
   },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ExploraGuate"
+  },
   twitter: {
     card: "summary_large_image"
   },
@@ -50,6 +57,13 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true }
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1497d4",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover"
 };
 
 export default async function RootLayout({

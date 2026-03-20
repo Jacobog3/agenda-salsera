@@ -13,7 +13,7 @@ export default function PublicLayout({
       <SiteHeader />
       <main>{children}</main>
       <SiteFooter />
-      <div className="h-20 md:hidden" />
+      <div className="bottom-nav-spacer md:hidden" />
       <BottomNav />
       <CookieConsent />
     </div>

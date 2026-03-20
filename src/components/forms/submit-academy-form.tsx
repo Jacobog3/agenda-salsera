@@ -46,21 +46,31 @@ export function SubmitAcademyForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [uploading, setUploading] = useState(false);
   const [imageError, setImageError] = useState("");
   const [fields, setFields] = useState<Fields>(defaultFields);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof Fields, string>>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
+  function requiredMessage(label: string) {
+    return f("fieldRequired", { field: label });
+  }
+
   function setField<K extends keyof Fields>(key: K, value: Fields[K]) {
+    setFieldErrors((prev) => ({ ...prev, [key]: "" }));
+    setSubmitError("");
     setFields((prev) => ({ ...prev, [key]: value }));
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImageError("");
+    setSubmitError("");
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }
@@ -68,6 +78,7 @@ export function SubmitAcademyForm() {
   function removeImage() {
     setImageFile(null);
     setImagePreview("");
+    setImageError("");
     if (fileRef.current) fileRef.current.value = "";
   }
 
@@ -101,9 +112,11 @@ export function SubmitAcademyForm() {
       });
       const json = await res.json();
       if (!res.ok || !json.data) {
-        setParseError(f("parseFail"));
+        setParseError(json.error || f("parseFail"));
         return;
       }
+      setFieldErrors({});
+      setSubmitError("");
       const d = json.data;
       setFields((prev) => ({
         ...prev,
@@ -128,11 +141,50 @@ export function SubmitAcademyForm() {
     }
   }
 
+  function applyApiFieldErrors(nextErrors: Record<string, string> | undefined) {
+    if (!nextErrors) return;
+
+    const mappedErrors: Partial<Record<keyof Fields, string>> = {};
+    if (nextErrors.name) mappedErrors.name = requiredMessage(f("name"));
+    if (nextErrors.city) mappedErrors.city = requiredMessage(f("city"));
+    if (nextErrors.imageUrl) setImageError(f("imageRequired"));
+
+    if (Object.keys(mappedErrors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...mappedErrors }));
+    }
+  }
+
+  function validateFields() {
+    const nextErrors: Partial<Record<keyof Fields, string>> = {};
+
+    if (!fields.name.trim()) {
+      nextErrors.name = requiredMessage(f("name"));
+    }
+
+    if (!fields.city.trim()) {
+      nextErrors.city = requiredMessage(f("city"));
+    }
+
+    setFieldErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      setSubmitError(f("fixHighlightedFields"));
+      return false;
+    }
+
+    return true;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!fields.name || !fields.city) return;
+    setSubmitError("");
+    setStatus("idle");
+
+    if (!validateFields()) return;
+
     if (!imageFile && !imagePreview) {
       setImageError(f("imageRequired"));
+      setSubmitError(f("fixHighlightedFields"));
       return;
     }
     setImageError("");
@@ -144,17 +196,23 @@ export function SubmitAcademyForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...fields, image_url: imageUrl })
       });
+      const json = await res.json().catch(() => ({}));
       if (res.ok) {
         setStatus("success");
         setFields(defaultFields);
+        setFieldErrors({});
+        setSubmitError("");
         setWhatsappText("");
         setImageFile(null);
         setImagePreview("");
       } else {
         setStatus("error");
+        applyApiFieldErrors(json.fieldErrors);
+        setSubmitError(String(json.error || f("submitError")));
       }
-    } catch {
+    } catch (error) {
       setStatus("error");
+      setSubmitError(error instanceof Error ? error.message : f("submitError"));
     }
   }
 
@@ -248,23 +306,27 @@ export function SubmitAcademyForm() {
           {f("step3Review")}
         </p>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label={`${f("name")} *`}>
+        <div className="space-y-4">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("academySectionBasics")}</p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label={`${f("name")} *`} error={fieldErrors.name}>
             <Input required value={fields.name} onChange={(e) => setField("name", e.target.value)} />
-          </Field>
-          <Field label={f("contactName")}>
-            <Input value={fields.contactName} onChange={(e) => setField("contactName", e.target.value)} />
+            </Field>
+            <Field label={f("contactName")}>
+              <Input value={fields.contactName} onChange={(e) => setField("contactName", e.target.value)} />
+            </Field>
+          </div>
+
+          <Field label={f("description")}>
+            <Textarea rows={3} value={fields.description} onChange={(e) => setField("description", e.target.value)}
+              placeholder={f("academyDescPlaceholder")} />
           </Field>
         </div>
 
-        <Field label={f("description")}>
-          <Textarea rows={3} value={fields.description} onChange={(e) => setField("description", e.target.value)}
-            placeholder={f("academyDescPlaceholder")} />
-        </Field>
-
         {/* Schedule section */}
         <div className="rounded-xl border border-brand-100 bg-brand-50/40 p-4 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("scheduleLabel")}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("academySectionClasses")}</p>
           <Field label={f("scheduleLabel")}>
             <Input
               value={fields.scheduleText}
@@ -308,37 +370,40 @@ export function SubmitAcademyForm() {
             <Input value={fields.styles} onChange={(e) => setField("styles", e.target.value)}
               placeholder={f("stylesPlaceholder")} />
           </Field>
-          <Field label={`${f("city")} *`}>
+          <Field label={`${f("city")} *`} error={fieldErrors.city}>
             <Input required value={fields.city} onChange={(e) => setField("city", e.target.value)}
               placeholder={f("cityPlaceholder")} />
           </Field>
         </div>
 
-        <Field label={f("address")}>
-          <Input value={fields.address} onChange={(e) => setField("address", e.target.value)}
-            placeholder={f("addressPlaceholder")} />
-        </Field>
+        <div className="space-y-4">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("academySectionContact")}</p>
+          <Field label={f("address")}>
+            <Input value={fields.address} onChange={(e) => setField("address", e.target.value)}
+              placeholder={f("addressPlaceholder")} />
+          </Field>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Field label={f("whatsapp")}>
-            <Input value={fields.whatsapp} onChange={(e) => setField("whatsapp", e.target.value)}
-              placeholder="https://wa.me/502..." />
-          </Field>
-          <Field label={f("instagram")}>
-            <Input value={fields.instagram} onChange={(e) => setField("instagram", e.target.value)}
-              placeholder="@academia" />
-          </Field>
-          <Field label={f("website")}>
-            <Input value={fields.website} onChange={(e) => setField("website", e.target.value)}
-              placeholder="https://..." />
-          </Field>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Field label={f("whatsapp")}>
+              <Input value={fields.whatsapp} onChange={(e) => setField("whatsapp", e.target.value)}
+                placeholder="https://wa.me/502..." />
+            </Field>
+            <Field label={f("instagram")}>
+              <Input value={fields.instagram} onChange={(e) => setField("instagram", e.target.value)}
+                placeholder="@academia" />
+            </Field>
+            <Field label={f("website")}>
+              <Input value={fields.website} onChange={(e) => setField("website", e.target.value)}
+                placeholder="https://..." />
+            </Field>
+          </div>
         </div>
       </div>
 
-      {status === "error" && (
+      {(status === "error" || submitError) && (
         <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3">
           <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
-          <p className="text-xs font-medium text-red-600">{f("submitError")}</p>
+          <p className="text-xs font-medium text-red-600">{submitError || f("submitError")}</p>
         </div>
       )}
 
@@ -362,8 +427,8 @@ export function SubmitAcademyForm() {
   );
 }
 
-function Field({ label, children, className }: {
-  label: string; children: React.ReactNode; className?: string;
+function Field({ label, children, className, error }: {
+  label: string; children: React.ReactNode; className?: string; error?: string;
 }) {
   return (
     <div className={cn("space-y-1.5", className)}>
@@ -371,6 +436,9 @@ function Field({ label, children, className }: {
         {label}
       </Label>
       {children}
+      {error ? (
+        <p className="text-[11px] font-medium text-destructive md:text-xs">{error}</p>
+      ) : null}
     </div>
   );
 }

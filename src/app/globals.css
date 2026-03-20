@@ -66,6 +66,7 @@ a {
 @layer components {
   .app-shell {
     @apply min-h-screen bg-background;
+    min-height: 100dvh;
   }
 
   .page-section {
@@ -104,6 +105,14 @@ a {
 
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .bottom-nav-shell {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .bottom-nav-spacer {
+    height: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

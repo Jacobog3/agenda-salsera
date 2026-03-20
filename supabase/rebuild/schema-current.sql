@@ -187,11 +187,13 @@ create table if not exists public.spot_submissions (
   description text,
   city text not null,
   address text,
+  image_url text,
   schedule text,
   cover_charge text,
   whatsapp text,
   instagram text,
   contact_name text,
+  status text default 'pending',
   created_at timestamptz default now()
 );
 
@@ -236,6 +238,9 @@ create index if not exists event_submissions_status_idx
 
 create index if not exists teacher_submissions_status_idx
   on public.teacher_submissions (status);
+
+create index if not exists spot_submissions_status_idx
+  on public.spot_submissions (status);
 
 create index if not exists events_organizer_id_idx
   on public.events (organizer_id);

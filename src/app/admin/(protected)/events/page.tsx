@@ -60,6 +60,7 @@ export default function AdminEventsPage() {
     <AdminEntityList
       title="Gestión de Eventos"
       apiBase="/api/admin/events"
+      createLabel="Nuevo evento"
       fields={EVENT_FIELDS}
       displayColumns={EVENT_COLUMNS}
       imageKey="cover_image_url"

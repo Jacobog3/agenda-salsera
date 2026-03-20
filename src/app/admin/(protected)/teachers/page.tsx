@@ -51,6 +51,7 @@ export default function AdminTeachersPage() {
     <AdminEntityList
       title="Gestión de Maestros"
       apiBase="/api/admin/teachers"
+      createLabel="Nuevo maestro"
       fields={TEACHER_FIELDS}
       displayColumns={TEACHER_COLUMNS}
       imageKey="profile_image_url"

@@ -36,6 +36,7 @@ export function SubmitEventForm() {
   const f = useTranslations("forms");
   const common = useTranslations("common");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitError, setSubmitError] = useState("");
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
@@ -61,6 +62,33 @@ export function SubmitEventForm() {
       contactLink: ""
     }
   });
+
+  function requiredMessage(label: string) {
+    return f("fieldRequired", { field: label });
+  }
+
+  function applyServerFieldErrors(fieldErrors: Record<string, string> | undefined) {
+    if (!fieldErrors) return;
+
+    if (fieldErrors.imageUrl) {
+      form.setError("imageUrl", { message: f("imageRequired") });
+    }
+    if (fieldErrors.title) {
+      form.setError("title", { message: requiredMessage(t("fields.title")) });
+    }
+    if (fieldErrors.date) {
+      form.setError("date", { message: requiredMessage(t("fields.date")) });
+    }
+    if (fieldErrors.time) {
+      form.setError("time", { message: requiredMessage(t("fields.time")) });
+    }
+    if (fieldErrors.city) {
+      form.setError("city", { message: requiredMessage(t("fields.city")) });
+    }
+    if (fieldErrors.venue) {
+      form.setError("venue", { message: requiredMessage(t("fields.venue")) });
+    }
+  }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -130,6 +158,7 @@ export function SubmitEventForm() {
 
   async function onSubmit(values: EventSubmissionValues) {
     setStatus("idle");
+    setSubmitError("");
     try {
       const imageUrl = await uploadImage();
       if (!imageUrl) {
@@ -141,8 +170,11 @@ export function SubmitEventForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...values, imageUrl })
       });
+      const json = await response.json().catch(() => ({}));
       if (!response.ok) {
         setStatus("error");
+        applyServerFieldErrors(json.fieldErrors);
+        setSubmitError(String(json.error || t("error")));
         return;
       }
       form.reset();
@@ -150,8 +182,9 @@ export function SubmitEventForm() {
       setImageFile(null);
       setImagePreview("");
       setStatus("success");
-    } catch {
+    } catch (error) {
       setStatus("error");
+      setSubmitError(error instanceof Error ? error.message : t("error"));
     }
   }
 
@@ -320,10 +353,10 @@ export function SubmitEventForm() {
         </div>
       </div>
 
-      {status === "error" && (
+      {(status === "error" || submitError) && (
         <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 md:p-4">
           <AlertCircle className="h-4 w-4 shrink-0 text-red-500 md:h-5 md:w-5" />
-          <p className="text-xs font-medium text-red-600 md:text-sm">{t("error")}</p>
+          <p className="text-xs font-medium text-red-600 md:text-sm">{submitError || t("error")}</p>
         </div>
       )}
 

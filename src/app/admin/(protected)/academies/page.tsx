@@ -9,6 +9,7 @@ const ACADEMY_FIELDS: FieldDef[] = [
   { key: "name", label: "Nombre", group: "Información" },
   { key: "city", label: "Ciudad", group: "Información" },
   { key: "address", label: "Dirección", group: "Información" },
+  { key: "styles_taught", label: "Estilos", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
   { key: "schedule_text", label: "Horarios (texto)", group: "Clases" },
   { key: "levels", label: "Niveles", group: "Clases" },
   { key: "modality", label: "Modalidad", type: "select", group: "Clases", options: [
@@ -36,6 +37,7 @@ export default function AdminAcademiesPage() {
     <AdminEntityList
       title="Gestión de Academias"
       apiBase="/api/admin/academies"
+      createLabel="Nueva academia"
       fields={ACADEMY_FIELDS}
       displayColumns={ACADEMY_COLUMNS}
       imageKey="cover_image_url"

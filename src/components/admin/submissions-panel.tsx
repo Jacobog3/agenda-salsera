@@ -38,24 +38,35 @@ type TeacherSub = {
   created_at: string;
 };
 
+type SpotSub = {
+  id: string; name: string; description: string | null;
+  image_url: string | null; city: string; address: string | null;
+  schedule: string | null; cover_charge: string | null;
+  whatsapp: string | null; instagram: string | null;
+  contact_name: string | null; created_at: string;
+};
+
 const DANCE_STYLE_LABELS: Record<string, string> = {
   salsa: "Salsa", bachata: "Bachata", salsa_bachata: "Salsa y Bachata", other: "Otro"
 };
 
-type Tab = "events" | "academies" | "teachers";
+type Tab = "events" | "academies" | "teachers" | "spots";
 
 export function SubmissionsPanel() {
   const [tab, setTab] = useState<Tab>("events");
   const [events, setEvents] = useState<EventSub[]>([]);
   const [academies, setAcademies] = useState<AcademySub[]>([]);
   const [teachers, setTeachers] = useState<TeacherSub[]>([]);
+  const [spots, setSpots] = useState<SpotSub[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<EventSub | null>(null);
   const [selectedAcademy, setSelectedAcademy] = useState<AcademySub | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<TeacherSub | null>(null);
+  const [selectedSpot, setSelectedSpot] = useState<SpotSub | null>(null);
   const [editingEvent, setEditingEvent] = useState<Partial<EventSub>>({});
   const [editingAcademy, setEditingAcademy] = useState<Partial<AcademySub>>({});
   const [editingTeacher, setEditingTeacher] = useState<Partial<TeacherSub>>({});
+  const [editingSpot, setEditingSpot] = useState<Partial<SpotSub> & { google_maps_url?: string }>({});
   const [publishing, setPublishing] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [actionMsg, setActionMsg] = useState("");
@@ -63,15 +74,17 @@ export function SubmissionsPanel() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [evRes, acRes, teRes] = await Promise.all([
+      const [evRes, acRes, teRes, spRes] = await Promise.all([
         fetch("/api/admin/submissions"),
         fetch("/api/admin/academy-submissions"),
-        fetch("/api/admin/teacher-submissions")
+        fetch("/api/admin/teacher-submissions"),
+        fetch("/api/admin/spot-submissions")
       ]);
-      const [evJson, acJson, teJson] = await Promise.all([evRes.json(), acRes.json(), teRes.json()]);
+      const [evJson, acJson, teJson, spJson] = await Promise.all([evRes.json(), acRes.json(), teRes.json(), spRes.json()]);
       setEvents(evJson.data ?? []);
       setAcademies(acJson.data ?? []);
       setTeachers(teJson.data ?? []);
+      setSpots(spJson.data ?? []);
     } finally {
       setLoading(false);
     }
@@ -83,9 +96,11 @@ export function SubmissionsPanel() {
     setSelectedEvent(null);
     setSelectedAcademy(null);
     setSelectedTeacher(null);
+    setSelectedSpot(null);
     setEditingEvent({});
     setEditingAcademy({});
     setEditingTeacher({});
+    setEditingSpot({});
     setActionMsg("");
   }
 
@@ -170,6 +185,34 @@ export function SubmissionsPanel() {
     setRejecting(true);
     const res = await fetch(`/api/admin/teacher-submissions/${selectedTeacher.id}`, { method: "DELETE" });
     if (res.ok) { setTeachers((prev) => prev.filter((s) => s.id !== selectedTeacher.id)); closeDetail(); }
+    setRejecting(false);
+  }
+
+  async function handlePublishSpot() {
+    if (!selectedSpot) return;
+    setPublishing(true);
+    setActionMsg("");
+    try {
+      const res = await fetch(`/api/admin/spot-submissions/${selectedSpot.id}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingSpot)
+      });
+      if (res.ok) {
+        setSpots((prev) => prev.filter((s) => s.id !== selectedSpot.id));
+        setActionMsg("✅ Publicado");
+        setTimeout(closeDetail, 1200);
+      } else {
+        const err = await res.json();
+        setActionMsg(`❌ ${err.error}`);
+      }
+    } finally { setPublishing(false); }
+  }
+
+  async function handleRejectSpot() {
+    if (!selectedSpot) return;
+    setRejecting(true);
+    const res = await fetch(`/api/admin/spot-submissions/${selectedSpot.id}`, { method: "DELETE" });
+    if (res.ok) { setSpots((prev) => prev.filter((s) => s.id !== selectedSpot.id)); closeDetail(); }
     setRejecting(false);
   }
 
@@ -353,7 +396,61 @@ export function SubmissionsPanel() {
     );
   }
 
-  const currentCount = tab === "events" ? events.length : tab === "academies" ? academies.length : teachers.length;
+  if (selectedSpot) {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <button onClick={closeDetail} className="text-sm text-muted-foreground hover:text-foreground">← Volver</button>
+          <span className="text-xs text-muted-foreground">{new Date(selectedSpot.created_at).toLocaleString("es-GT")}</span>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+          {editingSpot.image_url ? (
+            <div className="bg-black/5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={editingSpot.image_url} alt="Spot" className="mx-auto max-h-52 object-contain" />
+            </div>
+          ) : (
+            <div className="flex h-28 items-center justify-center bg-surface-soft">
+              <ImageOff className="h-8 w-8 text-muted-foreground/30" />
+            </div>
+          )}
+          <div className="space-y-4 p-4 md:p-6">
+            <EditField label="Imagen principal">
+              <Input value={editingSpot.image_url ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, image_url: e.target.value }))} placeholder="https://..." />
+            </EditField>
+            <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+              <EditField label="Nombre"><Input value={editingSpot.name ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, name: e.target.value }))} /></EditField>
+              <EditField label="Contacto"><Input value={editingSpot.contact_name ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, contact_name: e.target.value }))} /></EditField>
+            </div>
+            <EditField label="Descripción"><Textarea rows={3} value={editingSpot.description ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, description: e.target.value }))} /></EditField>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EditField label="Ciudad"><Input value={editingSpot.city ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, city: e.target.value }))} /></EditField>
+              <EditField label="Dirección"><Input value={editingSpot.address ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, address: e.target.value }))} /></EditField>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EditField label="Horario"><Input value={editingSpot.schedule ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, schedule: e.target.value }))} /></EditField>
+              <EditField label="Cover"><Input value={editingSpot.cover_charge ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, cover_charge: e.target.value }))} /></EditField>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3 md:gap-4">
+              <EditField label="WhatsApp"><Input value={editingSpot.whatsapp ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, whatsapp: e.target.value }))} /></EditField>
+              <EditField label="Instagram"><Input value={editingSpot.instagram ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, instagram: e.target.value }))} /></EditField>
+              <EditField label="Google Maps"><Input value={editingSpot.google_maps_url ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, google_maps_url: e.target.value }))} /></EditField>
+            </div>
+            {actionMsg && <p className="text-sm font-medium text-brand-600">{actionMsg}</p>}
+            <ActionButtons onPublish={handlePublishSpot} onReject={handleRejectSpot} publishing={publishing} rejecting={rejecting} label="Publicar spot" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentCount = tab === "events"
+    ? events.length
+    : tab === "academies"
+      ? academies.length
+      : tab === "teachers"
+        ? teachers.length
+        : spots.length;
 
   return (
     <div className="space-y-5">
@@ -376,7 +473,8 @@ export function SubmissionsPanel() {
         {([
           { key: "events" as Tab, label: "Eventos", count: events.length, icon: CalendarDays },
           { key: "academies" as Tab, label: "Academias", count: academies.length, icon: GraduationCap },
-          { key: "teachers" as Tab, label: "Maestros", count: teachers.length, icon: UserRound }
+          { key: "teachers" as Tab, label: "Maestros", count: teachers.length, icon: UserRound },
+          { key: "spots" as Tab, label: "Spots", count: spots.length, icon: MapPin }
         ]).map(({ key, label, count, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
             className={cn(
@@ -457,7 +555,7 @@ export function SubmissionsPanel() {
             </button>
           ))}
         </div>
-      ) : (
+      ) : tab === "teachers" ? (
         <div className="space-y-3">
           {teachers.map((sub) => (
             <button key={sub.id} onClick={() => { setSelectedTeacher(sub); setEditingTeacher({ ...sub }); setActionMsg(""); }}
@@ -477,6 +575,32 @@ export function SubmissionsPanel() {
                   {sub.class_formats && <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{sub.class_formats}</span>}
                   {sub.schedule_text && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.schedule_text}</span>}
                   {sub.booking_url && <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />Tiene agenda</span>}
+                </div>
+                <p className="text-[11px] text-muted-foreground/60">{new Date(sub.created_at).toLocaleString("es-GT")}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {spots.map((sub) => (
+            <button key={sub.id} onClick={() => { setSelectedSpot(sub); setEditingSpot({ ...sub }); setActionMsg(""); }}
+              className="flex w-full items-start gap-4 overflow-hidden rounded-2xl border border-border bg-white p-4 text-left transition hover:border-brand-300 hover:shadow-sm">
+              {sub.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={sub.image_url} alt={sub.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-surface-soft">
+                  <MapPin className="h-6 w-6 text-muted-foreground/40" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="truncate font-semibold text-foreground">{sub.name}</p>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {sub.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{sub.city}</span>}
+                  {sub.schedule && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.schedule}</span>}
+                  {sub.cover_charge && <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{sub.cover_charge}</span>}
+                  {sub.instagram && <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />Instagram</span>}
                 </div>
                 <p className="text-[11px] text-muted-foreground/60">{new Date(sub.created_at).toLocaleString("es-GT")}</p>
               </div>

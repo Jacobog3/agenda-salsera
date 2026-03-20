@@ -16,8 +16,9 @@ export async function PATCH(
   const forceAutoTranslate = Boolean(rawBody.force_auto_translate);
   delete rawBody.force_auto_translate;
   const body = await autoTranslateSpanishFields(rawBody, [
-    { sourceKey: "name_es", targetKey: "name_en", label: "Spot name" },
-    { sourceKey: "description_es", targetKey: "description_en", label: "Spot description" }
+    { sourceKey: "description_es", targetKey: "description_en", label: "Spot description" },
+    { sourceKey: "schedule_es", targetKey: "schedule_en", label: "Spot schedule" },
+    { sourceKey: "cover_charge_es", targetKey: "cover_charge_en", label: "Spot cover charge" }
   ], { force: forceAutoTranslate });
   const supabase = createSupabaseAdminClient();
 

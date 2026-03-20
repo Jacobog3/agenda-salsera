@@ -39,6 +39,7 @@ type DisplayColumn = {
 type EntityListProps = {
   title: string;
   apiBase: string;
+  createLabel?: string;
   fields: FieldDef[];
   displayColumns: DisplayColumn[];
   imageKey?: string;
@@ -61,6 +62,40 @@ function getDateEditKey(fieldKey: string) {
 
 function getTimeEditKey(fieldKey: string) {
   return `_edit_${fieldKey}_time`;
+}
+
+const NEW_ENTITY_ID = "__new__";
+
+function buildEmptyEditData(fields: FieldDef[]) {
+  const data: Record<string, unknown> = {};
+
+  for (const field of fields) {
+    if (field.type === "checkbox") {
+      data[field.key] = false;
+      continue;
+    }
+
+    if (field.type === "image-list" || field.type === "multiselect") {
+      data[field.key] = [];
+      continue;
+    }
+
+    if (field.type === "select") {
+      data[field.key] = field.options?.[0]?.value ?? "";
+      continue;
+    }
+
+    if (field.type === "datetime") {
+      data[field.key] = null;
+      data[getDateEditKey(field.key)] = "";
+      data[getTimeEditKey(field.key)] = "";
+      continue;
+    }
+
+    data[field.key] = "";
+  }
+
+  return data;
 }
 
 async function uploadAdminImage(file: File): Promise<string> {
@@ -263,6 +298,7 @@ function ImageListUploadField({
 export function AdminEntityList({
   title,
   apiBase,
+  createLabel = "Nuevo registro",
   fields,
   displayColumns,
   imageKey,
@@ -357,14 +393,23 @@ export function AdminEntityList({
     setDeleteConfirm(null);
   }
 
+  function startCreate() {
+    setEditingId(NEW_ENTITY_ID);
+    setEditData(buildEmptyEditData(fields));
+    setSaveError("");
+    setDeleteConfirm(null);
+  }
+
   function cancelEdit() {
     setEditingId(null);
     setEditData({});
     setSaveError("");
+    setDeleteConfirm(null);
   }
 
   async function saveEdit(forceAutoTranslate = false) {
     if (!editingId) return;
+    const isCreating = editingId === NEW_ENTITY_ID;
     setSaving(true);
     setSaveError("");
     try {
@@ -407,13 +452,13 @@ export function AdminEntityList({
       delete payload.id;
       delete payload.created_at;
 
-      const res = await fetch(`${apiBase}/${editingId}`, {
-        method: "PATCH",
+      const res = await fetch(isCreating ? apiBase : `${apiBase}/${editingId}`, {
+        method: isCreating ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        setItems((prev) => prev.map((it) => (it.id === editingId ? { ...it, ...payload } : it)));
+        await fetchItems();
         cancelEdit();
       } else {
         const json = await res.json().catch(() => ({}));
@@ -457,6 +502,169 @@ export function AdminEntityList({
   const visibleItems = hasDateSplit ? (tab === "active" ? activeItems : expiredItems) : items;
 
   const groups = Array.from(new Set(fields.map((f) => f.group ?? "General")));
+  const isCreating = editingId === NEW_ENTITY_ID;
+
+  function renderEditForm(borderTop: boolean) {
+    return (
+      <div className={`space-y-4 px-4 py-4${borderTop ? " border-t border-gray-100" : ""}`}>
+        {groups.map((group) => {
+          const groupFields = fields.filter((f) => (f.group ?? "General") === group);
+          if (!groupFields.length) return null;
+          return (
+            <div key={group} className={`space-y-2 ${group === "Precios" ? "rounded-lg border border-amber-200 bg-amber-50/50 p-3" : ""}`}>
+              <p className={`text-[10px] font-bold uppercase tracking-widest ${group === "Precios" ? "text-amber-700" : "text-brand-600"}`}>{group}</p>
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                {groupFields.map((field) => {
+                  const span =
+                    field.type === "textarea" || field.type === "image" || field.type === "image-list"
+                      ? "sm:col-span-2 md:col-span-3"
+                      : "";
+
+                  return (
+                    <div key={field.key} className={`space-y-1 ${span}`}>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {field.label}
+                        {field.hint && (
+                          <span className="ml-1 font-normal normal-case tracking-normal text-gray-400/70">
+                            — {field.hint}
+                          </span>
+                        )}
+                      </label>
+
+                      {field.type === "image" ? (
+                        <ImageUploadField
+                          value={String(editData[field.key] ?? "")}
+                          onChange={(url) => setEditData((p) => ({ ...p, [field.key]: url }))}
+                        />
+                      ) : field.type === "image-list" ? (
+                        <ImageListUploadField
+                          value={Array.isArray(editData[field.key]) ? (editData[field.key] as string[]) : []}
+                          onChange={(urls) => setEditData((p) => ({ ...p, [field.key]: urls }))}
+                        />
+                      ) : field.type === "textarea" ? (
+                        <Textarea
+                          rows={3}
+                          value={String(editData[field.key] ?? "")}
+                          onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
+                          className="text-sm"
+                        />
+                      ) : field.type === "datetime" ? (
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <div className="relative">
+                              <Calendar className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+                              <Input
+                                type="date"
+                                value={String(editData[getDateEditKey(field.key)] ?? "")}
+                                onChange={(e) => setEditData((p) => ({ ...p, [getDateEditKey(field.key)]: e.target.value }))}
+                                className="h-9 pl-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                          <div className="w-32">
+                            <div className="relative">
+                              <Clock className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+                              <Input
+                                type="time"
+                                value={String(editData[getTimeEditKey(field.key)] ?? "")}
+                                onChange={(e) => setEditData((p) => ({ ...p, [getTimeEditKey(field.key)]: e.target.value }))}
+                                className="h-9 pl-8 text-sm"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : field.type === "select" ? (
+                        <select
+                          value={String(editData[field.key] ?? "")}
+                          onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
+                          className="flex h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm"
+                        >
+                          {getFieldOptions(field).map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      ) : field.type === "multiselect" ? (
+                        <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2">
+                          {getFieldOptions(field).length === 0 ? (
+                            <p className="text-xs text-gray-400">No hay opciones disponibles.</p>
+                          ) : (
+                            getFieldOptions(field).map((opt) => {
+                              const selected = Array.isArray(editData[field.key])
+                                ? (editData[field.key] as unknown[]).map((value) => String(value))
+                                : [];
+                              const checked = selected.includes(opt.value);
+
+                              return (
+                                <label key={opt.value} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50">
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={(e) => {
+                                      setEditData((prev) => {
+                                        const current = Array.isArray(prev[field.key])
+                                          ? (prev[field.key] as unknown[]).map((value) => String(value))
+                                          : [];
+                                        const next = e.target.checked
+                                          ? [...current, opt.value]
+                                          : current.filter((value) => value !== opt.value);
+                                        return { ...prev, [field.key]: next };
+                                      });
+                                    }}
+                                    className="h-4 w-4 rounded border-gray-300 accent-brand-600"
+                                  />
+                                  <span>{opt.label}</span>
+                                </label>
+                              );
+                            })
+                          )}
+                        </div>
+                      ) : field.type === "checkbox" ? (
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editData[field.key])}
+                          onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.checked }))}
+                          className="h-4 w-4 rounded border-gray-300 accent-brand-600"
+                        />
+                      ) : (
+                        <Input
+                          type={field.type ?? "text"}
+                          value={String(editData[field.key] ?? "")}
+                          onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
+                          className="h-9 text-sm"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="border-t border-gray-100 pt-3">
+          {saveError ? (
+            <p className="mb-3 text-xs font-medium text-red-600">{saveError}</p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => saveEdit(false)} disabled={saving} className="gap-1.5">
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              Guardar
+            </Button>
+            {autoTranslateFields.length > 0 ? (
+              <Button size="sm" variant="outline" onClick={() => saveEdit(true)} disabled={saving} className="gap-1.5">
+                <Languages className="h-3.5 w-3.5" />
+                Regenerar inglés
+              </Button>
+            ) : null}
+            <Button size="sm" variant="outline" onClick={cancelEdit} className="gap-1.5">
+              <X className="h-3.5 w-3.5" />
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -470,9 +678,15 @@ export function AdminEntityList({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-bold text-gray-900 md:text-2xl">{title}</h1>
-        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
-          {items.length} total
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+            {items.length} total
+          </span>
+          <Button size="sm" onClick={startCreate} className="gap-1.5">
+            <Plus className="h-3.5 w-3.5" />
+            {createLabel}
+          </Button>
+        </div>
       </div>
 
       {hasDateSplit && (
@@ -494,7 +708,19 @@ export function AdminEntityList({
         </div>
       )}
 
-      {visibleItems.length === 0 ? (
+      {isCreating ? (
+        <div className="overflow-hidden rounded-xl border border-dashed border-brand-200 bg-brand-50/30 shadow-sm">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{createLabel}</p>
+              <p className="text-xs text-gray-500">Completa los campos y guarda para crear un registro nuevo.</p>
+            </div>
+          </div>
+          {renderEditForm(false)}
+        </div>
+      ) : null}
+
+      {visibleItems.length === 0 && !isCreating ? (
         <p className="py-10 text-center text-sm text-gray-400">
           {hasDateSplit ? (tab === "active" ? "No hay eventos vigentes" : "No hay eventos expirados") : "No hay registros"}
         </p>
@@ -568,163 +794,7 @@ export function AdminEntityList({
                 )}
 
                 {isEditing && (
-                  <div className="space-y-4 border-t border-gray-100 px-4 py-4">
-                    {groups.map((group) => {
-                      const groupFields = fields.filter((f) => (f.group ?? "General") === group);
-                      if (!groupFields.length) return null;
-                      return (
-                        <div key={group} className={`space-y-2 ${group === "Precios" ? "rounded-lg border border-amber-200 bg-amber-50/50 p-3" : ""}`}>
-                          <p className={`text-[10px] font-bold uppercase tracking-widest ${group === "Precios" ? "text-amber-700" : "text-brand-600"}`}>{group}</p>
-                          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                            {groupFields.map((field) => {
-                              const span =
-                                field.type === "textarea" || field.type === "image" || field.type === "image-list"
-                                  ? "sm:col-span-2 md:col-span-3"
-                                  : "";
-
-                              return (
-                                <div key={field.key} className={`space-y-1 ${span}`}>
-                                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                    {field.label}
-                                    {field.hint && (
-                                      <span className="ml-1 font-normal normal-case tracking-normal text-gray-400/70">
-                                        — {field.hint}
-                                      </span>
-                                    )}
-                                  </label>
-
-                                  {field.type === "image" ? (
-                                    <ImageUploadField
-                                      value={String(editData[field.key] ?? "")}
-                                      onChange={(url) => setEditData((p) => ({ ...p, [field.key]: url }))}
-                                    />
-                                  ) : field.type === "image-list" ? (
-                                    <ImageListUploadField
-                                      value={Array.isArray(editData[field.key]) ? (editData[field.key] as string[]) : []}
-                                      onChange={(urls) => setEditData((p) => ({ ...p, [field.key]: urls }))}
-                                    />
-                                  ) : field.type === "textarea" ? (
-                                    <Textarea
-                                      rows={3}
-                                      value={String(editData[field.key] ?? "")}
-                                      onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
-                                      className="text-sm"
-                                    />
-                                  ) : field.type === "datetime" ? (
-                                    <div className="flex gap-2">
-                                      <div className="flex-1">
-                                        <div className="relative">
-                                          <Calendar className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
-                                          <Input
-                                            type="date"
-                                            value={String(editData[getDateEditKey(field.key)] ?? "")}
-                                            onChange={(e) => setEditData((p) => ({ ...p, [getDateEditKey(field.key)]: e.target.value }))}
-                                            className="h-9 pl-8 text-sm"
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="w-32">
-                                        <div className="relative">
-                                          <Clock className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
-                                          <Input
-                                            type="time"
-                                            value={String(editData[getTimeEditKey(field.key)] ?? "")}
-                                            onChange={(e) => setEditData((p) => ({ ...p, [getTimeEditKey(field.key)]: e.target.value }))}
-                                            className="h-9 pl-8 text-sm"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ) : field.type === "select" ? (
-                                    <select
-                                      value={String(editData[field.key] ?? "")}
-                                      onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
-                                      className="flex h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm"
-                                    >
-                                      {getFieldOptions(field).map((opt) => (
-                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                      ))}
-                                    </select>
-                                  ) : field.type === "multiselect" ? (
-                                    <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2">
-                                      {getFieldOptions(field).length === 0 ? (
-                                        <p className="text-xs text-gray-400">No hay opciones disponibles.</p>
-                                      ) : (
-                                        getFieldOptions(field).map((opt) => {
-                                          const selected = Array.isArray(editData[field.key])
-                                            ? (editData[field.key] as unknown[]).map((value) => String(value))
-                                            : [];
-                                          const checked = selected.includes(opt.value);
-
-                                          return (
-                                            <label key={opt.value} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50">
-                                              <input
-                                                type="checkbox"
-                                                checked={checked}
-                                                onChange={(e) => {
-                                                  setEditData((prev) => {
-                                                    const current = Array.isArray(prev[field.key])
-                                                      ? (prev[field.key] as unknown[]).map((value) => String(value))
-                                                      : [];
-                                                    const next = e.target.checked
-                                                      ? [...current, opt.value]
-                                                      : current.filter((value) => value !== opt.value);
-                                                    return { ...prev, [field.key]: next };
-                                                  });
-                                                }}
-                                                className="h-4 w-4 rounded border-gray-300 accent-brand-600"
-                                              />
-                                              <span>{opt.label}</span>
-                                            </label>
-                                          );
-                                        })
-                                      )}
-                                    </div>
-                                  ) : field.type === "checkbox" ? (
-                                    <input
-                                      type="checkbox"
-                                      checked={Boolean(editData[field.key])}
-                                      onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.checked }))}
-                                      className="h-4 w-4 rounded border-gray-300 accent-brand-600"
-                                    />
-                                  ) : (
-                                    <Input
-                                      type={field.type ?? "text"}
-                                      value={String(editData[field.key] ?? "")}
-                                      onChange={(e) => setEditData((p) => ({ ...p, [field.key]: e.target.value }))}
-                                      className="h-9 text-sm"
-                                    />
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    <div className="border-t border-gray-100 pt-3">
-                      {saveError ? (
-                        <p className="mb-3 text-xs font-medium text-red-600">{saveError}</p>
-                      ) : null}
-                      <div className="flex gap-2">
-                      <Button size="sm" onClick={() => saveEdit(false)} disabled={saving} className="gap-1.5">
-                        {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                        Guardar
-                      </Button>
-                      {autoTranslateFields.length > 0 ? (
-                        <Button size="sm" variant="outline" onClick={() => saveEdit(true)} disabled={saving} className="gap-1.5">
-                          <Languages className="h-3.5 w-3.5" />
-                          Regenerar inglés
-                        </Button>
-                      ) : null}
-                      <Button size="sm" variant="outline" onClick={cancelEdit} className="gap-1.5">
-                        <X className="h-3.5 w-3.5" />
-                        Cancelar
-                      </Button>
-                      </div>
-                    </div>
-                  </div>
+                  renderEditForm(true)
                 )}
               </div>
             );
