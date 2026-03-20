@@ -50,30 +50,33 @@ export function AcademySchedule({
                 return (
                   <div
                     key={`${day.day}-${j}`}
-                    className="grid grid-cols-[4.85rem_minmax(0,1fr)_5.9rem] items-start gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_minmax(0,1fr)_7.5rem] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_minmax(0,1fr)_8rem] md:gap-4 md:px-5 md:text-sm"
+                    className="grid grid-cols-[4.85rem_minmax(0,1fr)_5.8rem] items-start gap-x-2 gap-y-1.5 px-3 py-2 text-xs sm:grid-cols-[7rem_minmax(0,1fr)_7rem] sm:gap-x-3 sm:gap-y-1 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_minmax(0,1fr)_7.5rem] md:gap-x-4 md:px-5 md:text-sm"
                   >
                     <span className="block pt-0.5 font-semibold tabular-nums text-muted-foreground">
                       {cls.time}
                     </span>
 
-                    <div className="min-w-0 space-y-0.5">
+                    <div className="min-w-0">
                       <span className="block break-words font-medium leading-snug text-foreground">
                         {classTitle}
                       </span>
-                      {classDetail ? (
-                        <span className="block break-words text-[11px] leading-snug text-muted-foreground md:text-xs">
-                          {classDetail}
-                        </span>
-                      ) : null}
                     </div>
 
                     <div className="min-w-0">
                       {cls.level ? (
-                        <span className="block rounded-xl bg-brand-50/90 px-2 py-1 text-center text-[9px] font-semibold leading-[1.2] text-brand-700 [overflow-wrap:anywhere] sm:px-2.5 sm:py-1 sm:text-[10px] md:text-xs">
+                        <span className="block rounded-xl bg-brand-50/90 px-2 py-1 text-center text-[10px] font-semibold leading-[1.15] text-brand-700 [overflow-wrap:anywhere] sm:px-2.5 sm:py-1 sm:text-[10px] md:text-xs">
                           {cls.level}
                         </span>
                       ) : null}
                     </div>
+
+                    {classDetail ? (
+                      <div className="col-start-2 col-end-4 min-w-0 rounded-lg bg-surface-soft/70 px-2.5 py-1.5">
+                        <span className="block break-words text-[11px] leading-snug text-muted-foreground md:text-xs">
+                          {classDetail}
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}
