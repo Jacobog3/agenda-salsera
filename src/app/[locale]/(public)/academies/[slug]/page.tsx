@@ -189,10 +189,12 @@ export default async function AcademyDetailPage({
                   <MapPin className="h-3.5 w-3.5" />
                   {academy.city}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Music className="h-3.5 w-3.5" />
-                  {styleLabels.join(", ")}
-                </span>
+                {academy.area ? (
+                  <span className="flex items-center gap-1">
+                    <Music className="h-3.5 w-3.5" />
+                    {academy.area}
+                  </span>
+                ) : null}
               </div>
 
               {/* Badges + social links */}

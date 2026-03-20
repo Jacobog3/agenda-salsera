@@ -33,7 +33,7 @@ export function AcademySchedule({
               {day.classes.map((cls, j) => (
                 <div
                   key={`${day.day}-${j}`}
-                  className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.5rem] items-start gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_minmax(0,1fr)_auto] md:gap-4 md:px-5 md:text-sm"
+                  className="grid grid-cols-[4.75rem_minmax(0,1fr)_6rem] items-start gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_minmax(0,1fr)_auto] md:gap-4 md:px-5 md:text-sm"
                 >
                   <span className="block pt-px font-semibold tabular-nums text-muted-foreground">
                     {cls.time}
@@ -44,7 +44,7 @@ export function AcademySchedule({
                     </span>
                   </div>
                   {cls.level ? (
-                    <span className="inline-flex w-full justify-center self-start rounded-full bg-brand-50 px-2 py-1 text-center text-[10px] font-medium leading-tight text-brand-700 whitespace-normal break-words sm:w-auto sm:max-w-[9rem] sm:px-2 sm:py-0.5 md:text-xs">
+                    <span className="inline-flex min-w-0 w-full justify-center self-start rounded-2xl bg-brand-50 px-2 py-1 text-center text-[9px] font-semibold leading-[1.15] text-brand-700 whitespace-normal [overflow-wrap:anywhere] sm:w-auto sm:max-w-[9rem] sm:px-2 sm:py-0.5 sm:text-[10px] md:text-xs">
                       {cls.level}
                     </span>
                   ) : (
