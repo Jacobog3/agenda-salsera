@@ -205,7 +205,9 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
             academy.area ?? "",
             academy.address ?? "",
             academy.levels ?? "",
-            academy.stylesTaught.join(" ")
+            academy.stylesTaught.join(" "),
+            academy.styleTags?.join(" ") ?? "",
+            academy.scheduleText ?? ""
           ]
         );
 
@@ -219,8 +221,10 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           subtitle: academy.city,
           description: academy.description,
           imageUrl: academy.coverImageUrl,
-          badges: academy.stylesTaught,
-          meta: academy.levels || null,
+          badges: academy.styleTags && academy.styleTags.length > 0
+            ? academy.styleTags.slice(0, 4)
+            : academy.stylesTaught,
+          meta: academy.scheduleText || academy.levels || null,
           score
         };
       })
@@ -239,9 +243,11 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
             teacher.address ?? "",
             teacher.levels ?? "",
             teacher.stylesTaught.join(" "),
+            teacher.styleTags?.join(" ") ?? "",
             teacher.classFormats?.join(" ") ?? "",
             teacher.teachingVenues?.join(" ") ?? "",
-            teacher.teachingZones?.join(" ") ?? ""
+            teacher.teachingZones?.join(" ") ?? "",
+            teacher.scheduleText ?? ""
           ]
         );
 
@@ -260,7 +266,9 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           subtitle: teacher.city,
           description: teacher.bio,
           imageUrl: teacher.profileImageUrl ?? null,
-          badges: teacher.stylesTaught,
+          badges: teacher.styleTags && teacher.styleTags.length > 0
+            ? teacher.styleTags.slice(0, 4)
+            : teacher.stylesTaught,
           meta,
           score
         };

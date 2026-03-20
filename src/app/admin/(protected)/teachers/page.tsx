@@ -11,7 +11,7 @@ const TEACHER_FIELDS: FieldDef[] = [
   { key: "city", label: "Ciudad", group: "Información" },
   { key: "area", label: "Zona", group: "Información" },
   { key: "address", label: "Dirección", group: "Información" },
-  { key: "styles_taught", label: "Estilos", hint: "salsa, bachata, salsa_bachata", type: "textarea", group: "Clases" },
+  { key: "style_tags", label: "Estilos y subestilos", hint: "Lo que realmente enseña el maestro; separados por coma o salto de línea", type: "textarea", group: "Clases" },
   { key: "levels", label: "Niveles", group: "Clases" },
   {
     key: "modality",
@@ -27,7 +27,7 @@ const TEACHER_FIELDS: FieldDef[] = [
   { key: "class_formats", label: "Formatos", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
   { key: "teaching_venues", label: "Dónde da clases", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
   { key: "teaching_zones", label: "Zonas", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
-  { key: "schedule_text", label: "Horarios (texto)", type: "textarea", group: "Clases" },
+  { key: "schedule_text", label: "Horarios (resumen)", hint: "Resumen corto para búsqueda y sidebar", type: "textarea", group: "Clases" },
   { key: "trial_class", label: "Clase de prueba", type: "checkbox", group: "Clases" },
   { key: "price_text", label: "Precio", group: "Clases" },
   { key: "booking_url", label: "Link para agendar", group: "Contacto" },
@@ -61,8 +61,12 @@ export default function AdminTeachersPage() {
       aiAssist={{
         entity: "teacher",
         title: "Actualizar maestro con IA",
-        description: "Sirve para refrescar horarios, formatos, sedes o links a partir de una imagen o texto nuevo, manteniendo la ficha actual como base.",
-        buttonLabel: "Actualizar con IA"
+        description: "Sirve para refrescar horarios, formatos, sedes, estilos detallados o links a partir de una imagen o texto nuevo, manteniendo la ficha actual como base.",
+        buttonLabel: "Actualizar con IA",
+        persistKeys: ["schedule_data"],
+        fieldLabels: {
+          schedule_data: "Horario estructurado"
+        }
       }}
     />
   );

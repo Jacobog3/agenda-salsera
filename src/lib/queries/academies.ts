@@ -1,4 +1,5 @@
 import { sampleAcademies } from "@/content/sample-data";
+import { buildAcademyScheduleText, normalizeAcademyScheduleData } from "@/lib/academies/academy-helpers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeAcademy } from "@/lib/utils/localize";
@@ -6,6 +7,8 @@ import type { AcademyRecord, LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
 
 function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
+  const scheduleData = normalizeAcademyScheduleData(row.schedule_data);
+
   return {
     id: String(row.id),
     slug: String(row.slug),
@@ -20,8 +23,11 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     stylesTaught: Array.isArray(row.styles_taught)
       ? row.styles_taught.map((style) => String(style)) as AcademyRecord["stylesTaught"]
       : [],
-    scheduleText: row.schedule_text ? String(row.schedule_text) : null,
-    scheduleData: Array.isArray(row.schedule_data) ? row.schedule_data as AcademyRecord["scheduleData"] : null,
+    styleTags: Array.isArray(row.style_tags)
+      ? row.style_tags.map((tag) => String(tag))
+      : [],
+    scheduleText: row.schedule_text ? String(row.schedule_text) : buildAcademyScheduleText(scheduleData),
+    scheduleData,
     levels: row.levels ? String(row.levels) : null,
     trialClass: Boolean(row.trial_class),
     modality: row.modality ? String(row.modality) : "presencial",

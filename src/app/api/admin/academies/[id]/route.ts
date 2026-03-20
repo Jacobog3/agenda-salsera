@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
+import { normalizeAcademyPayload } from "@/lib/admin/academy-payload";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 
 export async function PATCH(
@@ -15,9 +16,10 @@ export async function PATCH(
   const rawBody = await request.json();
   const forceAutoTranslate = Boolean(rawBody.force_auto_translate);
   delete rawBody.force_auto_translate;
-  const body = await autoTranslateSpanishFields(rawBody, [
+  const translatedBody = await autoTranslateSpanishFields(rawBody, [
     { sourceKey: "description_es", targetKey: "description_en", label: "Academy description" }
   ], { force: forceAutoTranslate });
+  const body = normalizeAcademyPayload(translatedBody);
   const supabase = createSupabaseAdminClient();
 
   const { data: existing } = await supabase

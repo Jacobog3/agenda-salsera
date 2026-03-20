@@ -11,6 +11,7 @@ import { ReportForm } from "@/components/shared/report-form";
 import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
 import { env } from "@/lib/utils/env";
 import { getAcademyBySlug } from "@/lib/queries/academies";
+import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 import {
   getEventsForAcademy,
   getTeachersForAcademy
@@ -67,6 +68,7 @@ function AcademyJsonLd({
     city: string;
     address?: string | null;
     stylesTaught: string[];
+    styleTags?: string[];
     websiteUrl?: string | null;
     instagramUrl?: string | null;
     whatsappUrl?: string | null;
@@ -83,6 +85,9 @@ function AcademyJsonLd({
     : `${siteUrl}${academy.coverImageUrl}`;
 
   const sameAs = [academy.websiteUrl, academy.instagramUrl, academy.whatsappUrl].filter(Boolean);
+  const styleKeywords = academy.styleTags && academy.styleTags.length > 0
+    ? academy.styleTags
+    : academy.stylesTaught;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -98,7 +103,7 @@ function AcademyJsonLd({
       addressCountry: "GT"
     },
     areaServed: "Guatemala",
-    knowsAbout: academy.stylesTaught,
+    knowsAbout: styleKeywords,
     ...(sameAs.length > 0 ? { sameAs } : {})
   };
 
@@ -134,6 +139,9 @@ export default async function AcademyDetailPage({
     academy.facebookUrl ? { href: academy.facebookUrl, label: common("facebook"), type: "facebook" as const } : null,
     academy.websiteUrl ? { href: academy.websiteUrl, label: common("website"), type: "website" as const } : null
   ].filter(Boolean) as { href: string; label: string; type: "whatsapp" | "instagram" | "facebook" | "website" }[];
+  const styleLabels = academy.styleTags && academy.styleTags.length > 0
+    ? academy.styleTags
+    : academy.stylesTaught.map((style) => common(`danceStyles.${style}`));
 
   return (
     <>
@@ -183,15 +191,15 @@ export default async function AcademyDetailPage({
                 </span>
                 <span className="flex items-center gap-1">
                   <Music className="h-3.5 w-3.5" />
-                  {academy.stylesTaught.map((s) => common(`danceStyles.${s}`)).join(", ")}
+                  {styleLabels.join(", ")}
                 </span>
               </div>
 
               {/* Badges + social links */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {academy.stylesTaught.map((style) => (
+                {styleLabels.map((style) => (
                   <Badge key={style} variant="accent" className="text-[10px] md:text-xs">
-                    {common(`danceStyles.${style}`)}
+                    {isPrimaryDanceStyle(style) ? common(`danceStyles.${style}`) : style}
                   </Badge>
                 ))}
                 {academy.trialClass && (

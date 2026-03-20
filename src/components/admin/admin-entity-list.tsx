@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { formatAcademySchedulePreview } from "@/lib/academies/academy-helpers";
 import type { AiUpdateEntity } from "@/lib/admin/ai-update";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,8 @@ type EntityListProps = {
     title?: string;
     description?: string;
     buttonLabel?: string;
+    persistKeys?: string[];
+    fieldLabels?: Record<string, string>;
   };
 };
 
@@ -85,6 +88,14 @@ async function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 function formatPreviewValue(value: unknown) {
+  if (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((entry) => Boolean(entry) && typeof entry === "object" && "day" in (entry as Record<string, unknown>))
+  ) {
+    return formatAcademySchedulePreview(value);
+  }
+
   if (Array.isArray(value)) {
     return value.map((entry) => String(entry ?? "").trim()).filter(Boolean).join(", ");
   }
@@ -646,8 +657,12 @@ export function AdminEntityList({
     setSaving(true);
     setSaveError("");
     try {
+      const payloadKeys = [
+        ...fields.map((field) => field.key),
+        ...(aiAssist?.persistKeys ?? [])
+      ];
       const payload = Object.fromEntries(
-        fields.map((field) => [field.key, editData[field.key]])
+        [...new Set(payloadKeys)].map((key) => [key, editData[key]])
       ) as Record<string, unknown>;
       if (forceAutoTranslate && autoTranslateFields.length > 0) {
         payload.force_auto_translate = true;
@@ -736,7 +751,10 @@ export function AdminEntityList({
 
   const groups = Array.from(new Set(fields.map((f) => f.group ?? "General")));
   const isCreating = editingId === NEW_ENTITY_ID;
-  const fieldLabels = Object.fromEntries(fields.map((field) => [field.key, field.label]));
+  const fieldLabels = {
+    ...Object.fromEntries(fields.map((field) => [field.key, field.label])),
+    ...(aiAssist?.fieldLabels ?? {})
+  };
   const aiSuggestionEntries = Object.entries(aiSuggestion ?? {}).map(([key, nextValue]) => ({
     key,
     label: fieldLabels[key] ?? key,

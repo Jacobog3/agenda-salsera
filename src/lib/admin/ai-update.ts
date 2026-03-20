@@ -1,6 +1,12 @@
+import {
+  buildAcademyScheduleText,
+  normalizeAcademyScheduleData,
+  normalizeAcademyStyleTags
+} from "@/lib/academies/academy-helpers";
+
 export type AiUpdateEntity = "academy" | "teacher";
 
-type FieldKind = "string" | "boolean" | "string_array";
+type FieldKind = "string" | "boolean" | "string_array" | "schedule_data";
 
 type FieldSpec = {
   key: string;
@@ -13,8 +19,9 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
   academy: [
     { key: "city", label: "Ciudad", kind: "string" },
     { key: "address", label: "Direccion", kind: "string" },
-    { key: "styles_taught", label: "Estilos que ensena", kind: "string_array" },
+    { key: "style_tags", label: "Estilos y subestilos visibles", kind: "string_array" },
     { key: "schedule_text", label: "Horarios", kind: "string" },
+    { key: "schedule_data", label: "Horario estructurado", kind: "schedule_data" },
     { key: "levels", label: "Niveles", kind: "string" },
     {
       key: "modality",
@@ -33,10 +40,9 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
     { key: "area", label: "Zona o area", kind: "string" },
     { key: "address", label: "Direccion", kind: "string" },
     {
-      key: "styles_taught",
-      label: "Estilos que ensena",
-      kind: "string_array",
-      allowedValues: ["salsa", "bachata", "salsa_bachata", "other"]
+      key: "style_tags",
+      label: "Estilos y subestilos visibles",
+      kind: "string_array"
     },
     { key: "levels", label: "Niveles", kind: "string" },
     {
@@ -49,6 +55,7 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
     { key: "teaching_venues", label: "Lugares donde da clases", kind: "string_array" },
     { key: "teaching_zones", label: "Zonas donde da clases", kind: "string_array" },
     { key: "schedule_text", label: "Horarios", kind: "string" },
+    { key: "schedule_data", label: "Horario estructurado", kind: "schedule_data" },
     { key: "trial_class", label: "Clase de prueba gratis", kind: "boolean" },
     { key: "price_text", label: "Precio", kind: "string" },
     { key: "booking_url", label: "Link para agendar", kind: "string" },
@@ -91,16 +98,46 @@ function normalizeBoolean(value: unknown) {
   return null;
 }
 
-function formatPromptValue(kind: FieldKind, value: unknown) {
-  if (kind === "string_array") {
-    return normalizeStringArray(value);
+function formatPromptValue(field: FieldSpec, value: unknown) {
+  if (field.kind === "schedule_data") {
+    return normalizeAcademyScheduleData(value);
   }
 
-  if (kind === "boolean") {
+  if (field.kind === "string_array") {
+    return field.key === "style_tags"
+      ? normalizeAcademyStyleTags(value)
+      : normalizeStringArray(value);
+  }
+
+  if (field.kind === "boolean") {
     return normalizeBoolean(value);
   }
 
   return normalizeString(value);
+}
+
+function comparableValue(field: FieldSpec, value: unknown) {
+  if (field.kind === "schedule_data") {
+    const scheduleData = normalizeAcademyScheduleData(value);
+    return scheduleData ? JSON.stringify(scheduleData) : "";
+  }
+
+  if (field.kind === "string_array") {
+    const values = field.key === "style_tags"
+      ? normalizeAcademyStyleTags(value)
+      : normalizeStringArray(value);
+
+    return values
+      .map((entry) => entry.toLowerCase())
+      .sort()
+      .join("|");
+  }
+
+  if (field.kind === "boolean") {
+    return normalizeBoolean(value) ? "true" : "false";
+  }
+
+  return normalizeString(value).toLowerCase();
 }
 
 function buildFieldInstructions(entity: AiUpdateEntity) {
@@ -111,6 +148,10 @@ function buildFieldInstructions(entity: AiUpdateEntity) {
           return `- ${field.key}: array de strings. Solo usa estos valores cuando aplique: ${field.allowedValues.join(", ")}`;
         }
         return `- ${field.key}: array de strings`;
+      }
+
+      if (field.kind === "schedule_data") {
+        return `- ${field.key}: array de objetos con este formato exacto: [{ "day": "Lunes", "classes": [{ "time": "18:00 - 19:00", "name": "Salsa", "level": "Todos los niveles" }] }]`;
       }
 
       if (field.kind === "boolean") {
@@ -129,7 +170,7 @@ function buildFieldInstructions(entity: AiUpdateEntity) {
 export function getAiUpdatePrompt(entity: AiUpdateEntity, currentData: Record<string, unknown>) {
   const entityLabel = entity === "academy" ? "dance academy" : "dance teacher";
   const currentSnapshot = Object.fromEntries(
-    ENTITY_FIELDS[entity].map((field) => [field.key, formatPromptValue(field.kind, currentData[field.key])])
+    ENTITY_FIELDS[entity].map((field) => [field.key, formatPromptValue(field, currentData[field.key])])
   );
 
   return `You are helping an admin update an existing ${entityLabel} profile in Guatemala.
@@ -146,6 +187,9 @@ Rules:
 - Never invent missing information.
 - Do not replace a specific current value with a more generic one.
 - If the new material only shows schedules, then focus on schedules and leave unrelated fields untouched.
+- If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, or trial class mentions.
+- Preserve visible substyles as \`style_tags\` when they appear in the material, for example Mambo, Chachacha, Lady Style, Shines, Belly Dance, Hip-Hop, or Reggaeton.
+- \`schedule_text\` should be a concise weekly summary, while \`schedule_data\` should contain the detailed classes needed to render a full schedule.
 - For booleans like trial_class, only include the field when the new material explicitly confirms it.
 - If nothing should change, return {}.
 
@@ -175,8 +219,23 @@ export function normalizeAiUpdateSuggestion(
       continue;
     }
 
+    if (field.kind === "schedule_data") {
+      const scheduleData = normalizeAcademyScheduleData(raw[field.key]);
+      if (!scheduleData) continue;
+      next[field.key] = scheduleData;
+      if (!("schedule_text" in raw)) {
+        const summary = buildAcademyScheduleText(scheduleData);
+        if (summary) {
+          next.schedule_text = summary;
+        }
+      }
+      continue;
+    }
+
     if (field.kind === "string_array") {
-      let values = normalizeStringArray(raw[field.key]);
+      let values = field.key === "style_tags"
+        ? normalizeAcademyStyleTags(raw[field.key])
+        : normalizeStringArray(raw[field.key]);
       if (field.allowedValues) {
         values = values.filter((value) => field.allowedValues?.includes(value));
       }
@@ -193,21 +252,6 @@ export function normalizeAiUpdateSuggestion(
   return next;
 }
 
-function comparableValue(kind: FieldKind, value: unknown) {
-  if (kind === "string_array") {
-    return normalizeStringArray(value)
-      .map((entry) => entry.toLowerCase())
-      .sort()
-      .join("|");
-  }
-
-  if (kind === "boolean") {
-    return normalizeBoolean(value) ? "true" : "false";
-  }
-
-  return normalizeString(value).toLowerCase();
-}
-
 export function filterMeaningfulAiChanges(
   entity: AiUpdateEntity,
   currentData: Record<string, unknown>,
@@ -218,8 +262,8 @@ export function filterMeaningfulAiChanges(
   for (const field of ENTITY_FIELDS[entity]) {
     if (!(field.key in suggestion)) continue;
 
-    const currentComparable = comparableValue(field.kind, currentData[field.key]);
-    const suggestedComparable = comparableValue(field.kind, suggestion[field.key]);
+    const currentComparable = comparableValue(field, currentData[field.key]);
+    const suggestedComparable = comparableValue(field, suggestion[field.key]);
 
     if (!suggestedComparable || currentComparable === suggestedComparable) {
       continue;

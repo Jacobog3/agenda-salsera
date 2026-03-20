@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 import { MapPin } from "lucide-react";
 import type { LocalizedTeacher } from "@/types/teacher";
 
@@ -21,6 +22,9 @@ export async function TeacherCard({
   teacher: LocalizedTeacher;
 }) {
   const common = await getTranslations("common");
+  const displayStyles = teacher.styleTags && teacher.styleTags.length > 0
+    ? teacher.styleTags
+    : teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
   const teacherMeta =
     teacher.classFormats?.slice(0, 2).join(" · ") ||
     teacher.levels ||
@@ -68,13 +72,13 @@ export async function TeacherCard({
           </div>
 
           <div className="flex flex-wrap gap-1">
-            {teacher.stylesTaught.map((style) => (
+            {displayStyles.slice(0, 4).map((style) => (
               <Badge
                 key={style}
                 variant="accent"
                 className="px-2 py-px text-[10px] md:px-2.5 md:py-0.5 md:text-xs"
               >
-                {common(`danceStyles.${style}`)}
+                {isPrimaryDanceStyle(style) ? common(`danceStyles.${style}`) : style}
               </Badge>
             ))}
           </div>

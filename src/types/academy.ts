@@ -23,6 +23,7 @@ export type AcademyRecord = {
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
+  styleTags?: string[];
   scheduleText?: string | null;
   scheduleData?: ScheduleDay[] | null;
   levels?: string | null;
@@ -46,6 +47,7 @@ export type LocalizedAcademy = {
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
+  styleTags?: string[];
   scheduleText?: string | null;
   scheduleData?: ScheduleDay[] | null;
   levels?: string | null;

@@ -13,6 +13,7 @@ export type TeacherRecord = {
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
+  styleTags?: string[];
   levels?: string | null;
   modality?: string | null;
   classFormats?: string[] | null;
@@ -42,6 +43,7 @@ export type LocalizedTeacher = {
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
+  styleTags?: string[];
   levels?: string | null;
   modality?: string | null;
   classFormats?: string[] | null;

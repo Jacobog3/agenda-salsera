@@ -18,6 +18,7 @@ import { AcademyCard } from "@/components/academies/academy-card";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { EventCard } from "@/components/events/event-card";
 import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
+import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 import {
   getAcademiesForTeacher,
   getEventsForTeacher
@@ -82,7 +83,9 @@ export async function generateMetadata({
   if (!teacher) return {};
 
   const common = await getTranslations({ locale: currentLocale, namespace: "common" });
-  const styleLabels = teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
+  const styleLabels = teacher.styleTags && teacher.styleTags.length > 0
+    ? teacher.styleTags
+    : teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
   const description = buildTeacherDescription({
     teacher,
     locale: currentLocale,
@@ -144,7 +147,9 @@ function TeacherJsonLd({
         }
       : undefined,
     homeLocation: teacher.city,
-    knowsAbout: teacher.stylesTaught,
+    knowsAbout: teacher.styleTags && teacher.styleTags.length > 0
+      ? teacher.styleTags
+      : teacher.stylesTaught,
     jobTitle: locale === "es" ? "Maestro de baile" : "Dance teacher",
     ...(sameAs.length > 0 ? { sameAs } : {})
   };
@@ -173,7 +178,9 @@ export default async function TeacherDetailPage({
   const teacherDescription = buildTeacherDescription({
     teacher,
     locale: currentLocale,
-    styleLabels: teacher.stylesTaught.map((style) => common(`danceStyles.${style}`))
+    styleLabels: teacher.styleTags && teacher.styleTags.length > 0
+      ? teacher.styleTags
+      : teacher.stylesTaught.map((style) => common(`danceStyles.${style}`))
   });
 
   const [relatedEvents, relatedAcademies] = await Promise.all([
@@ -187,6 +194,9 @@ export default async function TeacherDetailPage({
     teacher.facebookUrl ? { href: teacher.facebookUrl, label: common("facebook"), type: "facebook" as const } : null,
     teacher.websiteUrl ? { href: teacher.websiteUrl, label: common("website"), type: "website" as const } : null
   ].filter(Boolean) as { href: string; label: string; type: "whatsapp" | "instagram" | "facebook" | "website" }[];
+  const styleLabels = teacher.styleTags && teacher.styleTags.length > 0
+    ? teacher.styleTags
+    : teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
 
   const heroImage = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png";
   const useUnoptimizedImage = heroImage.startsWith("/local-images/");
@@ -239,14 +249,14 @@ export default async function TeacherDetailPage({
                 </span>
                 <span className="flex items-center gap-1">
                   <Music className="h-3.5 w-3.5" />
-                  {teacher.stylesTaught.map((style) => common(`danceStyles.${style}`)).join(", ")}
+                  {styleLabels.join(", ")}
                 </span>
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {teacher.stylesTaught.map((style) => (
+                {styleLabels.map((style) => (
                   <Badge key={style} variant="accent" className="text-[10px] md:text-xs">
-                    {common(`danceStyles.${style}`)}
+                    {isPrimaryDanceStyle(style) ? common(`danceStyles.${style}`) : style}
                   </Badge>
                 ))}
                 {teacher.trialClass ? (
@@ -278,9 +288,9 @@ export default async function TeacherDetailPage({
                   {t("stylesTitle")}
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {teacher.stylesTaught.map((style) => (
+                  {styleLabels.map((style) => (
                     <Badge key={style} variant="accent">
-                      {common(`danceStyles.${style}`)}
+                      {isPrimaryDanceStyle(style) ? common(`danceStyles.${style}`) : style}
                     </Badge>
                   ))}
                   {teacher.levels ? (

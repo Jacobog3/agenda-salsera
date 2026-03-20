@@ -9,8 +9,8 @@ const ACADEMY_FIELDS: FieldDef[] = [
   { key: "name", label: "Nombre", group: "Información" },
   { key: "city", label: "Ciudad", group: "Información" },
   { key: "address", label: "Dirección", group: "Información" },
-  { key: "styles_taught", label: "Estilos", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
-  { key: "schedule_text", label: "Horarios (texto)", group: "Clases" },
+  { key: "style_tags", label: "Estilos y subestilos", hint: "Lo que realmente enseña la academia; separados por coma o salto de línea", type: "textarea", group: "Clases" },
+  { key: "schedule_text", label: "Horarios (resumen)", hint: "Resumen corto para búsqueda y sidebar", type: "textarea", group: "Clases" },
   { key: "levels", label: "Niveles", group: "Clases" },
   { key: "modality", label: "Modalidad", type: "select", group: "Clases", options: [
     { value: "presencial", label: "Presencial" },
@@ -47,8 +47,12 @@ export default function AdminAcademiesPage() {
       aiAssist={{
         entity: "academy",
         title: "Actualizar academia con IA",
-        description: "Usa una imagen de horarios, flyer o caption nuevo para proponer mejoras sobre lo que ya existe sin rehacer la ficha.",
-        buttonLabel: "Actualizar con IA"
+        description: "Usa una imagen de horarios, flyer o caption nuevo para proponer mejoras sobre lo que ya existe, incluyendo horarios estructurados y estilos detallados.",
+        buttonLabel: "Actualizar con IA",
+        persistKeys: ["schedule_data"],
+        fieldLabels: {
+          schedule_data: "Horario estructurado"
+        }
       }}
     />
   );

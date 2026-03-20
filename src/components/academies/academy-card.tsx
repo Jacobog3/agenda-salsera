@@ -5,9 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import type { LocalizedAcademy } from "@/types/academy";
+import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 
 export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
   const t = await getTranslations("common");
+  const displayStyles = academy.styleTags && academy.styleTags.length > 0
+    ? academy.styleTags
+    : academy.stylesTaught.map((style) => t(`danceStyles.${style}`));
 
   return (
     <Link
@@ -38,13 +42,13 @@ export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
           </div>
 
           <div className="flex flex-wrap gap-1">
-            {academy.stylesTaught.map((style) => (
+            {displayStyles.slice(0, 4).map((style) => (
               <Badge
                 key={style}
                 variant="accent"
                 className="px-2 py-px text-[10px] md:px-2.5 md:py-0.5 md:text-xs"
               >
-                {t(`danceStyles.${style}`)}
+                {isPrimaryDanceStyle(style) ? t(`danceStyles.${style}`) : style}
               </Badge>
             ))}
           </div>

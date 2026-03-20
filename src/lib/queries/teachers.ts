@@ -1,4 +1,5 @@
 import { sampleTeachers } from "@/content/sample-data";
+import { buildAcademyScheduleText, normalizeAcademyScheduleData } from "@/lib/academies/academy-helpers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeTeacher } from "@/lib/utils/localize";
@@ -12,6 +13,8 @@ function toStringArray(value: unknown): string[] | null {
 }
 
 function normalizeTeacher(row: Record<string, unknown>): TeacherRecord {
+  const scheduleData = normalizeAcademyScheduleData(row.schedule_data);
+
   return {
     id: String(row.id),
     slug: String(row.slug),
@@ -26,13 +29,16 @@ function normalizeTeacher(row: Record<string, unknown>): TeacherRecord {
     stylesTaught: Array.isArray(row.styles_taught)
       ? row.styles_taught.map((style) => String(style)) as TeacherRecord["stylesTaught"]
       : [],
+    styleTags: Array.isArray(row.style_tags)
+      ? row.style_tags.map((tag) => String(tag))
+      : [],
     levels: row.levels ? String(row.levels) : null,
     modality: row.modality ? String(row.modality) : null,
     classFormats: toStringArray(row.class_formats),
     teachingZones: toStringArray(row.teaching_zones),
     teachingVenues: toStringArray(row.teaching_venues),
-    scheduleText: row.schedule_text ? String(row.schedule_text) : null,
-    scheduleData: Array.isArray(row.schedule_data) ? row.schedule_data as TeacherRecord["scheduleData"] : null,
+    scheduleText: row.schedule_text ? String(row.schedule_text) : buildAcademyScheduleText(scheduleData),
+    scheduleData,
     bookingUrl: row.booking_url ? String(row.booking_url) : null,
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,
     instagramUrl: row.instagram_url ? String(row.instagram_url) : null,
