@@ -58,6 +58,12 @@ export default function AdminTeachersPage() {
       autoTranslateFields={[
         { sourceKey: "bio_es", targetKey: "bio_en" }
       ]}
+      aiAssist={{
+        entity: "teacher",
+        title: "Actualizar maestro con IA",
+        description: "Sirve para refrescar horarios, formatos, sedes o links a partir de una imagen o texto nuevo, manteniendo la ficha actual como base.",
+        buttonLabel: "Actualizar con IA"
+      }}
     />
   );
 }

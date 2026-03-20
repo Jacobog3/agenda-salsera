@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import type { AiUpdateEntity } from "@/lib/admin/ai-update";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +19,8 @@ import {
   Clock,
   Plus,
   Languages,
-  Search
+  Search,
+  Sparkles
 } from "lucide-react";
 
 export type FieldDef = {
@@ -47,6 +49,12 @@ type EntityListProps = {
   dateKey?: string;
   statusResolver?: (item: Record<string, unknown>) => "active" | "expired";
   autoTranslateFields?: { sourceKey: string; targetKey: string }[];
+  aiAssist?: {
+    entity: AiUpdateEntity;
+    title?: string;
+    description?: string;
+    buttonLabel?: string;
+  };
 };
 
 function parseDateTimeLocal(isoString: string): { date: string; time: string } {
@@ -66,6 +74,28 @@ function getTimeEditKey(fieldKey: string) {
 }
 
 const NEW_ENTITY_ID = "__new__";
+
+async function readFileAsDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function formatPreviewValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => String(entry ?? "").trim()).filter(Boolean).join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Sí" : "No";
+  }
+
+  const text = String(value ?? "").trim();
+  return text || "Vacío";
+}
 
 function buildEmptyEditData(fields: FieldDef[]) {
   const data: Record<string, unknown> = {};
@@ -407,7 +437,8 @@ export function AdminEntityList({
   imageKey,
   dateKey,
   statusResolver,
-  autoTranslateFields = []
+  autoTranslateFields = [],
+  aiAssist
 }: EntityListProps) {
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
@@ -419,6 +450,14 @@ export function AdminEntityList({
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"active" | "expired">("active");
   const [dynamicOptions, setDynamicOptions] = useState<Record<string, { value: string; label: string }[]>>({});
+  const [aiExpanded, setAiExpanded] = useState(false);
+  const [aiText, setAiText] = useState("");
+  const [aiImageDataUrl, setAiImageDataUrl] = useState("");
+  const [aiImageName, setAiImageName] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiNotice, setAiNotice] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState<Record<string, unknown> | null>(null);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -481,6 +520,94 @@ export function AdminEntityList({
     return field.options ?? [];
   }
 
+  function resetAiAssist() {
+    setAiExpanded(false);
+    setAiText("");
+    setAiImageDataUrl("");
+    setAiImageName("");
+    setAiLoading(false);
+    setAiError("");
+    setAiNotice("");
+    setAiSuggestion(null);
+  }
+
+  async function handleAiImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAiError("");
+    setAiNotice("");
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setAiImageDataUrl(dataUrl);
+      setAiImageName(file.name);
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : "No se pudo leer la imagen.");
+    } finally {
+      e.target.value = "";
+    }
+  }
+
+  async function runAiUpdate() {
+    if (!aiAssist || !editingId || editingId === NEW_ENTITY_ID) return;
+
+    const currentData = Object.fromEntries(
+      fields.map((field) => [field.key, editData[field.key]])
+    ) as Record<string, unknown>;
+
+    setAiLoading(true);
+    setAiError("");
+    setAiNotice("");
+    setAiSuggestion(null);
+
+    try {
+      const response = await fetch("/api/admin/ai-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity: aiAssist.entity,
+          currentData,
+          text: aiText,
+          imageDataUrl: aiImageDataUrl
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(String(data.error || "No se pudo analizar el material."));
+      }
+
+      const suggestion = data.data && typeof data.data === "object"
+        ? (data.data as Record<string, unknown>)
+        : {};
+
+      if (Object.keys(suggestion).length === 0) {
+        setAiNotice("La IA no encontró mejoras claras para aplicar sobre este registro.");
+      } else {
+        setAiNotice("");
+      }
+
+      setAiSuggestion(suggestion);
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : "No se pudo analizar el material.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  function applyAiSuggestion() {
+    if (!aiSuggestion) return;
+
+    setEditData((prev) => ({
+      ...prev,
+      ...aiSuggestion
+    }));
+    setAiNotice("Sugerencias aplicadas al formulario. Revisa y guarda cuando estés listo.");
+    setAiSuggestion(null);
+  }
+
   function startEdit(item: Record<string, unknown>) {
     const data = { ...item };
     for (const field of fields) {
@@ -494,6 +621,7 @@ export function AdminEntityList({
     setEditData(data);
     setSaveError("");
     setDeleteConfirm(null);
+    resetAiAssist();
   }
 
   function startCreate() {
@@ -501,6 +629,7 @@ export function AdminEntityList({
     setEditData(buildEmptyEditData(fields));
     setSaveError("");
     setDeleteConfirm(null);
+    resetAiAssist();
   }
 
   function cancelEdit() {
@@ -508,6 +637,7 @@ export function AdminEntityList({
     setEditData({});
     setSaveError("");
     setDeleteConfirm(null);
+    resetAiAssist();
   }
 
   async function saveEdit(forceAutoTranslate = false) {
@@ -606,6 +736,13 @@ export function AdminEntityList({
 
   const groups = Array.from(new Set(fields.map((f) => f.group ?? "General")));
   const isCreating = editingId === NEW_ENTITY_ID;
+  const fieldLabels = Object.fromEntries(fields.map((field) => [field.key, field.label]));
+  const aiSuggestionEntries = Object.entries(aiSuggestion ?? {}).map(([key, nextValue]) => ({
+    key,
+    label: fieldLabels[key] ?? key,
+    currentValue: editData[key],
+    nextValue
+  }));
 
   function renderEditForm(borderTop: boolean) {
     return (
@@ -715,6 +852,140 @@ export function AdminEntityList({
             </div>
           );
         })}
+
+        {aiAssist && !isCreating ? (
+          <div className="space-y-3 rounded-2xl border border-brand-200 bg-brand-50/40 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm font-semibold text-brand-900">
+                  <Sparkles className="h-4 w-4" />
+                  {aiAssist.title ?? "Actualizar con IA"}
+                </div>
+                <p className="text-xs leading-5 text-brand-900/75">
+                  {aiAssist.description ?? "Sube una imagen o pega contexto nuevo y la IA solo propondrá mejoras seguras sobre el registro actual."}
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setAiExpanded((prev) => !prev)}
+                className="gap-1.5 self-start border-brand-200 bg-white/80 text-brand-900 hover:bg-white"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                {aiExpanded ? "Ocultar" : aiAssist.buttonLabel ?? "Actualizar con IA"}
+              </Button>
+            </div>
+
+            {aiExpanded ? (
+              <div className="space-y-3 rounded-xl border border-brand-100 bg-white/80 p-3">
+                <Textarea
+                  rows={4}
+                  value={aiText}
+                  onChange={(e) => setAiText(e.target.value)}
+                  placeholder="Pega aquí el caption, mensaje de WhatsApp o contexto adicional que acompaña la imagen."
+                  className="text-sm"
+                />
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-1">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-200 bg-white px-3 py-2 text-sm font-medium text-brand-900 transition hover:bg-brand-50">
+                      <ImagePlus className="h-4 w-4" />
+                      Subir imagen nueva
+                      <input type="file" accept="image/*" className="hidden" onChange={handleAiImage} />
+                    </label>
+                    {aiImageName ? (
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span>Imagen lista: {aiImageName}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAiImageDataUrl("");
+                            setAiImageName("");
+                          }}
+                          className="ml-2 font-medium text-brand-700 hover:text-brand-900"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Ideal para horarios, sedes o piezas con cambios recientes.
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={runAiUpdate}
+                    disabled={aiLoading || (!aiImageDataUrl && aiText.trim().length < 10)}
+                    className="gap-1.5"
+                  >
+                    {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    Analizar material
+                  </Button>
+                </div>
+
+                {aiError ? (
+                  <p className="text-xs font-medium text-red-600">{aiError}</p>
+                ) : null}
+
+                {aiNotice ? (
+                  <p className="text-xs font-medium text-brand-700">{aiNotice}</p>
+                ) : null}
+
+                {aiSuggestionEntries.length > 0 ? (
+                  <div className="space-y-3 rounded-xl border border-brand-100 bg-brand-50/40 p-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Cambios sugeridos</p>
+                        <p className="text-xs text-muted-foreground">
+                          La IA propone mejoras sobre lo actual; no se guarda nada hasta que tú lo confirmes.
+                        </p>
+                      </div>
+                      <Button type="button" size="sm" onClick={applyAiSuggestion} className="gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Aplicar sugerencias
+                      </Button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {aiSuggestionEntries.map((entry) => {
+                        const currentPreview = formatPreviewValue(entry.currentValue);
+                        const nextPreview = formatPreviewValue(entry.nextValue);
+                        const isNewValue = currentPreview === "Vacío";
+
+                        return (
+                          <div key={entry.key} className="rounded-xl border border-brand-100 bg-white p-3">
+                            <div className="mb-2 flex items-center justify-between gap-3">
+                              <p className="text-sm font-semibold text-gray-900">{entry.label}</p>
+                              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                                isNewValue ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                              }`}>
+                                {isNewValue ? "Nuevo" : "Mejora"}
+                              </span>
+                            </div>
+                            <div className="grid gap-2 md:grid-cols-2">
+                              <div className="rounded-lg bg-gray-50 p-2">
+                                <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">Actual</p>
+                                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">{currentPreview}</p>
+                              </div>
+                              <div className="rounded-lg bg-brand-50 p-2">
+                                <p className="text-[10px] font-bold uppercase tracking-wide text-brand-500">Sugerido</p>
+                                <p className="mt-1 whitespace-pre-wrap text-sm text-brand-900">{nextPreview}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="border-t border-gray-100 pt-3">
           {saveError ? (

@@ -44,6 +44,12 @@ export default function AdminAcademiesPage() {
       autoTranslateFields={[
         { sourceKey: "description_es", targetKey: "description_en" }
       ]}
+      aiAssist={{
+        entity: "academy",
+        title: "Actualizar academia con IA",
+        description: "Usa una imagen de horarios, flyer o caption nuevo para proponer mejoras sobre lo que ya existe sin rehacer la ficha.",
+        buttonLabel: "Actualizar con IA"
+      }}
     />
   );
 }
