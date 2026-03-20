@@ -38,7 +38,7 @@ export default function AdminPage() {
             Centro de creación
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Desde aquí puedes crear eventos rápido y saltar al CRUD de academias, maestros y spots.
+            Desde aquí puedes entrar al CRUD de eventos, academias, maestros y spots sin perderte entre pantallas.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section className="hidden space-y-4 md:block">
         <div>
           <h2 className="font-display text-lg font-bold tracking-tight text-foreground md:text-xl">
             Crear evento rápido

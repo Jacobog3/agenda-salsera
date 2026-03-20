@@ -451,10 +451,16 @@ export function SubmissionsPanel() {
       : tab === "teachers"
         ? teachers.length
         : spots.length;
+  const reviewTabs = [
+    { key: "events" as Tab, label: "Eventos", count: events.length, icon: CalendarDays },
+    { key: "academies" as Tab, label: "Academias", count: academies.length, icon: GraduationCap },
+    { key: "teachers" as Tab, label: "Maestros", count: teachers.length, icon: UserRound },
+    { key: "spots" as Tab, label: "Spots", count: spots.length, icon: MapPin }
+  ];
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-xl font-bold text-foreground">Revisiones pendientes</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -468,28 +474,35 @@ export function SubmissionsPanel() {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-surface-soft p-1">
-        {([
-          { key: "events" as Tab, label: "Eventos", count: events.length, icon: CalendarDays },
-          { key: "academies" as Tab, label: "Academias", count: academies.length, icon: GraduationCap },
-          { key: "teachers" as Tab, label: "Maestros", count: teachers.length, icon: UserRound },
-          { key: "spots" as Tab, label: "Spots", count: spots.length, icon: MapPin }
-        ]).map(({ key, label, count, icon: Icon }) => (
+      <div className="overflow-x-auto pb-1 scrollbar-hide">
+        <div className="inline-flex min-w-full gap-2 rounded-2xl bg-surface-soft/80 p-1.5">
+          {reviewTabs.map(({ key, label, count, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium transition",
-              tab === key ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              "flex min-w-[132px] shrink-0 items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition sm:min-w-[148px]",
+              tab === key
+                ? "bg-white text-foreground shadow-sm ring-1 ring-black/5"
+                : "text-muted-foreground hover:bg-white/70 hover:text-foreground"
             )}>
-            <Icon className="h-4 w-4" />
-            {label}
-            {count > 0 && (
-              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand-600 px-1.5 text-[10px] font-bold text-white">
-                {count}
-              </span>
-            )}
+            <span className="flex min-w-0 items-center gap-2">
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="truncate">{label}</span>
+            </span>
+            <span
+              className={cn(
+                "flex h-6 min-w-[28px] items-center justify-center rounded-full px-2 text-[11px] font-semibold",
+                count > 0
+                  ? tab === key
+                    ? "bg-brand-100 text-brand-700"
+                    : "bg-white text-muted-foreground"
+                  : "bg-transparent text-muted-foreground/60"
+              )}
+            >
+              {count > 99 ? "99+" : count}
+            </span>
           </button>
-        ))}
+          ))}
+        </div>
       </div>
 
       {loading ? (

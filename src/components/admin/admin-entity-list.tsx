@@ -17,7 +17,8 @@ import {
   Calendar,
   Clock,
   Plus,
-  Languages
+  Languages,
+  Search
 } from "lucide-react";
 
 export type FieldDef = {
@@ -295,6 +296,108 @@ function ImageListUploadField({
   );
 }
 
+function SearchableMultiSelectField({
+  value,
+  options,
+  onChange,
+  placeholder
+}: {
+  value: string[];
+  options: { value: string; label: string }[];
+  onChange: (next: string[]) => void;
+  placeholder?: string;
+}) {
+  const [query, setQuery] = useState("");
+  const selectedValues = Array.isArray(value) ? value.map((entry) => String(entry)) : [];
+  const selectedSet = new Set(selectedValues);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredOptions = options.filter((option) => {
+    if (!normalizedQuery) return true;
+    return option.label.toLowerCase().includes(normalizedQuery) || option.value.toLowerCase().includes(normalizedQuery);
+  });
+  const orderedOptions = [
+    ...filteredOptions.filter((option) => selectedSet.has(option.value)),
+    ...filteredOptions.filter((option) => !selectedSet.has(option.value))
+  ];
+  const selectedOptions = selectedValues.map((selectedValue) => {
+    const matched = options.find((option) => option.value === selectedValue);
+    return matched ?? { value: selectedValue, label: selectedValue };
+  });
+
+  function toggleOption(optionValue: string, checked: boolean) {
+    if (checked) {
+      onChange(selectedSet.has(optionValue) ? selectedValues : [...selectedValues, optionValue]);
+      return;
+    }
+
+    onChange(selectedValues.filter((value) => value !== optionValue));
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={placeholder ?? "Buscar opción"}
+          className="h-9 pl-9 text-sm"
+        />
+      </div>
+
+      {selectedOptions.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+            Seleccionados ({selectedOptions.length})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {selectedOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => toggleOption(option.value, false)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 transition hover:bg-brand-100"
+              >
+                <span>{option.label}</span>
+                <X className="h-3 w-3" />
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="max-h-52 space-y-1 overflow-y-auto rounded-lg bg-gray-50/80 p-1.5">
+        {orderedOptions.length === 0 ? (
+          <p className="px-2 py-3 text-xs text-gray-400">
+            {options.length === 0 ? "No hay opciones disponibles." : "No hay resultados para esa búsqueda."}
+          </p>
+        ) : (
+          orderedOptions.map((option) => {
+            const checked = selectedSet.has(option.value);
+
+            return (
+              <label
+                key={option.value}
+                className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition ${
+                  checked ? "bg-brand-50 text-brand-900" : "hover:bg-white"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => toggleOption(option.value, e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 accent-brand-600"
+                />
+                <span className="min-w-0 flex-1 truncate">{option.label}</span>
+              </label>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function AdminEntityList({
   title,
   apiBase,
@@ -516,7 +619,7 @@ export function AdminEntityList({
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {groupFields.map((field) => {
                   const span =
-                    field.type === "textarea" || field.type === "image" || field.type === "image-list"
+                    field.type === "textarea" || field.type === "image" || field.type === "image-list" || field.type === "multiselect"
                       ? "sm:col-span-2 md:col-span-3"
                       : "";
 
@@ -584,40 +687,12 @@ export function AdminEntityList({
                           ))}
                         </select>
                       ) : field.type === "multiselect" ? (
-                        <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2">
-                          {getFieldOptions(field).length === 0 ? (
-                            <p className="text-xs text-gray-400">No hay opciones disponibles.</p>
-                          ) : (
-                            getFieldOptions(field).map((opt) => {
-                              const selected = Array.isArray(editData[field.key])
-                                ? (editData[field.key] as unknown[]).map((value) => String(value))
-                                : [];
-                              const checked = selected.includes(opt.value);
-
-                              return (
-                                <label key={opt.value} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50">
-                                  <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={(e) => {
-                                      setEditData((prev) => {
-                                        const current = Array.isArray(prev[field.key])
-                                          ? (prev[field.key] as unknown[]).map((value) => String(value))
-                                          : [];
-                                        const next = e.target.checked
-                                          ? [...current, opt.value]
-                                          : current.filter((value) => value !== opt.value);
-                                        return { ...prev, [field.key]: next };
-                                      });
-                                    }}
-                                    className="h-4 w-4 rounded border-gray-300 accent-brand-600"
-                                  />
-                                  <span>{opt.label}</span>
-                                </label>
-                              );
-                            })
-                          )}
-                        </div>
+                        <SearchableMultiSelectField
+                          value={Array.isArray(editData[field.key]) ? (editData[field.key] as string[]) : []}
+                          options={getFieldOptions(field)}
+                          onChange={(next) => setEditData((prev) => ({ ...prev, [field.key]: next }))}
+                          placeholder={`Buscar ${field.label.toLowerCase()}`}
+                        />
                       ) : field.type === "checkbox" ? (
                         <input
                           type="checkbox"
