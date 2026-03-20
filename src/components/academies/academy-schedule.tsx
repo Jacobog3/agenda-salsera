@@ -33,20 +33,27 @@ export function AcademySchedule({
               {day.classes.map((cls, j) => (
                 <div
                   key={`${day.day}-${j}`}
-                  className="grid grid-cols-[5rem_1fr_auto] items-start gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_1fr_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_1fr_auto] md:gap-4 md:px-5 md:text-sm"
+                  className="px-3 py-2 text-xs sm:grid sm:grid-cols-[7rem_1fr_auto] sm:items-start sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_1fr_auto] md:gap-4 md:px-5 md:text-sm"
                 >
-                  <span className="pt-px font-semibold tabular-nums text-muted-foreground">
+                  <span className="block pt-px font-semibold tabular-nums text-muted-foreground">
                     {cls.time}
                   </span>
-                  <span className="min-w-0 font-medium text-foreground">
-                    {cls.name}
-                  </span>
+                  <div className="min-w-0 pt-1 sm:pt-0">
+                    <span className="block break-words font-medium leading-relaxed text-foreground">
+                      {cls.name}
+                    </span>
+                    {cls.level ? (
+                      <span className="mt-1 inline-flex w-fit rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 sm:hidden">
+                        {cls.level}
+                      </span>
+                    ) : null}
+                  </div>
                   {cls.level ? (
-                    <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 md:text-xs">
+                    <span className="hidden shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 sm:inline-flex md:text-xs">
                       {cls.level}
                     </span>
                   ) : (
-                    <span />
+                    <span className="hidden sm:block" />
                   )}
                 </div>
               ))}
