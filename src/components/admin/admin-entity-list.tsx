@@ -43,6 +43,7 @@ type EntityListProps = {
   displayColumns: DisplayColumn[];
   imageKey?: string;
   dateKey?: string;
+  statusResolver?: (item: Record<string, unknown>) => "active" | "expired";
   autoTranslateFields?: { sourceKey: string; targetKey: string }[];
 };
 
@@ -266,6 +267,7 @@ export function AdminEntityList({
   displayColumns,
   imageKey,
   dateKey,
+  statusResolver,
   autoTranslateFields = []
 }: EntityListProps) {
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
@@ -439,12 +441,18 @@ export function AdminEntityList({
   }
 
   const now = new Date();
-  const hasDateSplit = !!dateKey;
+  const hasDateSplit = Boolean(dateKey || statusResolver);
+  const resolveItemStatus = statusResolver ?? ((item: Record<string, unknown>) => {
+    if (!dateKey) return "active";
+    return new Date(String(item[dateKey])) >= new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      ? "active"
+      : "expired";
+  });
   const activeItems = hasDateSplit
-    ? items.filter((it) => new Date(String(it[dateKey!])) >= new Date(now.getFullYear(), now.getMonth(), now.getDate()))
+    ? items.filter((it) => resolveItemStatus(it) === "active")
     : items;
   const expiredItems = hasDateSplit
-    ? items.filter((it) => new Date(String(it[dateKey!])) < new Date(now.getFullYear(), now.getMonth(), now.getDate()))
+    ? items.filter((it) => resolveItemStatus(it) === "expired")
     : [];
   const visibleItems = hasDateSplit ? (tab === "active" ? activeItems : expiredItems) : items;
 

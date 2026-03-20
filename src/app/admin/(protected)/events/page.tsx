@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminEntityList } from "@/components/admin/admin-entity-list";
+import { isEventExpired } from "@/lib/utils/event-status";
 import type { FieldDef } from "@/components/admin/admin-entity-list";
 
 const EVENT_FIELDS: FieldDef[] = [
@@ -63,6 +64,14 @@ export default function AdminEventsPage() {
       displayColumns={EVENT_COLUMNS}
       imageKey="cover_image_url"
       dateKey="starts_at"
+      statusResolver={(item) =>
+        isEventExpired({
+          startsAt: String(item.starts_at ?? ""),
+          endsAt: item.ends_at ? String(item.ends_at) : null
+        })
+          ? "expired"
+          : "active"
+      }
       autoTranslateFields={[
         { sourceKey: "title_es", targetKey: "title_en" },
         { sourceKey: "description_es", targetKey: "description_en" }

@@ -1,6 +1,7 @@
 import { sampleEvents } from "@/content/sample-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
+import { isEventActive } from "@/lib/utils/event-status";
 import { localizeEvent } from "@/lib/utils/localize";
 import type { DanceStyle, EventRecord, LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
@@ -56,7 +57,7 @@ export async function getEvents(
 
   return records
     .filter((event) => {
-      if (new Date(event.startsAt) < todayStart) return false;
+      if (!isEventActive(event)) return false;
 
       if (filters?.city && filters.city !== "all" && event.city !== filters.city) {
         return false;
@@ -98,7 +99,6 @@ async function fetchSupabaseEvents(): Promise<EventRecord[]> {
     .from("events")
     .select("*")
     .eq("is_published", true)
-    .gte("starts_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString())
     .order("starts_at", { ascending: true });
 
   if (error) {
