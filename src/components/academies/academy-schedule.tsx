@@ -33,27 +33,22 @@ export function AcademySchedule({
               {day.classes.map((cls, j) => (
                 <div
                   key={`${day.day}-${j}`}
-                  className="px-3 py-2 text-xs sm:grid sm:grid-cols-[7rem_1fr_auto] sm:items-start sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_1fr_auto] md:gap-4 md:px-5 md:text-sm"
+                  className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.5rem] items-start gap-2 px-3 py-2 text-xs sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:gap-3 sm:px-4 sm:py-2.5 md:grid-cols-[7.5rem_minmax(0,1fr)_auto] md:gap-4 md:px-5 md:text-sm"
                 >
                   <span className="block pt-px font-semibold tabular-nums text-muted-foreground">
                     {cls.time}
                   </span>
-                  <div className="min-w-0 pt-1 sm:pt-0">
-                    <span className="block break-words font-medium leading-relaxed text-foreground">
+                  <div className="min-w-0">
+                    <span className="block break-words whitespace-normal font-medium leading-relaxed text-foreground">
                       {cls.name}
                     </span>
-                    {cls.level ? (
-                      <span className="mt-1 inline-flex w-fit rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 sm:hidden">
-                        {cls.level}
-                      </span>
-                    ) : null}
                   </div>
                   {cls.level ? (
-                    <span className="hidden shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 sm:inline-flex md:text-xs">
+                    <span className="inline-flex w-full justify-center self-start rounded-full bg-brand-50 px-2 py-1 text-center text-[10px] font-medium leading-tight text-brand-700 whitespace-normal break-words sm:w-auto sm:max-w-[9rem] sm:px-2 sm:py-0.5 md:text-xs">
                       {cls.level}
                     </span>
                   ) : (
-                    <span className="hidden sm:block" />
+                    <span />
                   )}
                 </div>
               ))}
