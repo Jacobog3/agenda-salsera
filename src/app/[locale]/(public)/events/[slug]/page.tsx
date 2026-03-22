@@ -15,7 +15,10 @@ import {
 import { formatCurrency, formatEventDateTime, formatEventDateRange } from "@/lib/utils/formatters";
 import { Calendar, MapPin, User, Banknote, Globe, ExternalLink } from "lucide-react";
 import { env } from "@/lib/utils/env";
+import type { LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
+import type { OrganizerSummary } from "@/types/organizer";
+import type { LocalizedTeacher } from "@/types/teacher";
 
 function EventDescription({ text }: { text: string }) {
   const blocks = text
@@ -110,7 +113,14 @@ export async function generateMetadata({
   return buildEventMetadata(event, locale as Locale);
 }
 
-function EventJsonLd({ event, siteUrl, locale }: {
+function EventJsonLd({
+  event,
+  siteUrl,
+  locale,
+  relatedOrganizer,
+  relatedAcademy,
+  relatedTeachers
+}: {
   event: {
     title: string;
     description: string;
@@ -120,12 +130,19 @@ function EventJsonLd({ event, siteUrl, locale }: {
     address?: string | null;
     city: string;
     startsAt: string;
+    endsAt?: string | null;
     priceAmount?: number | null;
     currency: string;
     organizerName: string;
+    contactUrl: string;
+    externalUrl?: string | null;
+    createdAt?: string;
   };
   siteUrl: string;
   locale: Locale;
+  relatedOrganizer?: OrganizerSummary | null;
+  relatedAcademy?: LocalizedAcademy | null;
+  relatedTeachers: LocalizedTeacher[];
 }) {
   const eventUrl = locale === "es"
     ? `${siteUrl}/eventos/${event.slug}`
@@ -135,6 +152,38 @@ function EventJsonLd({ event, siteUrl, locale }: {
     ? event.coverImageUrl
     : `${siteUrl}${event.coverImageUrl}`;
 
+  const organizerUrl =
+    relatedOrganizer?.websiteUrl ??
+    relatedOrganizer?.instagramUrl ??
+    relatedOrganizer?.facebookUrl ??
+    relatedOrganizer?.whatsappUrl ??
+    event.externalUrl ??
+    event.contactUrl;
+  const offerUrl = event.externalUrl ?? event.contactUrl ?? eventUrl;
+  const performer = relatedTeachers.length > 0
+    ? relatedTeachers.map((teacher) => ({
+        "@type": "Person",
+        name: teacher.name,
+        url:
+          locale === "es"
+            ? `${siteUrl}/maestros/${teacher.slug}`
+            : `${siteUrl}/en/teachers/${teacher.slug}`
+      }))
+    : relatedAcademy
+      ? {
+          "@type": "Organization",
+          name: relatedAcademy.name,
+          url:
+            locale === "es"
+              ? `${siteUrl}/academias/${relatedAcademy.slug}`
+              : `${siteUrl}/en/academies/${relatedAcademy.slug}`
+        }
+      : {
+          "@type": "Organization",
+          name: relatedOrganizer?.name ?? event.organizerName,
+          ...(organizerUrl ? { url: organizerUrl } : {})
+        };
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -143,6 +192,7 @@ function EventJsonLd({ event, siteUrl, locale }: {
     url: eventUrl,
     image: ogImage,
     startDate: event.startsAt,
+    ...(event.endsAt ? { endDate: event.endsAt } : {}),
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: {
@@ -157,15 +207,18 @@ function EventJsonLd({ event, siteUrl, locale }: {
     },
     organizer: {
       "@type": "Organization",
-      name: event.organizerName
+      name: relatedOrganizer?.name ?? event.organizerName,
+      ...(organizerUrl ? { url: organizerUrl } : {})
     },
+    performer,
     ...(event.priceAmount != null && {
       offers: {
         "@type": "Offer",
         price: event.priceAmount,
         priceCurrency: event.currency,
         availability: "https://schema.org/InStock",
-        url: eventUrl
+        url: offerUrl,
+        ...(event.createdAt ? { validFrom: event.createdAt } : {})
       }
     })
   };
@@ -204,7 +257,14 @@ export default async function EventDetailPage({
 
   return (
     <>
-      <EventJsonLd event={event} siteUrl={env.siteUrl} locale={currentLocale} />
+      <EventJsonLd
+        event={event}
+        siteUrl={env.siteUrl}
+        locale={currentLocale}
+        relatedOrganizer={relatedOrganizer}
+        relatedAcademy={relatedAcademy}
+        relatedTeachers={relatedTeachers}
+      />
 
       <section className="page-section pb-24 md:pb-16">
         <Container>

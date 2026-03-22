@@ -26,7 +26,7 @@ export async function getOrganizerById(id: string): Promise<OrganizerSummary | n
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("organizers")
-    .select("id, slug, name")
+    .select("id, slug, name, website_url, instagram_url, facebook_url, whatsapp_url")
     .eq("id", id)
     .eq("is_published", true)
     .maybeSingle();
@@ -39,6 +39,10 @@ export async function getOrganizerById(id: string): Promise<OrganizerSummary | n
   return {
     id: organizer.id,
     slug: organizer.slug,
-    name: organizer.name
+    name: organizer.name,
+    websiteUrl: organizer.websiteUrl,
+    instagramUrl: organizer.instagramUrl,
+    facebookUrl: organizer.facebookUrl,
+    whatsappUrl: organizer.whatsappUrl
   };
 }

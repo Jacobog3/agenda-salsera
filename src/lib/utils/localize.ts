@@ -30,7 +30,8 @@ export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEven
     academyId: event.academyId,
     contactUrl: event.contactUrl,
     externalUrl: event.externalUrl,
-    isFeatured: event.isFeatured
+    isFeatured: event.isFeatured,
+    createdAt: event.createdAt
   };
 }
 

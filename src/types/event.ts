@@ -25,6 +25,7 @@ export type EventRecord = {
   contactUrl: string;
   externalUrl?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
 };
 
 export type LocalizedEvent = {
@@ -50,4 +51,5 @@ export type LocalizedEvent = {
   contactUrl: string;
   externalUrl?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
 };

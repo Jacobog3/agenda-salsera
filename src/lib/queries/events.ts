@@ -40,7 +40,8 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     academyId: row.academy_id ? String(row.academy_id) : null,
     contactUrl: String(row.contact_url),
     externalUrl: row.external_url ? String(row.external_url) : null,
-    isFeatured: Boolean(row.is_featured)
+    isFeatured: Boolean(row.is_featured),
+    createdAt: row.created_at ? String(row.created_at) : undefined
   };
 }
 

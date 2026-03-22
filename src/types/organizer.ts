@@ -17,4 +17,7 @@ export type OrganizerRecord = {
   isPublished: boolean;
 };
 
-export type OrganizerSummary = Pick<OrganizerRecord, "id" | "slug" | "name">;
+export type OrganizerSummary = Pick<
+  OrganizerRecord,
+  "id" | "slug" | "name" | "websiteUrl" | "instagramUrl" | "facebookUrl" | "whatsappUrl"
+>;
