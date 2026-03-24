@@ -46,9 +46,13 @@ export default function AdminAcademiesPage() {
       ]}
       aiAssist={{
         entity: "academy",
+        allowCreate: true,
         title: "Actualizar academia con IA",
         description: "Usa una imagen de horarios, flyer o caption nuevo para proponer mejoras sobre lo que ya existe, incluyendo horarios estructurados y estilos detallados.",
         buttonLabel: "Actualizar con IA",
+        createTitle: "Crear academia con IA",
+        createDescription: "Pega el caption o sube una imagen de horarios para armar un borrador inicial de la academia antes de guardar.",
+        createButtonLabel: "Generar borrador con IA",
         persistKeys: ["schedule_data"],
         fieldLabels: {
           schedule_data: "Horario estructurado"

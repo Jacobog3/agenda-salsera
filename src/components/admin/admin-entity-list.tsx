@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { formatAcademySchedulePreview } from "@/lib/academies/academy-helpers";
 import type { AiUpdateEntity } from "@/lib/admin/ai-update";
 import { Button } from "@/components/ui/button";
@@ -44,6 +46,8 @@ type EntityListProps = {
   title: string;
   apiBase: string;
   createLabel?: string;
+  createHref?: string;
+  disableInlineCreate?: boolean;
   fields: FieldDef[];
   displayColumns: DisplayColumn[];
   imageKey?: string;
@@ -52,9 +56,13 @@ type EntityListProps = {
   autoTranslateFields?: { sourceKey: string; targetKey: string }[];
   aiAssist?: {
     entity: AiUpdateEntity;
+    allowCreate?: boolean;
     title?: string;
     description?: string;
     buttonLabel?: string;
+    createTitle?: string;
+    createDescription?: string;
+    createButtonLabel?: string;
     persistKeys?: string[];
     fieldLabels?: Record<string, string>;
   };
@@ -443,6 +451,8 @@ export function AdminEntityList({
   title,
   apiBase,
   createLabel = "Nuevo registro",
+  createHref,
+  disableInlineCreate = false,
   fields,
   displayColumns,
   imageKey,
@@ -451,6 +461,7 @@ export function AdminEntityList({
   autoTranslateFields = [],
   aiAssist
 }: EntityListProps) {
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -469,6 +480,9 @@ export function AdminEntityList({
   const [aiError, setAiError] = useState("");
   const [aiNotice, setAiNotice] = useState("");
   const [aiSuggestion, setAiSuggestion] = useState<Record<string, unknown> | null>(null);
+  const [createIntentConsumed, setCreateIntentConsumed] = useState(false);
+
+  const createRequested = searchParams.get("create") === "1";
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -484,6 +498,12 @@ export function AdminEntityList({
   }, [apiBase]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
+
+  useEffect(() => {
+    if (!createRequested && createIntentConsumed) {
+      setCreateIntentConsumed(false);
+    }
+  }, [createRequested, createIntentConsumed]);
 
   useEffect(() => {
     const endpoints = Array.from(
@@ -531,7 +551,7 @@ export function AdminEntityList({
     return field.options ?? [];
   }
 
-  function resetAiAssist() {
+  const resetAiAssist = useCallback(() => {
     setAiExpanded(false);
     setAiText("");
     setAiImageDataUrl("");
@@ -540,7 +560,7 @@ export function AdminEntityList({
     setAiError("");
     setAiNotice("");
     setAiSuggestion(null);
-  }
+  }, []);
 
   async function handleAiImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -561,7 +581,8 @@ export function AdminEntityList({
   }
 
   async function runAiUpdate() {
-    if (!aiAssist || !editingId || editingId === NEW_ENTITY_ID) return;
+    if (!aiAssist || !editingId) return;
+    if (editingId === NEW_ENTITY_ID && !aiAssist.allowCreate) return;
 
     const currentData = Object.fromEntries(
       fields.map((field) => [field.key, editData[field.key]])
@@ -578,6 +599,7 @@ export function AdminEntityList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           entity: aiAssist.entity,
+          mode: editingId === NEW_ENTITY_ID ? "create" : "update",
           currentData,
           text: aiText,
           imageDataUrl: aiImageDataUrl
@@ -635,13 +657,20 @@ export function AdminEntityList({
     resetAiAssist();
   }
 
-  function startCreate() {
+  const startCreate = useCallback(() => {
     setEditingId(NEW_ENTITY_ID);
     setEditData(buildEmptyEditData(fields));
     setSaveError("");
     setDeleteConfirm(null);
     resetAiAssist();
-  }
+  }, [fields, resetAiAssist]);
+
+  useEffect(() => {
+    if (disableInlineCreate) return;
+    if (!createRequested || createIntentConsumed || loading || editingId) return;
+    startCreate();
+    setCreateIntentConsumed(true);
+  }, [createRequested, createIntentConsumed, loading, editingId, startCreate, disableInlineCreate]);
 
   function cancelEdit() {
     setEditingId(null);
@@ -871,16 +900,20 @@ export function AdminEntityList({
           );
         })}
 
-        {aiAssist && !isCreating ? (
+        {aiAssist && (!isCreating || aiAssist.allowCreate) ? (
           <div className="space-y-3 rounded-2xl border border-brand-200 bg-brand-50/40 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-sm font-semibold text-brand-900">
                   <Sparkles className="h-4 w-4" />
-                  {aiAssist.title ?? "Actualizar con IA"}
+                  {isCreating
+                    ? aiAssist.createTitle ?? "Completar borrador con IA"
+                    : aiAssist.title ?? "Actualizar con IA"}
                 </div>
                 <p className="text-xs leading-5 text-brand-900/75">
-                  {aiAssist.description ?? "Sube una imagen o pega contexto nuevo y la IA solo propondrá mejoras seguras sobre el registro actual."}
+                  {isCreating
+                    ? aiAssist.createDescription ?? "Sube una imagen o pega contexto para sugerir un borrador inicial antes de guardar."
+                    : aiAssist.description ?? "Sube una imagen o pega contexto nuevo y la IA solo propondrá mejoras seguras sobre el registro actual."}
                 </p>
               </div>
               <Button
@@ -891,7 +924,11 @@ export function AdminEntityList({
                 className="gap-1.5 self-start border-brand-200 bg-white/80 text-brand-900 hover:bg-white"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                {aiExpanded ? "Ocultar" : aiAssist.buttonLabel ?? "Actualizar con IA"}
+                {aiExpanded
+                  ? "Ocultar"
+                  : isCreating
+                    ? aiAssist.createButtonLabel ?? "Sugerir con IA"
+                    : aiAssist.buttonLabel ?? "Actualizar con IA"}
               </Button>
             </div>
 
@@ -959,7 +996,9 @@ export function AdminEntityList({
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Cambios sugeridos</p>
                         <p className="text-xs text-muted-foreground">
-                          La IA propone mejoras sobre lo actual; no se guarda nada hasta que tú lo confirmes.
+                          {isCreating
+                            ? "La IA propone un borrador inicial; no se guarda nada hasta que tú lo confirmes."
+                            : "La IA propone mejoras sobre lo actual; no se guarda nada hasta que tú lo confirmes."}
                         </p>
                       </div>
                       <Button type="button" size="sm" onClick={applyAiSuggestion} className="gap-1.5">
@@ -1046,10 +1085,19 @@ export function AdminEntityList({
           <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
             {items.length} total
           </span>
-          <Button size="sm" onClick={startCreate} className="gap-1.5">
-            <Plus className="h-3.5 w-3.5" />
-            {createLabel}
-          </Button>
+          {createHref ? (
+            <Button size="sm" asChild className="gap-1.5">
+              <Link href={createHref}>
+                <Plus className="h-3.5 w-3.5" />
+                {createLabel}
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" onClick={startCreate} className="gap-1.5" disabled={disableInlineCreate}>
+              <Plus className="h-3.5 w-3.5" />
+              {createLabel}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -1072,7 +1120,7 @@ export function AdminEntityList({
         </div>
       )}
 
-      {isCreating ? (
+      {isCreating && !disableInlineCreate ? (
         <div className="overflow-hidden rounded-xl border border-dashed border-brand-200 bg-brand-50/30 shadow-sm">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div>

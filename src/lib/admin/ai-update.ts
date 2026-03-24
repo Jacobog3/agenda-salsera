@@ -5,6 +5,7 @@ import {
 } from "@/lib/academies/academy-helpers";
 
 export type AiUpdateEntity = "academy" | "teacher";
+export type AiWorkflowMode = "create" | "update";
 
 type FieldKind = "string" | "boolean" | "string_array" | "schedule_data";
 
@@ -17,8 +18,10 @@ type FieldSpec = {
 
 const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
   academy: [
+    { key: "name", label: "Nombre", kind: "string" },
     { key: "city", label: "Ciudad", kind: "string" },
     { key: "address", label: "Direccion", kind: "string" },
+    { key: "description_es", label: "Descripcion", kind: "string" },
     { key: "style_tags", label: "Estilos y subestilos visibles", kind: "string_array" },
     { key: "schedule_text", label: "Horarios", kind: "string" },
     { key: "schedule_data", label: "Horario estructurado", kind: "schedule_data" },
@@ -36,9 +39,11 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
     { key: "website_url", label: "Sitio web", kind: "string" }
   ],
   teacher: [
+    { key: "name", label: "Nombre", kind: "string" },
     { key: "city", label: "Ciudad", kind: "string" },
     { key: "area", label: "Zona o area", kind: "string" },
     { key: "address", label: "Direccion", kind: "string" },
+    { key: "bio_es", label: "Bio", kind: "string" },
     {
       key: "style_tags",
       label: "Estilos y subestilos visibles",
@@ -167,11 +172,43 @@ function buildFieldInstructions(entity: AiUpdateEntity) {
     .join("\n");
 }
 
-export function getAiUpdatePrompt(entity: AiUpdateEntity, currentData: Record<string, unknown>) {
+export function getAiUpdatePrompt(
+  entity: AiUpdateEntity,
+  currentData: Record<string, unknown>,
+  mode: AiWorkflowMode
+) {
   const entityLabel = entity === "academy" ? "dance academy" : "dance teacher";
   const currentSnapshot = Object.fromEntries(
     ENTITY_FIELDS[entity].map((field) => [field.key, formatPromptValue(field, currentData[field.key])])
   );
+
+  if (mode === "create") {
+    return `You are helping an admin create a new ${entityLabel} profile in Guatemala.
+
+This is a CREATE workflow.
+Your job is to draft only the fields that are clearly supported by the new material.
+
+Rules:
+- Return ONLY a valid JSON object.
+- Be conservative. If the new material does not clearly support a field, omit it.
+- Prefer operational details such as schedules, levels, venues, links, and contact info.
+- Include name and summary text only when the material makes them clear.
+- Never invent missing information.
+- If the new material only shows schedules, then focus on schedules and leave unrelated fields empty.
+- If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, or trial class mentions.
+- Preserve visible substyles as \`style_tags\` when they appear in the material, for example Mambo, Chachacha, Lady Style, Shines, Belly Dance, Hip-Hop, or Reggaeton.
+- \`schedule_text\` should be a concise weekly summary, while \`schedule_data\` should contain the detailed classes needed to render a full schedule.
+- For booleans like trial_class, only include the field when the new material explicitly confirms it.
+- If nothing useful can be drafted, return {}.
+
+Allowed output keys for this draft:
+${buildFieldInstructions(entity)}
+
+Current partial draft JSON:
+${JSON.stringify(currentSnapshot, null, 2)}
+
+You will receive new material from the admin after this prompt. Use it only to draft safe fields for the new record.`;
+  }
 
   return `You are helping an admin update an existing ${entityLabel} profile in Guatemala.
 

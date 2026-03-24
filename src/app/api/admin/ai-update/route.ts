@@ -4,7 +4,8 @@ import {
   filterMeaningfulAiChanges,
   getAiUpdatePrompt,
   normalizeAiUpdateSuggestion,
-  type AiUpdateEntity
+  type AiUpdateEntity,
+  type AiWorkflowMode
 } from "@/lib/admin/ai-update";
 import { env } from "@/lib/utils/env";
 
@@ -13,6 +14,7 @@ const GEMINI_URL =
 
 type AiUpdateRequest = {
   entity: AiUpdateEntity;
+  mode?: AiWorkflowMode;
   currentData?: Record<string, unknown>;
   text?: string;
   imageDataUrl?: string;
@@ -34,6 +36,7 @@ export async function POST(request: Request) {
 
   const {
     entity,
+    mode = "update",
     currentData = {},
     text = "",
     imageDataUrl = ""
@@ -41,6 +44,10 @@ export async function POST(request: Request) {
 
   if (entity !== "academy" && entity !== "teacher") {
     return NextResponse.json({ error: "Entidad no soportada." }, { status: 400 });
+  }
+
+  if (mode !== "create" && mode !== "update") {
+    return NextResponse.json({ error: "Modo no soportado." }, { status: 400 });
   }
 
   const normalizedText = String(text ?? "").trim();
@@ -61,7 +68,7 @@ export async function POST(request: Request) {
   }
 
   const parts: Array<Record<string, unknown>> = [
-    { text: getAiUpdatePrompt(entity, currentData) }
+    { text: getAiUpdatePrompt(entity, currentData, mode) }
   ];
 
   if (normalizedText) {

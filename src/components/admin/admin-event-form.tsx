@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,11 +14,18 @@ import {
   X
 } from "lucide-react";
 
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
 export function AdminEventForm() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [whatsappText, setWhatsappText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,10 +46,66 @@ export function AdminEventForm() {
   const [venueName, setVenueName] = useState("");
   const [address, setAddress] = useState("");
   const [organizerName, setOrganizerName] = useState("");
+  const [organizerId, setOrganizerId] = useState("");
+  const [academyId, setAcademyId] = useState("");
+  const [teacherIds, setTeacherIds] = useState<string[]>([]);
   const [contactUrl, setContactUrl] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isPublished, setIsPublished] = useState(true);
+  const [organizerOptions, setOrganizerOptions] = useState<SelectOption[]>([
+    { value: "", label: "Sin relacionar" }
+  ]);
+  const [academyOptions, setAcademyOptions] = useState<SelectOption[]>([
+    { value: "", label: "Sin relacionar" }
+  ]);
+  const [teacherOptions, setTeacherOptions] = useState<SelectOption[]>([]);
 
   const hasFlyerSource = Boolean(imageUrl.trim() || file);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOptions() {
+      try {
+        const [organizersRes, academiesRes, teachersRes] = await Promise.all([
+          fetch("/api/admin/organizers?format=options"),
+          fetch("/api/admin/academies?format=options"),
+          fetch("/api/admin/teachers?format=options")
+        ]);
+
+        const [organizersJson, academiesJson, teachersJson] = await Promise.all([
+          organizersRes.json(),
+          academiesRes.json(),
+          teachersRes.json()
+        ]);
+
+        if (cancelled) return;
+
+        setOrganizerOptions(
+          Array.isArray(organizersJson.data)
+            ? organizersJson.data
+            : [{ value: "", label: "Sin relacionar" }]
+        );
+        setAcademyOptions(
+          Array.isArray(academiesJson.data)
+            ? academiesJson.data
+            : [{ value: "", label: "Sin relacionar" }]
+        );
+        setTeacherOptions(Array.isArray(teachersJson.data) ? teachersJson.data : []);
+      } catch {
+        if (cancelled) return;
+        setOrganizerOptions([{ value: "", label: "Sin relacionar" }]);
+        setAcademyOptions([{ value: "", label: "Sin relacionar" }]);
+        setTeacherOptions([]);
+      }
+    }
+
+    loadOptions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleFileSelect = useCallback((selectedFile: File) => {
     setFile(selectedFile);
@@ -75,6 +138,27 @@ export function AdminEventForm() {
     const nextImageUrl = String(data.url ?? "").trim();
     setImageUrl(nextImageUrl);
     return nextImageUrl;
+  }
+
+  async function uploadGalleryFiles(files: File[]) {
+    const uploadedUrls = await Promise.all(
+      files.map(async (selectedFile) => {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Upload failed");
+        }
+
+        return String(data.url ?? "").trim();
+      })
+    );
+
+    setGalleryUrls((prev) => [...prev, ...uploadedUrls.filter(Boolean)]);
   }
 
   async function handleUpload() {
@@ -130,10 +214,49 @@ export function AdminEventForm() {
     }
   }
 
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    setUploadingGallery(true);
+    setErrorMsg("");
+    try {
+      await uploadGalleryFiles(files);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingGallery(false);
+      e.target.value = "";
+    }
+  }
+
+  function updateGalleryUrl(index: number, nextValue: string) {
+    setGalleryUrls((prev) => prev.map((url, currentIndex) => (currentIndex === index ? nextValue : url)));
+  }
+
+  function removeGalleryUrl(index: number) {
+    setGalleryUrls((prev) => prev.filter((_, currentIndex) => currentIndex !== index));
+  }
+
+  function addEmptyGalleryUrl() {
+    setGalleryUrls((prev) => [...prev, ""]);
+  }
+
+  function toggleTeacherId(teacherId: string, checked: boolean) {
+    setTeacherIds((prev) => {
+      if (checked) {
+        return prev.includes(teacherId) ? prev : [...prev, teacherId];
+      }
+
+      return prev.filter((value) => value !== teacherId);
+    });
+  }
+
   function resetForm() {
     setFile(null);
     setPreview(null);
     setImageUrl("");
+    setGalleryUrls([]);
     setWhatsappText("");
     setTitleEs("");
     setDescriptionEs("");
@@ -149,8 +272,12 @@ export function AdminEventForm() {
     setVenueName("");
     setAddress("");
     setOrganizerName("");
+    setOrganizerId("");
+    setAcademyId("");
+    setTeacherIds([]);
     setContactUrl("");
     setIsFeatured(false);
+    setIsPublished(true);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -188,7 +315,7 @@ export function AdminEventForm() {
           title_es: titleEs,
           description_es: descriptionEs,
           cover_image_url: finalImageUrl,
-          gallery_urls: [],
+          gallery_urls: galleryUrls.map((entry) => entry.trim()).filter(Boolean),
           dance_style: danceStyle,
           city,
           area: area || null,
@@ -200,8 +327,12 @@ export function AdminEventForm() {
           price_text: priceText || null,
           currency: "GTQ",
           organizer_name: organizerName,
+          organizer_id: organizerId || null,
+          academy_id: academyId || null,
+          teacher_ids: teacherIds,
           contact_url: contactUrl,
-          is_featured: isFeatured
+          is_featured: isFeatured,
+          is_published: isPublished
         })
       });
 
@@ -463,6 +594,118 @@ export function AdminEventForm() {
         </Field>
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <Field label="Organizador relacionado">
+          <select
+            value={organizerId}
+            onChange={(e) => setOrganizerId(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            {organizerOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Academia relacionada">
+          <select
+            value={academyId}
+            onChange={(e) => setAcademyId(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            {academyOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Estado">
+          <label className="flex h-9 items-center gap-2 rounded-md border border-input px-3 text-sm">
+            <input
+              type="checkbox"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className="rounded border-border"
+            />
+            Publicado
+          </label>
+        </Field>
+      </div>
+
+      <Field label="Maestros relacionados">
+        <div className="rounded-xl border border-border bg-background p-3">
+          {teacherOptions.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No hay maestros disponibles para relacionar.</p>
+          ) : (
+            <div className="grid gap-2 md:grid-cols-2">
+              {teacherOptions.map((option) => (
+                <label key={option.value} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={teacherIds.includes(option.value)}
+                    onChange={(e) => toggleTeacherId(option.value, e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      </Field>
+
+      <Field label="Galería extra">
+        <div className="space-y-3 rounded-xl border border-border bg-background p-3">
+          {galleryUrls.length > 0 ? (
+            <div className="space-y-2">
+              {galleryUrls.map((url, index) => (
+                <div key={`${index}-${url}`} className="flex gap-2">
+                  <Input
+                    value={url}
+                    onChange={(e) => updateGalleryUrl(index, e.target.value)}
+                    placeholder={`URL de foto ${index + 1}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeGalleryUrl(index)}
+                    className="shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Opcional. Puedes agregar fotos adicionales del evento además del flyer principal.
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={addEmptyGalleryUrl}>
+              Agregar URL
+            </Button>
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleGalleryUpload}
+              />
+              {uploadingGallery ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {uploadingGallery ? "Subiendo..." : "Subir fotos"}
+            </label>
+          </div>
+        </div>
+      </Field>
+
       {!imageUrl && (
         <Field label="URL de imagen (si no subiste flyer)">
           <Input
@@ -505,7 +748,7 @@ export function AdminEventForm() {
         type="submit"
         size="lg"
         className="w-full md:w-auto"
-        disabled={submitting || uploading || !titleEs || !date || !city || !venueName || !hasFlyerSource}
+        disabled={submitting || uploading || uploadingGallery || !titleEs || !date || !city || !venueName || !hasFlyerSource}
       >
         {submitting ? (
           <>

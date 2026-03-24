@@ -1,28 +1,27 @@
 import Link from "next/link";
 import { CalendarDays, GraduationCap, MapPinned, UserRound } from "lucide-react";
-import { AdminEventForm } from "@/components/admin/admin-event-form";
 
 const createLinks = [
   {
-    href: "/admin/events",
+    href: "/admin/events?create=1#event-create",
     title: "Crear evento",
     description: "Flyer, IA y publicación inmediata.",
     icon: CalendarDays
   },
   {
-    href: "/admin/academies",
+    href: "/admin/academies?create=1",
     title: "Crear academia",
     description: "Logo, horarios, niveles y contacto.",
     icon: GraduationCap
   },
   {
-    href: "/admin/teachers",
+    href: "/admin/teachers?create=1",
     title: "Crear maestro",
     description: "Perfil, formatos de clase y enlaces.",
     icon: UserRound
   },
   {
-    href: "/admin/spots",
+    href: "/admin/spots?create=1",
     title: "Crear spot",
     description: "Lugar, horarios, cover y mapas.",
     icon: MapPinned
@@ -38,7 +37,7 @@ export default function AdminPage() {
             Centro de creación
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Desde aquí puedes entrar al CRUD de eventos, academias, maestros y spots sin perderte entre pantallas.
+            Desde aquí puedes abrir creación directa para cada tipo de contenido sin pasar primero por el listado.
           </p>
         </div>
 
@@ -59,21 +58,6 @@ export default function AdminPage() {
               </Link>
             );
           })}
-        </div>
-      </section>
-
-      <section className="hidden space-y-4 md:block">
-        <div>
-          <h2 className="font-display text-lg font-bold tracking-tight text-foreground md:text-xl">
-            Crear evento rápido
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Sube un flyer, extrae la info con IA y publica el evento.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-black/[0.04] bg-white p-5 shadow-soft md:rounded-3xl md:p-8">
-          <AdminEventForm />
         </div>
       </section>
     </div>

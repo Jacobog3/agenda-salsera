@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AdminEntityList } from "@/components/admin/admin-entity-list";
+import { AdminEventForm } from "@/components/admin/admin-event-form";
 import { isEventExpired } from "@/lib/utils/event-status";
 import type { FieldDef } from "@/components/admin/admin-entity-list";
 
@@ -56,27 +59,65 @@ const EVENT_COLUMNS = [
 ];
 
 export default function AdminEventsPage() {
+  const searchParams = useSearchParams();
+  const createRequested = searchParams.get("create") === "1";
+
   return (
-    <AdminEntityList
-      title="Gestión de Eventos"
-      apiBase="/api/admin/events"
-      createLabel="Nuevo evento"
-      fields={EVENT_FIELDS}
-      displayColumns={EVENT_COLUMNS}
-      imageKey="cover_image_url"
-      dateKey="starts_at"
-      statusResolver={(item) =>
-        isEventExpired({
-          startsAt: String(item.starts_at ?? ""),
-          endsAt: item.ends_at ? String(item.ends_at) : null
-        })
-          ? "expired"
-          : "active"
-      }
-      autoTranslateFields={[
-        { sourceKey: "title_es", targetKey: "title_en" },
-        { sourceKey: "description_es", targetKey: "description_en" }
-      ]}
-    />
+    <div className="space-y-6">
+      {createRequested ? (
+        <section
+          id="event-create"
+          className="space-y-4 rounded-2xl border border-black/[0.04] bg-white p-5 shadow-soft md:rounded-3xl md:p-8"
+        >
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="font-display text-lg font-bold tracking-tight text-foreground md:text-xl">
+                Crear evento
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Usa un solo formulario para flyer, IA, relaciones y publicación.
+              </p>
+            </div>
+            <ButtonLink href="/admin/events">Cerrar creación</ButtonLink>
+          </div>
+          <AdminEventForm />
+        </section>
+      ) : null}
+
+      <AdminEntityList
+        title="Gestión de Eventos"
+        apiBase="/api/admin/events"
+        createLabel="Nuevo evento"
+        createHref="/admin/events?create=1#event-create"
+        disableInlineCreate
+        fields={EVENT_FIELDS}
+        displayColumns={EVENT_COLUMNS}
+        imageKey="cover_image_url"
+        dateKey="starts_at"
+        statusResolver={(item) =>
+          isEventExpired({
+            startsAt: String(item.starts_at ?? ""),
+            endsAt: item.ends_at ? String(item.ends_at) : null
+          })
+            ? "expired"
+            : "active"
+        }
+        autoTranslateFields={[
+          { sourceKey: "title_es", targetKey: "title_en" },
+          { sourceKey: "description_es", targetKey: "description_en" }
+        ]}
+      />
+    </div>
+  );
+}
+
+function ButtonLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex h-9 items-center justify-center rounded-md border border-input px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
+      {children}
+    </Link>
   );
 }

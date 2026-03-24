@@ -60,9 +60,13 @@ export default function AdminTeachersPage() {
       ]}
       aiAssist={{
         entity: "teacher",
+        allowCreate: true,
         title: "Actualizar maestro con IA",
         description: "Sirve para refrescar horarios, formatos, sedes, estilos detallados o links a partir de una imagen o texto nuevo, manteniendo la ficha actual como base.",
         buttonLabel: "Actualizar con IA",
+        createTitle: "Crear maestro con IA",
+        createDescription: "Usa un flyer, horario o caption para llenar el borrador inicial del perfil del maestro antes de guardarlo.",
+        createButtonLabel: "Generar borrador con IA",
         persistKeys: ["schedule_data"],
         fieldLabels: {
           schedule_data: "Horario estructurado"

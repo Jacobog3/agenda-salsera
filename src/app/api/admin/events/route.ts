@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         academy_id: normalizeNullableId(body.academy_id),
         contact_url: body.contact_url || "",
         is_featured: body.is_featured || false,
-        is_published: true
+        is_published: body.is_published !== false
       })
       .select()
       .single();
