@@ -54,6 +54,7 @@ export function localizeAcademy(
     scheduleText: academy.scheduleText,
     scheduleData: academy.scheduleData,
     levels: academy.levels,
+    priceText: academy.priceText,
     trialClass: academy.trialClass,
     modality: academy.modality,
     whatsappUrl: academy.whatsappUrl,
