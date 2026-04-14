@@ -2,12 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Languages, Loader2, Save, X } from "lucide-react";
+import { Drawer } from "vaul";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AcademyAiPanel } from "./academy-ai-panel";
 import { ScheduleEditor } from "./schedule-editor";
 import type { ScheduleDay } from "@/types/academy";
+
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isDesktop;
+}
 
 type AcademyData = Record<string, unknown>;
 
@@ -165,19 +178,21 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
   const isCreating = item === null;
+  const isDesktop = useIsDesktop();
   const [tab, setTab] = useState<"ai" | "form">("ai");
   const [data, setData] = useState<AcademyData>(() => buildInitialData(item));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
-  // Prevent background scroll while sheet is open
+  // Prevent background scroll while sheet is open (desktop only; vaul handles mobile)
   useEffect(() => {
+    if (!isDesktop) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
-  }, []);
+  }, [isDesktop]);
 
   function set(key: string, value: unknown) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -233,35 +248,9 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
     Object.entries(data).filter(([k]) => k !== "id" && k !== "created_at")
   );
 
-  return (
+  const panelContent = (
     <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm animate-fade-in"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Sheet panel */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={isCreating ? "Nueva academia" : String(data.name || "Editar academia")}
-        className={[
-          "fixed z-50 flex flex-col bg-white shadow-2xl",
-          // Mobile: bottom sheet with top rounded corners
-          "inset-x-0 bottom-0 max-h-[92dvh] rounded-t-2xl animate-fade-in-up",
-          // Desktop: right slide-over, full height
-          "md:inset-y-0 md:right-0 md:left-auto md:w-[460px] md:max-h-full md:rounded-none md:rounded-l-2xl",
-          "[animation:slide-in-from-right_0.3s_ease-out_both] md:[animation:slide-in-from-right_0.3s_ease-out_both]"
-        ].join(" ")}
-      >
-        {/* Drag handle (mobile only) */}
-        <div className="flex shrink-0 justify-center pb-1 pt-3 md:hidden">
-          <div className="h-1 w-10 rounded-full bg-gray-200" />
-        </div>
-
-        {/* Header */}
+      {/* Header */}
         <div className="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-gray-900">
@@ -307,8 +296,8 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
           {tab === "ai" ? (
             <div className="p-4">
               <p className="mb-4 text-xs leading-5 text-gray-500">
-                Sube hasta 4 posts de Instagram o WhatsApp. La IA los analiza todos juntos y unifica
-                la información — por ejemplo, un post con el horario del lunes y otro con el del
+                Sube posts de Instagram o WhatsApp. La IA los analiza todos juntos y unifica la
+                información — por ejemplo, un post con el horario del lunes y otro con el del
                 viernes quedan combinados en un solo horario.
               </p>
               <AcademyAiPanel
@@ -515,6 +504,41 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
             </Button>
           </div>
         </div>
+    </>
+  );
+
+  // Mobile: vaul Drawer with native swipe-to-dismiss
+  if (!isDesktop) {
+    return (
+      <Drawer.Root open onOpenChange={(open) => { if (!open) onClose(); }} shouldScaleBackground>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50" />
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] flex-col rounded-t-2xl bg-white shadow-2xl outline-none">
+            <div className="flex shrink-0 justify-center pb-1 pt-3">
+              <div className="h-1 w-10 rounded-full bg-gray-200" />
+            </div>
+            {panelContent}
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
+
+  // Desktop: right slide-over panel
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isCreating ? "Nueva academia" : String(data.name || "Editar academia")}
+        className="fixed inset-y-0 right-0 z-50 flex w-[460px] flex-col bg-white shadow-2xl [animation:slide-in-from-right_0.3s_ease-out_both]"
+      >
+        {panelContent}
       </div>
     </>
   );

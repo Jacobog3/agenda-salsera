@@ -265,7 +265,7 @@ export default async function AcademyDetailPage({
                       </dd>
                     </div>
                   )}
-                  {academy.scheduleText && (
+                  {academy.scheduleText && !academy.scheduleData?.length && (
                     <div>
                       <dt className="font-semibold text-foreground">{t("scheduleTitle")}</dt>
                       <dd className="mt-1.5 space-y-1 text-muted-foreground">
