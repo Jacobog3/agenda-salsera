@@ -238,7 +238,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
   );
 
   const panelContent = (
-    <div className="mobile-drawer-form flex h-full flex-col">
+    <div className="mobile-drawer-form flex min-h-0 flex-1 flex-col">
       {/* Header */}
         <div className="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3">
           <div className="min-w-0 flex-1">
@@ -281,7 +281,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
         </div>
 
         {/* Scrollable body */}
-        <div className="mobile-drawer-scroll flex-1 overflow-y-auto overscroll-contain">
+        <div className="mobile-drawer-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {tab === "ai" ? (
             <div className="p-4">
               <p className="mb-4 text-xs leading-5 text-gray-500">
@@ -502,7 +502,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
       <Drawer.Root open onOpenChange={(open) => { if (!open) onClose(); }} shouldScaleBackground handleOnly>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] flex-col rounded-t-2xl bg-white shadow-2xl outline-none">
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] min-h-0 flex-col rounded-t-2xl bg-white shadow-2xl outline-none">
             <Drawer.Handle className="mx-auto mt-3 mb-1 h-1 w-10 rounded-full bg-gray-200" />
             {panelContent}
           </Drawer.Content>

@@ -78,7 +78,7 @@ export function ScheduleEditor({ value, onChange }: Props) {
             <select
               value={day.day}
               onChange={(e) => updateDayName(dayIndex, e.target.value)}
-              className="flex-1 bg-transparent text-sm font-semibold text-gray-900 outline-none cursor-pointer"
+              className="flex-1 cursor-pointer bg-transparent text-base font-semibold text-gray-900 outline-none sm:text-sm"
             >
               {ORDERED_DAYS.map((d) => (
                 <option key={d} value={d}>{d}</option>
@@ -99,34 +99,38 @@ export function ScheduleEditor({ value, onChange }: Props) {
             {day.classes.map((cls, classIndex) => (
               <div
                 key={classIndex}
-                className="flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-2 py-1.5"
+                className="rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-2 sm:px-2 sm:py-1.5"
               >
-                <Input
-                  value={cls.time}
-                  onChange={(e) => updateClass(dayIndex, classIndex, { ...cls, time: e.target.value })}
-                  placeholder="18:00"
-                  className="h-7 w-[4.5rem] shrink-0 px-1.5 text-xs font-mono"
-                />
-                <Input
-                  value={cls.name}
-                  onChange={(e) => updateClass(dayIndex, classIndex, { ...cls, name: e.target.value })}
-                  placeholder="Salsa"
-                  className="h-7 min-w-0 flex-1 px-1.5 text-xs"
-                />
-                <Input
-                  value={cls.level ?? ""}
-                  onChange={(e) => updateClass(dayIndex, classIndex, { ...cls, level: e.target.value })}
-                  placeholder="Nivel"
-                  className="h-7 w-20 shrink-0 px-1.5 text-xs"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeClass(dayIndex, classIndex)}
-                  className="shrink-0 rounded p-0.5 text-gray-300 transition-colors hover:text-red-400"
-                  aria-label="Quitar clase"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-1.5">
+                  <Input
+                    value={cls.time}
+                    onChange={(e) => updateClass(dayIndex, classIndex, { ...cls, time: e.target.value })}
+                    placeholder="18:00"
+                    className="h-10 w-full px-2 font-mono text-base sm:h-7 sm:w-[5.5rem] sm:shrink-0 sm:px-1.5 sm:text-xs"
+                  />
+                  <Input
+                    value={cls.name}
+                    onChange={(e) => updateClass(dayIndex, classIndex, { ...cls, name: e.target.value })}
+                    placeholder="Salsa"
+                    className="h-10 min-w-0 flex-1 px-2 text-base sm:h-7 sm:px-1.5 sm:text-xs"
+                  />
+                  <Input
+                    value={cls.level ?? ""}
+                    onChange={(e) => updateClass(dayIndex, classIndex, { ...cls, level: e.target.value })}
+                    placeholder="Nivel"
+                    className="h-10 w-full px-2 text-base sm:h-7 sm:w-24 sm:shrink-0 sm:px-1.5 sm:text-xs"
+                  />
+                  <div className="flex justify-end sm:block">
+                    <button
+                      type="button"
+                      onClick={() => removeClass(dayIndex, classIndex)}
+                      className="shrink-0 rounded p-1 text-gray-300 transition-colors hover:text-red-400"
+                      aria-label="Quitar clase"
+                    >
+                      <X className="h-4 w-4 sm:h-3 sm:w-3" />
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
 
