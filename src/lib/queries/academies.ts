@@ -29,6 +29,7 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     scheduleText: row.schedule_text ? String(row.schedule_text) : buildAcademyScheduleText(scheduleData),
     scheduleData,
     levels: row.levels ? String(row.levels) : null,
+    priceText: row.price_text ? String(row.price_text) : null,
     trialClass: Boolean(row.trial_class),
     modality: row.modality ? String(row.modality) : "presencial",
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,

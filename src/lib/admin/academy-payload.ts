@@ -31,6 +31,7 @@ export function normalizeAcademyPayload(rawBody: Record<string, unknown>) {
     schedule_text: scheduleText,
     schedule_data: scheduleData,
     levels: emptyToNull(rawBody.levels),
+    price_text: emptyToNull(rawBody.price_text),
     trial_class: Boolean(rawBody.trial_class),
     modality: emptyToNull(rawBody.modality) ?? "presencial",
     whatsapp_url: emptyToNull(rawBody.whatsapp_url),

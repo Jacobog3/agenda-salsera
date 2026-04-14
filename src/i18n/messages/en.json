@@ -214,6 +214,7 @@
     "inPerson": "In-person",
     "online": "Online",
     "hybrid": "Hybrid (in-person + online)",
+    "pricingTitle": "Pricing & packages",
     "contactTitle": "Contact",
     "teachers": {
       "label": "Teacher",

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { TeacherCard } from "@/components/teachers/teacher-card";
 import { Container } from "@/components/shared/container";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
+import { AcademyPricing } from "@/components/academies/academy-pricing";
 import { ContactIconLinks } from "@/components/shared/contact-icon-links";
 import { EventCard } from "@/components/events/event-card";
 import { ReportForm } from "@/components/shared/report-form";
@@ -285,6 +286,14 @@ export default async function AcademyDetailPage({
                   )}
                 </dl>
               </div>
+
+              {/* Pricing card */}
+              {academy.priceText && (
+                <AcademyPricing
+                  priceText={academy.priceText}
+                  title={t("pricingTitle")}
+                />
+              )}
 
               {/* Location card */}
               <div className="rounded-2xl border border-border bg-white p-4 md:p-5">

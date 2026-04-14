@@ -214,6 +214,7 @@
     "inPerson": "Presencial",
     "online": "Online",
     "hybrid": "Mixto (presencial + online)",
+    "pricingTitle": "Precios y paquetes",
     "contactTitle": "Contacto",
     "teachers": {
       "label": "Maestro",

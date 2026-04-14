@@ -27,6 +27,7 @@ export type AcademyRecord = {
   scheduleText?: string | null;
   scheduleData?: ScheduleDay[] | null;
   levels?: string | null;
+  priceText?: string | null;
   trialClass?: boolean;
   modality?: string | null;
   whatsappUrl?: string | null;
@@ -51,6 +52,7 @@ export type LocalizedAcademy = {
   scheduleText?: string | null;
   scheduleData?: ScheduleDay[] | null;
   levels?: string | null;
+  priceText?: string | null;
   trialClass?: boolean;
   modality?: string | null;
   whatsappUrl?: string | null;

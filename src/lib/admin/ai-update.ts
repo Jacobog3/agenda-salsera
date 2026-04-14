@@ -26,6 +26,7 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
     { key: "schedule_text", label: "Horarios", kind: "string" },
     { key: "schedule_data", label: "Horario estructurado", kind: "schedule_data" },
     { key: "levels", label: "Niveles", kind: "string" },
+    { key: "price_text", label: "Precios", kind: "string" },
     {
       key: "modality",
       label: "Modalidad",
@@ -182,22 +183,27 @@ export function getAiUpdatePrompt(
     ENTITY_FIELDS[entity].map((field) => [field.key, formatPromptValue(field, currentData[field.key])])
   );
 
+  const multiImageNote = `
+IMPORTANT — multiple images or posts may be provided. Each image may contain partial information (one post with Monday schedule, another with Friday schedule, another with prices, etc.). Your job is to MERGE and UNIFY all information found across all images into a single coherent result. Do not discard information from any image. If two images show different days, include all days in schedule_data.`;
+
   if (mode === "create") {
     return `You are helping an admin create a new ${entityLabel} profile in Guatemala.
 
 This is a CREATE workflow.
 Your job is to draft only the fields that are clearly supported by the new material.
+${multiImageNote}
 
 Rules:
 - Return ONLY a valid JSON object.
 - Be conservative. If the new material does not clearly support a field, omit it.
-- Prefer operational details such as schedules, levels, venues, links, and contact info.
+- Prefer operational details such as schedules, prices, levels, venues, links, and contact info.
 - Include name and summary text only when the material makes them clear.
 - Never invent missing information.
-- If the new material only shows schedules, then focus on schedules and leave unrelated fields empty.
-- If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, or trial class mentions.
+- If the material shows schedules across multiple images, merge all days into a single schedule_data array.
+- If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, prices, or trial class mentions.
 - Preserve visible substyles as \`style_tags\` when they appear in the material, for example Mambo, Chachacha, Lady Style, Shines, Belly Dance, Hip-Hop, or Reggaeton.
 - \`schedule_text\` should be a concise weekly summary, while \`schedule_data\` should contain the detailed classes needed to render a full schedule.
+- For \`price_text\`: capture all price options in a compact readable string, e.g. "Q200/mes · Q50 clase suelta · Q30 clase de prueba".
 - For booleans like trial_class, only include the field when the new material explicitly confirms it.
 - If nothing useful can be drafted, return {}.
 
@@ -214,19 +220,21 @@ You will receive new material from the admin after this prompt. Use it only to d
 
 This is an UPDATE workflow, not a CREATE workflow.
 Your job is to preserve the current record and only suggest targeted improvements supported by the new material.
+${multiImageNote}
 
 Rules:
 - Return ONLY a valid JSON object.
 - Be conservative. If the new material does not clearly support a change, omit that field.
 - Do not rewrite the profile from scratch.
 - Do not include fields that should stay as they are.
-- Prefer improving operational details such as schedules, levels, venues, links, and contact info.
+- Prefer improving operational details such as schedules, prices, levels, venues, links, and contact info.
 - Never invent missing information.
 - Do not replace a specific current value with a more generic one.
-- If the new material only shows schedules, then focus on schedules and leave unrelated fields untouched.
-- If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, or trial class mentions.
+- If the material shows schedules across multiple images, merge ALL days found into a single schedule_data — do not drop days that already exist in the current record unless the new material explicitly replaces them.
+- If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, prices, or trial class mentions.
 - Preserve visible substyles as \`style_tags\` when they appear in the material, for example Mambo, Chachacha, Lady Style, Shines, Belly Dance, Hip-Hop, or Reggaeton.
 - \`schedule_text\` should be a concise weekly summary, while \`schedule_data\` should contain the detailed classes needed to render a full schedule.
+- For \`price_text\`: capture all price options in a compact readable string, e.g. "Q200/mes · Q50 clase suelta".
 - For booleans like trial_class, only include the field when the new material explicitly confirms it.
 - If nothing should change, return {}.
 

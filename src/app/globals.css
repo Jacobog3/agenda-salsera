@@ -63,6 +63,11 @@ a {
   background: hsl(var(--brand-500) / 0.15);
 }
 
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
 @layer components {
   .app-shell {
     @apply min-h-screen bg-background;

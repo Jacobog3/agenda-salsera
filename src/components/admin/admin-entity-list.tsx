@@ -48,6 +48,8 @@ type EntityListProps = {
   createLabel?: string;
   createHref?: string;
   disableInlineCreate?: boolean;
+  onCreateOverride?: () => void;
+  onEditOverride?: (item: Record<string, unknown>) => void;
   fields: FieldDef[];
   displayColumns: DisplayColumn[];
   imageKey?: string;
@@ -453,6 +455,8 @@ export function AdminEntityList({
   createLabel = "Nuevo registro",
   createHref,
   disableInlineCreate = false,
+  onCreateOverride,
+  onEditOverride,
   fields,
   displayColumns,
   imageKey,
@@ -1093,7 +1097,12 @@ export function AdminEntityList({
               </Link>
             </Button>
           ) : (
-            <Button size="sm" onClick={startCreate} className="gap-1.5" disabled={disableInlineCreate}>
+            <Button
+              size="sm"
+              onClick={onCreateOverride ?? startCreate}
+              className="gap-1.5"
+              disabled={!onCreateOverride && disableInlineCreate}
+            >
               <Plus className="h-3.5 w-3.5" />
               {createLabel}
             </Button>
@@ -1169,10 +1178,16 @@ export function AdminEntityList({
                   <div className="flex shrink-0 items-center gap-0.5">
                     <button
                       type="button"
-                      onClick={() => isEditing ? cancelEdit() : startEdit(item)}
+                      onClick={() => onEditOverride
+                        ? onEditOverride(item)
+                        : isEditing ? cancelEdit() : startEdit(item)
+                      }
                       className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
                     >
-                      {isEditing ? <ChevronDown className="h-4 w-4 rotate-180" /> : <Pencil className="h-4 w-4" />}
+                      {!onEditOverride && isEditing
+                        ? <ChevronDown className="h-4 w-4 rotate-180" />
+                        : <Pencil className="h-4 w-4" />
+                      }
                     </button>
                     <button
                       type="button"
@@ -1205,7 +1220,7 @@ export function AdminEntityList({
                   </div>
                 )}
 
-                {isEditing && (
+                {isEditing && !onEditOverride && (
                   renderEditForm(true)
                 )}
               </div>

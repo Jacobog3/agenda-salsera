@@ -17,6 +17,8 @@ type AiUpdateRequest = {
   mode?: AiWorkflowMode;
   currentData?: Record<string, unknown>;
   text?: string;
+  imageDataUrls?: string[];
+  /** @deprecated use imageDataUrls instead */
   imageDataUrl?: string;
 };
 
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
     mode = "update",
     currentData = {},
     text = "",
+    imageDataUrls = [],
     imageDataUrl = ""
   } = (await request.json()) as AiUpdateRequest;
 
@@ -51,9 +54,14 @@ export async function POST(request: Request) {
   }
 
   const normalizedText = String(text ?? "").trim();
-  const normalizedImageDataUrl = String(imageDataUrl ?? "").trim();
 
-  if (!normalizedImageDataUrl && normalizedText.length < 10) {
+  // Support both imageDataUrls (array) and legacy imageDataUrl (single string)
+  const allImageDataUrls = [
+    ...imageDataUrls.map((url) => String(url ?? "").trim()).filter(Boolean),
+    ...(imageDataUrl ? [String(imageDataUrl).trim()] : [])
+  ].slice(0, 4); // cap at 4 images
+
+  if (allImageDataUrls.length === 0 && normalizedText.length < 10) {
     return NextResponse.json(
       { error: "Sube una imagen o pega contexto suficiente para analizar." },
       { status: 400 }
@@ -77,12 +85,12 @@ export async function POST(request: Request) {
     });
   }
 
-  if (normalizedImageDataUrl) {
-    const inlineData = parseDataUrl(normalizedImageDataUrl);
+  for (const dataUrl of allImageDataUrls) {
+    const inlineData = parseDataUrl(dataUrl);
 
     if (!inlineData) {
       return NextResponse.json(
-        { error: "La imagen no se pudo leer. Intenta subirla de nuevo." },
+        { error: "Una de las imágenes no se pudo leer. Intenta subirla de nuevo." },
         { status: 400 }
       );
     }
