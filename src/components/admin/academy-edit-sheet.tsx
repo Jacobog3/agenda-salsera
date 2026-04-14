@@ -6,21 +6,10 @@ import { Drawer } from "vaul";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AcademyAiPanel } from "./academy-ai-panel";
+import { EntityAiPanel } from "./academy-ai-panel";
 import { ScheduleEditor } from "./schedule-editor";
+import { useIsDesktop } from "@/hooks/use-is-desktop";
 import type { ScheduleDay } from "@/types/academy";
-
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(true);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return isDesktop;
-}
 
 type AcademyData = Record<string, unknown>;
 
@@ -300,7 +289,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
                 información — por ejemplo, un post con el horario del lunes y otro con el del
                 viernes quedan combinados en un solo horario.
               </p>
-              <AcademyAiPanel
+              <EntityAiPanel
                 entity="academy"
                 mode={isCreating ? "create" : "update"}
                 currentData={currentDataForAi}

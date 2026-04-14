@@ -4,7 +4,7 @@ import {
   normalizeAcademyStyleTags
 } from "@/lib/academies/academy-helpers";
 
-export type AiUpdateEntity = "academy" | "teacher";
+export type AiUpdateEntity = "academy" | "teacher" | "event" | "spot";
 export type AiWorkflowMode = "create" | "update";
 
 type FieldKind = "string" | "boolean" | "string_array" | "schedule_data";
@@ -69,6 +69,41 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
     { key: "instagram_url", label: "Instagram", kind: "string" },
     { key: "facebook_url", label: "Facebook", kind: "string" },
     { key: "website_url", label: "Sitio web", kind: "string" }
+  ],
+  event: [
+    { key: "title_es", label: "Título del evento", kind: "string" },
+    {
+      key: "dance_style",
+      label: "Estilo",
+      kind: "string",
+      allowedValues: ["salsa", "bachata", "salsa_bachata", "other"]
+    },
+    { key: "starts_at", label: "Fecha y hora de inicio (YYYY-MM-DDTHH:MM)", kind: "string" },
+    { key: "ends_at", label: "Fecha y hora de cierre (YYYY-MM-DDTHH:MM)", kind: "string" },
+    { key: "venue_name", label: "Nombre del lugar", kind: "string" },
+    { key: "city", label: "Ciudad", kind: "string" },
+    { key: "address", label: "Dirección", kind: "string" },
+    { key: "price_text", label: "Precios", kind: "string" },
+    {
+      key: "currency",
+      label: "Moneda",
+      kind: "string",
+      allowedValues: ["GTQ", "USD", ""]
+    },
+    { key: "organizer_name", label: "Nombre del organizador", kind: "string" },
+    { key: "contact_url", label: "Link de contacto", kind: "string" },
+    { key: "description_es", label: "Descripción", kind: "string" }
+  ],
+  spot: [
+    { key: "name", label: "Nombre del lugar", kind: "string" },
+    { key: "city", label: "Ciudad", kind: "string" },
+    { key: "area", label: "Zona", kind: "string" },
+    { key: "address", label: "Dirección", kind: "string" },
+    { key: "description_es", label: "Descripción", kind: "string" },
+    { key: "schedule_es", label: "Horario de noches de baile", kind: "string" },
+    { key: "cover_charge_es", label: "Cover / entrada", kind: "string" },
+    { key: "whatsapp_url", label: "WhatsApp", kind: "string" },
+    { key: "instagram_url", label: "Instagram", kind: "string" }
   ]
 };
 
@@ -178,10 +213,18 @@ export function getAiUpdatePrompt(
   currentData: Record<string, unknown>,
   mode: AiWorkflowMode
 ) {
-  const entityLabel = entity === "academy" ? "dance academy" : "dance teacher";
+  const entityLabel =
+    entity === "academy" ? "dance academy"
+    : entity === "teacher" ? "dance teacher"
+    : entity === "event" ? "dance event"
+    : "dance venue / spot";
   const currentSnapshot = Object.fromEntries(
     ENTITY_FIELDS[entity].map((field) => [field.key, formatPromptValue(field, currentData[field.key])])
   );
+
+  const eventDateNote = entity === "event" ? `
+IMPORTANT — for date/time fields (starts_at, ends_at): extract the date and time from the flyer and return them in ISO format "YYYY-MM-DDTHH:MM" (e.g. "2026-05-10T20:00"). If only the date is visible, use "YYYY-MM-DDT00:00". Current year context: 2026. If the date is ambiguous, omit it rather than guess.
+` : "";
 
   const multiImageNote = `
 IMPORTANT — multiple images or posts may be provided. Each image may contain partial information (one post with Monday schedule, another with Friday schedule, another with prices, etc.). Your job is to MERGE and UNIFY all information found across all images into a single coherent result. Do not discard information from any image. If two images show different days, include all days in schedule_data.`;
@@ -191,7 +234,7 @@ IMPORTANT — multiple images or posts may be provided. Each image may contain p
 
 This is a CREATE workflow.
 Your job is to draft only the fields that are clearly supported by the new material.
-${multiImageNote}
+${eventDateNote}${multiImageNote}
 
 Rules:
 - Return ONLY a valid JSON object.
@@ -220,7 +263,7 @@ You will receive new material from the admin after this prompt. Use it only to d
 
 This is an UPDATE workflow, not a CREATE workflow.
 Your job is to preserve the current record and only suggest targeted improvements supported by the new material.
-${multiImageNote}
+${eventDateNote}${multiImageNote}
 
 Rules:
 - Return ONLY a valid JSON object.

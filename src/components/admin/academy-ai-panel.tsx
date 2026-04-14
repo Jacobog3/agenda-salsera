@@ -38,7 +38,7 @@ function formatPreview(value: unknown): string {
   return String(value);
 }
 
-export function AcademyAiPanel({ entity, mode, currentData, fieldLabels, onApply }: Props) {
+export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [text, setText] = useState("");

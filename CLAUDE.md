@@ -15,6 +15,11 @@ npm run lint       # ESLint
 npm run typecheck  # TypeScript check (tsc --noEmit)
 ```
 
+## Current Work Log
+
+- Ongoing implementation notes for the admin migration live in `docs/current-work-context.md`.
+- Check that file first before resuming work on admin sheets, AI-assisted editing, or academy pricing fixes.
+
 ## Architecture
 
 ### Routing

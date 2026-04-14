@@ -45,7 +45,8 @@ export async function POST(request: Request) {
     imageDataUrl = ""
   } = (await request.json()) as AiUpdateRequest;
 
-  if (entity !== "academy" && entity !== "teacher") {
+  const SUPPORTED_ENTITIES = ["academy", "teacher", "event", "spot"];
+  if (!SUPPORTED_ENTITIES.includes(entity)) {
     return NextResponse.json({ error: "Entidad no soportada." }, { status: 400 });
   }
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
   const allImageDataUrls = [
     ...imageDataUrls.map((url) => String(url ?? "").trim()).filter(Boolean),
     ...(imageDataUrl ? [String(imageDataUrl).trim()] : [])
-  ].slice(0, 4); // cap at 4 images
+  ];
 
   if (allImageDataUrls.length === 0 && normalizedText.length < 10) {
     return NextResponse.json(

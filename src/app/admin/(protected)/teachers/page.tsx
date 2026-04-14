@@ -1,44 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { AdminEntityList } from "@/components/admin/admin-entity-list";
-import type { FieldDef } from "@/components/admin/admin-entity-list";
-
-const TEACHER_FIELDS: FieldDef[] = [
-  { key: "profile_image_url", label: "Foto", type: "image", group: "Imagen" },
-  { key: "banner_image_url", label: "Banner", type: "image", group: "Imagen" },
-  { key: "name", label: "Nombre", group: "Información" },
-  { key: "slug", label: "Slug", group: "Información" },
-  { key: "city", label: "Ciudad", group: "Información" },
-  { key: "area", label: "Zona", group: "Información" },
-  { key: "address", label: "Dirección", group: "Información" },
-  { key: "style_tags", label: "Estilos y subestilos", hint: "Lo que realmente enseña el maestro; separados por coma o salto de línea", type: "textarea", group: "Clases" },
-  { key: "levels", label: "Niveles", group: "Clases" },
-  {
-    key: "modality",
-    label: "Modalidad",
-    type: "select",
-    group: "Clases",
-    options: [
-      { value: "presencial", label: "Presencial" },
-      { value: "online", label: "Online" },
-      { value: "mixto", label: "Mixto" }
-    ]
-  },
-  { key: "class_formats", label: "Formatos", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
-  { key: "teaching_venues", label: "Dónde da clases", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
-  { key: "teaching_zones", label: "Zonas", hint: "Separar por coma o salto de linea", type: "textarea", group: "Clases" },
-  { key: "schedule_text", label: "Horarios (resumen)", hint: "Resumen corto para búsqueda y sidebar", type: "textarea", group: "Clases" },
-  { key: "trial_class", label: "Clase de prueba", type: "checkbox", group: "Clases" },
-  { key: "price_text", label: "Precio", group: "Clases" },
-  { key: "booking_url", label: "Link para agendar", group: "Contacto" },
-  { key: "whatsapp_url", label: "WhatsApp URL", group: "Contacto" },
-  { key: "instagram_url", label: "Instagram URL", group: "Contacto" },
-  { key: "facebook_url", label: "Facebook URL", group: "Contacto" },
-  { key: "website_url", label: "Sitio web", group: "Contacto" },
-  { key: "bio_es", label: "Bio", hint: "Se traduce automáticamente al inglés", type: "textarea", group: "Bio" },
-  { key: "is_featured", label: "Destacado", type: "checkbox", group: "Estado" },
-  { key: "is_published", label: "Publicado", type: "checkbox", group: "Estado" }
-];
+import { TeacherEditSheet } from "@/components/admin/teacher-edit-sheet";
 
 const TEACHER_COLUMNS = [
   { key: "name", label: "Nombre" },
@@ -47,31 +11,47 @@ const TEACHER_COLUMNS = [
 ];
 
 export default function AdminTeachersPage() {
+  const [listKey, setListKey] = useState(0);
+  const [editingItem, setEditingItem] = useState<Record<string, unknown> | null | "new">(null);
+
+  function openCreate() {
+    setEditingItem("new");
+  }
+
+  function openEdit(item: Record<string, unknown>) {
+    setEditingItem(item);
+  }
+
+  function closeSheet() {
+    setEditingItem(null);
+  }
+
+  function handleSaved() {
+    setListKey((k) => k + 1);
+  }
+
   return (
-    <AdminEntityList
-      title="Gestión de Maestros"
-      apiBase="/api/admin/teachers"
-      createLabel="Nuevo maestro"
-      fields={TEACHER_FIELDS}
-      displayColumns={TEACHER_COLUMNS}
-      imageKey="profile_image_url"
-      autoTranslateFields={[
-        { sourceKey: "bio_es", targetKey: "bio_en" }
-      ]}
-      aiAssist={{
-        entity: "teacher",
-        allowCreate: true,
-        title: "Actualizar maestro con IA",
-        description: "Sirve para refrescar horarios, formatos, sedes, estilos detallados o links a partir de una imagen o texto nuevo, manteniendo la ficha actual como base.",
-        buttonLabel: "Actualizar con IA",
-        createTitle: "Crear maestro con IA",
-        createDescription: "Usa un flyer, horario o caption para llenar el borrador inicial del perfil del maestro antes de guardarlo.",
-        createButtonLabel: "Generar borrador con IA",
-        persistKeys: ["schedule_data"],
-        fieldLabels: {
-          schedule_data: "Horario estructurado"
-        }
-      }}
-    />
+    <>
+      <AdminEntityList
+        key={listKey}
+        title="Gestión de Maestros"
+        apiBase="/api/admin/teachers"
+        createLabel="Nuevo maestro"
+        fields={[]}
+        displayColumns={TEACHER_COLUMNS}
+        imageKey="profile_image_url"
+        onCreateOverride={openCreate}
+        onEditOverride={openEdit}
+        disableInlineCreate
+      />
+
+      {editingItem !== null && (
+        <TeacherEditSheet
+          item={editingItem === "new" ? null : editingItem}
+          onClose={closeSheet}
+          onSaved={handleSaved}
+        />
+      )}
+    </>
   );
 }

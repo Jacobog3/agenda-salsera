@@ -34,7 +34,7 @@ export function AcademyPricing({
   title: string;
 }) {
   const lines = priceText
-    .split(/\n/)
+    .split(/\n|·/)
     .map((l) => l.replace(/^[-•*]\s*/, "").trim())
     .filter(Boolean);
 
