@@ -51,8 +51,7 @@ export function AcademyAiPanel({ entity, mode, currentData, fieldLabels, onApply
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
 
-    const remaining = 4 - images.length;
-    const toProcess = files.slice(0, remaining);
+    const toProcess = files;
 
     Promise.all(
       toProcess.map(
@@ -171,20 +170,18 @@ export function AcademyAiPanel({ entity, mode, currentData, fieldLabels, onApply
             </div>
           ))}
 
-          {images.length < 4 && (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/40 text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-50 ${
-                images.length === 0 ? "py-10" : "aspect-square"
-              }`}
-            >
-              <ImagePlus className="h-5 w-5" />
-              <span className="text-xs font-medium">
-                {images.length === 0 ? "Subir posts (máx. 4)" : "+"}
-              </span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/40 text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-50 ${
+              images.length === 0 ? "py-10" : "aspect-square"
+            }`}
+          >
+            <ImagePlus className="h-5 w-5" />
+            <span className="text-xs font-medium">
+              {images.length === 0 ? "Subir posts" : "+"}
+            </span>
+          </button>
         </div>
 
         <input
@@ -198,7 +195,7 @@ export function AcademyAiPanel({ entity, mode, currentData, fieldLabels, onApply
 
         {images.length > 0 && (
           <p className="mt-1.5 text-xs text-gray-400">
-            {images.length}/4 · La IA unifica la información de todos los posts
+            {images.length} post{images.length !== 1 ? "s" : ""} · La IA unifica la información de todos
           </p>
         )}
       </div>
