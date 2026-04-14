@@ -121,6 +121,19 @@ a {
   }
 }
 
+@media (max-width: 767px) {
+  .mobile-drawer-form input,
+  .mobile-drawer-form textarea,
+  .mobile-drawer-form select {
+    font-size: 16px !important;
+  }
+
+  .mobile-drawer-scroll {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
