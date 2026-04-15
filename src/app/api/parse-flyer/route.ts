@@ -1,4 +1,11 @@
 import { NextResponse } from "next/server";
+import {
+  GEMINI_DEFAULT_MAX_OUTPUT_TOKENS,
+  GEMINI_RETRY_MAX_OUTPUT_TOKENS,
+  cleanGeminiJsonResponse,
+  extractGeminiText,
+  isGeminiJsonTruncated
+} from "@/lib/utils/gemini-response";
 import { env } from "@/lib/utils/env";
 
 const GEMINI_URL =
@@ -154,49 +161,88 @@ export async function POST(request: Request) {
     }
   }
 
-  let response: Response;
-  try {
-    response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts
+  let rawText = "";
+  let finishReason = "";
+  let parseError: unknown = null;
+
+  for (const maxOutputTokens of [
+    GEMINI_DEFAULT_MAX_OUTPUT_TOKENS,
+    GEMINI_RETRY_MAX_OUTPUT_TOKENS
+  ]) {
+    let response: Response;
+    try {
+      response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts
+            }
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens,
+            thinkingConfig: { thinkingBudget: 0 }
           }
-        ],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 1024,
-          thinkingConfig: { thinkingBudget: 0 }
-        }
-      })
-    });
-  } catch (fetchErr) {
-    console.error("[parse-flyer] Network error:", fetchErr);
-    return NextResponse.json({ error: "Error de red al conectar con Gemini." }, { status: 502 });
+        })
+      });
+    } catch (fetchErr) {
+      console.error("[parse-flyer] Network error:", fetchErr);
+      return NextResponse.json({ error: "Error de red al conectar con Gemini." }, { status: 502 });
+    }
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("[parse-flyer] Gemini error:", response.status, errText);
+      let detail = errText;
+      try { detail = JSON.parse(errText)?.error?.message ?? errText; } catch { /* ignore */ }
+      return NextResponse.json(
+        { error: `Gemini (${response.status}): ${detail}` },
+        { status: 502 }
+      );
+    }
+
+    const data = await response.json();
+    const candidate = extractGeminiText(data);
+    rawText = candidate.rawText;
+    finishReason = candidate.finishReason;
+
+    try {
+      const cleaned = cleanGeminiJsonResponse(rawText);
+      const parsed = JSON.parse(cleaned);
+      return NextResponse.json({ ok: true, data: parsed });
+    } catch (error) {
+      parseError = error;
+      const shouldRetry =
+        maxOutputTokens < GEMINI_RETRY_MAX_OUTPUT_TOKENS &&
+        isGeminiJsonTruncated(rawText, finishReason);
+
+      if (shouldRetry) {
+        console.warn("[parse-flyer] Gemini response was truncated, retrying", {
+          finishReason,
+          maxOutputTokens
+        });
+        continue;
+      }
+
+      break;
+    }
   }
 
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error("[parse-flyer] Gemini error:", response.status, errText);
-    let detail = errText;
-    try { detail = JSON.parse(errText)?.error?.message ?? errText; } catch { /* ignore */ }
-    return NextResponse.json(
-      { error: `Gemini (${response.status}): ${detail}` },
-      { status: 502 }
-    );
-  }
+  console.error("[parse-flyer] Failed to parse Gemini response:", {
+    rawText,
+    finishReason,
+    error: parseError
+  });
 
-  const data = await response.json();
-  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-
-  try {
-    const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(cleaned);
-    return NextResponse.json({ ok: true, data: parsed });
-  } catch {
-    console.error("[parse-flyer] Failed to parse Gemini response:", raw);
-    return NextResponse.json({ error: "No se pudo parsear la respuesta de Gemini.", raw }, { status: 500 });
-  }
+  return NextResponse.json(
+    {
+      error: isGeminiJsonTruncated(rawText, finishReason)
+        ? "La respuesta de Gemini quedó truncada antes de terminar el JSON. Intenta de nuevo o envía menos material."
+        : "No se pudo parsear la respuesta de Gemini.",
+      raw: rawText
+    },
+    { status: 502 }
+  );
 }

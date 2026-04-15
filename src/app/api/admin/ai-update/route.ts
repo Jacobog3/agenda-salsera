@@ -7,6 +7,13 @@ import {
   type AiUpdateEntity,
   type AiWorkflowMode
 } from "@/lib/admin/ai-update";
+import {
+  GEMINI_DEFAULT_MAX_OUTPUT_TOKENS,
+  GEMINI_RETRY_MAX_OUTPUT_TOKENS,
+  cleanGeminiJsonResponse,
+  extractGeminiText,
+  isGeminiJsonTruncated
+} from "@/lib/utils/gemini-response";
 import { env } from "@/lib/utils/env";
 
 const GEMINI_URL =
@@ -104,56 +111,91 @@ export async function POST(request: Request) {
     });
   }
 
-  let response: Response;
-  try {
-    response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 1024,
-          thinkingConfig: { thinkingBudget: 0 }
-        }
-      })
-    });
-  } catch (error) {
-    console.error("[admin-ai-update] Network error", error);
-    return NextResponse.json(
-      { error: "No se pudo conectar con el servicio de IA." },
-      { status: 502 }
-    );
+  let rawText = "";
+  let finishReason = "";
+  let parseError: unknown = null;
+
+  for (const maxOutputTokens of [
+    GEMINI_DEFAULT_MAX_OUTPUT_TOKENS,
+    GEMINI_RETRY_MAX_OUTPUT_TOKENS
+  ]) {
+    let response: Response;
+    try {
+      response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens,
+            thinkingConfig: { thinkingBudget: 0 }
+          }
+        })
+      });
+    } catch (error) {
+      console.error("[admin-ai-update] Network error", error);
+      return NextResponse.json(
+        { error: "No se pudo conectar con el servicio de IA." },
+        { status: 502 }
+      );
+    }
+
+    if (!response.ok) {
+      const detail = await response.text();
+      console.error("[admin-ai-update] Gemini error", response.status, detail);
+      return NextResponse.json(
+        { error: "La IA no pudo analizar el material en este momento." },
+        { status: 502 }
+      );
+    }
+
+    const data = await response.json();
+    const candidate = extractGeminiText(data);
+    rawText = candidate.rawText;
+    finishReason = candidate.finishReason;
+
+    try {
+      const cleaned = cleanGeminiJsonResponse(rawText);
+      const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+      const normalizedSuggestion = normalizeAiUpdateSuggestion(entity, parsed);
+      const suggestion = filterMeaningfulAiChanges(entity, currentData, normalizedSuggestion);
+
+      return NextResponse.json({
+        ok: true,
+        data: suggestion,
+        changedKeys: Object.keys(suggestion)
+      });
+    } catch (error) {
+      parseError = error;
+      const shouldRetry =
+        maxOutputTokens < GEMINI_RETRY_MAX_OUTPUT_TOKENS &&
+        isGeminiJsonTruncated(rawText, finishReason);
+
+      if (shouldRetry) {
+        console.warn("[admin-ai-update] Gemini response was truncated, retrying", {
+          finishReason,
+          maxOutputTokens
+        });
+        continue;
+      }
+
+      break;
+    }
   }
 
-  if (!response.ok) {
-    const detail = await response.text();
-    console.error("[admin-ai-update] Gemini error", response.status, detail);
-    return NextResponse.json(
-      { error: "La IA no pudo analizar el material en este momento." },
-      { status: 502 }
-    );
-  }
+  console.error("[admin-ai-update] Failed to parse Gemini response", {
+    rawText,
+    finishReason,
+    error: parseError
+  });
 
-  const data = await response.json();
-  const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-
-  try {
-    const cleaned = String(rawText).replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(cleaned) as Record<string, unknown>;
-    const normalizedSuggestion = normalizeAiUpdateSuggestion(entity, parsed);
-    const suggestion = filterMeaningfulAiChanges(entity, currentData, normalizedSuggestion);
-
-    return NextResponse.json({
-      ok: true,
-      data: suggestion,
-      changedKeys: Object.keys(suggestion)
-    });
-  } catch (error) {
-    console.error("[admin-ai-update] Failed to parse Gemini response", { rawText, error });
-    return NextResponse.json(
-      { error: "No se pudo interpretar la respuesta de la IA." },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    {
+      error: isGeminiJsonTruncated(rawText, finishReason)
+        ? "La respuesta de la IA quedó truncada antes de terminar el JSON. Intenta de nuevo o analiza menos material a la vez."
+        : "No se pudo interpretar la respuesta de la IA."
+    },
+    { status: 502 }
+  );
 }
