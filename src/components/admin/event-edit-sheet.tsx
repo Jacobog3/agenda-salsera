@@ -37,6 +37,8 @@ const CURRENCY_OPTIONS = [
 ];
 
 const AI_FIELD_LABELS: Record<string, string> = {
+  cover_image_url: "Flyer principal",
+  gallery_urls: "Galería",
   title_es: "Título",
   dance_style: "Estilo",
   starts_at: "Fecha y hora de inicio",

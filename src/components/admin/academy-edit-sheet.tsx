@@ -26,6 +26,7 @@ const MODALITY_OPTIONS = [
 ];
 
 const AI_FIELD_LABELS: Record<string, string> = {
+  cover_image_url: "Logo / Imagen principal",
   name: "Nombre",
   city: "Ciudad",
   area: "Zona / Área",

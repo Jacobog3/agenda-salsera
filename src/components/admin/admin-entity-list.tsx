@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { formatAcademySchedulePreview } from "@/lib/academies/academy-helpers";
 import type { AiUpdateEntity } from "@/lib/admin/ai-update";
+import { compressImageFileForAi } from "@/lib/utils/image-data-url";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -87,15 +88,6 @@ function getTimeEditKey(fieldKey: string) {
 }
 
 const NEW_ENTITY_ID = "__new__";
-
-async function readFileAsDataUrl(file: File): Promise<string> {
-  return await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
-    reader.readAsDataURL(file);
-  });
-}
 
 function formatPreviewValue(value: unknown) {
   if (
@@ -574,7 +566,7 @@ export function AdminEntityList({
     setAiNotice("");
 
     try {
-      const dataUrl = await readFileAsDataUrl(file);
+      const dataUrl = await compressImageFileForAi(file);
       setAiImageDataUrl(dataUrl);
       setAiImageName(file.name);
     } catch (error) {

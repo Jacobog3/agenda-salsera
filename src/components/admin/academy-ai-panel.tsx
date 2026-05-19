@@ -2,11 +2,12 @@
 
 import { useRef, useState } from "react";
 import { Check, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
+import { compressImageFileForAi } from "@/lib/utils/image-data-url";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { AiUpdateEntity, AiWorkflowMode } from "@/lib/admin/ai-update";
 
-type ImageEntry = { dataUrl: string; name: string };
+type ImageEntry = { dataUrl: string; name: string; publicUrl: string };
 
 type SuggestionEntry = {
   key: string;
@@ -21,6 +22,13 @@ type Props = {
   currentData: Record<string, unknown>;
   fieldLabels: Record<string, string>;
   onApply: (fields: Record<string, unknown>) => void;
+};
+
+const PRIMARY_IMAGE_FIELD_BY_ENTITY: Record<AiUpdateEntity, string> = {
+  academy: "cover_image_url",
+  event: "cover_image_url",
+  spot: "cover_image_url",
+  teacher: "profile_image_url"
 };
 
 function formatPreview(value: unknown): string {
@@ -38,37 +46,79 @@ function formatPreview(value: unknown): string {
   return String(value);
 }
 
+function getEventGallerySuggestion(currentData: Record<string, unknown>, images: ImageEntry[]) {
+  const extraImageUrls = images.slice(1).map((img) => img.publicUrl).filter(Boolean);
+  if (extraImageUrls.length === 0) return null;
+
+  const currentGallery = Array.isArray(currentData.gallery_urls)
+    ? currentData.gallery_urls.map((entry) => String(entry ?? "").trim()).filter(Boolean)
+    : [];
+  const nextGallery = [...new Set([...currentGallery, ...extraImageUrls])];
+
+  return {
+    key: "gallery_urls",
+    label: "Galería",
+    value: nextGallery,
+    accepted: true
+  };
+}
+
+async function uploadAdminImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/admin/upload", {
+    method: "POST",
+    body: formData
+  });
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(String(data.error ?? "No se pudo subir la imagen."));
+  }
+
+  return String(data.url ?? "").trim();
+}
+
 export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [text, setText] = useState("");
+  const [processingImages, setProcessingImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestionEntry[] | null>(null);
+  const primaryImageField = PRIMARY_IMAGE_FIELD_BY_ENTITY[entity];
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
 
     const toProcess = files;
+    setProcessingImages(true);
+    setError("");
 
     Promise.all(
-      toProcess.map(
-        (file) =>
-          new Promise<ImageEntry>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve({ dataUrl: String(reader.result), name: file.name });
-            reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
-            reader.readAsDataURL(file);
-          })
-      )
+      toProcess.map(async (file) => {
+        const [dataUrl, publicUrl] = await Promise.all([
+          compressImageFileForAi(file, { maxDataUrlLength: 900_000 }),
+          uploadAdminImage(file)
+        ]);
+
+        return {
+          dataUrl,
+          name: file.name,
+          publicUrl
+        };
+      })
     )
       .then((entries) => {
         setImages((prev) => [...prev, ...entries]);
         setError("");
       })
-      .catch(() => setError("No se pudo leer una o más imágenes."));
+      .catch((err) => setError(err instanceof Error ? err.message : "No se pudo leer o subir una o más imágenes."))
+      .finally(() => setProcessingImages(false));
 
     e.target.value = "";
   }
@@ -106,19 +156,36 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
           ? (data.data as Record<string, unknown>)
           : {};
 
-      if (Object.keys(suggestion).length === 0) {
-        setNotice("La IA no encontró información nueva para agregar.");
-        return;
-      }
-
-      setSuggestions(
-        Object.entries(suggestion).map(([key, value]) => ({
+      const firstUploadedImageUrl = images.find((img) => Boolean(img.publicUrl))?.publicUrl ?? "";
+      const imageSuggestion = firstUploadedImageUrl
+        ? [{
+            key: primaryImageField,
+            label: fieldLabels[primaryImageField] ?? "Imagen principal",
+            value: firstUploadedImageUrl,
+            accepted: true
+          }]
+        : [];
+      const gallerySuggestion = entity === "event" ? getEventGallerySuggestion(currentData, images) : null;
+      const aiSuggestions = Object.entries(suggestion)
+        .filter(([key]) => key !== primaryImageField && key !== "gallery_urls")
+        .map(([key, value]) => ({
           key,
           label: fieldLabels[key] ?? key,
           value,
           accepted: true
-        }))
-      );
+        }));
+      const nextSuggestions = [
+        ...imageSuggestion,
+        ...(gallerySuggestion ? [gallerySuggestion] : []),
+        ...aiSuggestions
+      ];
+
+      if (nextSuggestions.length === 0) {
+        setNotice("La IA no encontró información nueva para agregar.");
+        return;
+      }
+
+      setSuggestions(nextSuggestions);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo analizar el material.");
     } finally {
@@ -144,7 +211,7 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
     setNotice("Sugerencias aplicadas. Revisa los campos y guarda.");
   }
 
-  const canAnalyze = (images.length > 0 || text.trim().length >= 10) && !loading;
+  const canAnalyze = (images.length > 0 || text.trim().length >= 10) && !loading && !processingImages;
   const acceptedCount = suggestions?.filter((s) => s.accepted).length ?? 0;
 
   return (
@@ -198,6 +265,12 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
             {images.length} post{images.length !== 1 ? "s" : ""} · La IA unifica la información de todos
           </p>
         )}
+        {processingImages && (
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-brand-700">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Preparando imagen para IA e imagen principal...
+          </p>
+        )}
       </div>
 
       {/* Caption text */}
@@ -211,7 +284,12 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
 
       {/* Analyze button */}
       <Button type="button" onClick={analyze} disabled={!canAnalyze} className="w-full gap-2">
-        {loading ? (
+        {processingImages ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Preparando imágenes...
+          </>
+        ) : loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Analizando...

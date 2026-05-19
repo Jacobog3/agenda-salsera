@@ -18,6 +18,7 @@ type Props = {
 };
 
 const AI_FIELD_LABELS: Record<string, string> = {
+  cover_image_url: "Imagen principal",
   name: "Nombre",
   city: "Ciudad",
   area: "Zona",

@@ -26,6 +26,7 @@ const MODALITY_OPTIONS = [
 ];
 
 const AI_FIELD_LABELS: Record<string, string> = {
+  profile_image_url: "Foto de perfil",
   name: "Nombre",
   city: "Ciudad",
   area: "Zona / Área",

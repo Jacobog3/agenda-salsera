@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { extractLowestPriceAmount } from "@/lib/utils/formatters";
+import { compressImageFileForAi } from "@/lib/utils/image-data-url";
 import {
   Upload,
   Sparkles,
@@ -107,12 +108,17 @@ export function AdminEventForm() {
     };
   }, []);
 
-  const handleFileSelect = useCallback((selectedFile: File) => {
+  const handleFileSelect = useCallback(async (selectedFile: File) => {
     setFile(selectedFile);
     setImageUrl("");
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
-    reader.readAsDataURL(selectedFile);
+    setErrorMsg("");
+
+    try {
+      setPreview(await compressImageFileForAi(selectedFile));
+    } catch (err) {
+      setPreview(null);
+      setErrorMsg(err instanceof Error ? err.message : "No se pudo leer la imagen.");
+    }
   }, []);
 
   function syncPriceFields(nextPriceText: string) {
@@ -175,18 +181,28 @@ export function AdminEventForm() {
   }
 
   async function handleExtract() {
-    if (!whatsappText.trim() && !imageUrl && !preview) return;
+    if (!whatsappText.trim() && !imageUrl && !preview && !file) return;
     setExtracting(true);
     setErrorMsg("");
     try {
+      let analysisImageUrl = imageUrl.trim();
+      let analysisImageDataUrl = preview;
+
+      if (!analysisImageUrl && file) {
+        setUploading(true);
+        analysisImageUrl = await uploadSelectedFile();
+        analysisImageDataUrl = "";
+        setUploading(false);
+      }
+
       const res = await fetch("/api/parse-flyer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: whatsappText,
           type: "event",
-          imageUrl,
-          imageDataUrl: imageUrl ? "" : preview
+          imageUrl: analysisImageUrl,
+          imageDataUrl: analysisImageUrl ? "" : analysisImageDataUrl
         })
       });
       const json = await res.json();
@@ -210,6 +226,7 @@ export function AdminEventForm() {
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Extracción fallida");
     } finally {
+      setUploading(false);
       setExtracting(false);
     }
   }
@@ -439,7 +456,7 @@ export function AdminEventForm() {
           variant="outline"
           size="sm"
           onClick={handleExtract}
-          disabled={extracting || (!whatsappText.trim() && !imageUrl && !preview)}
+          disabled={extracting || (!whatsappText.trim() && !imageUrl && !preview && !file)}
           className="gap-2"
         >
           {extracting
