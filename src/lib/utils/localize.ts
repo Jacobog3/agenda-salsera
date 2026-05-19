@@ -22,6 +22,8 @@ export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEven
     address: event.address,
     startsAt: event.startsAt,
     endsAt: event.endsAt,
+    dateStatus: event.dateStatus,
+    dateLabel: event.dateLabel,
     priceAmount: event.priceAmount,
     priceText: event.priceText,
     currency: event.currency,

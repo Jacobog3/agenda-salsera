@@ -1,4 +1,5 @@
 export type DanceStyle = "salsa" | "bachata" | "salsa_bachata" | "other";
+export type EventDateStatus = "confirmed" | "coming_soon";
 
 export type EventRecord = {
   id: string;
@@ -14,8 +15,10 @@ export type EventRecord = {
   area?: string | null;
   venueName: string;
   address?: string | null;
-  startsAt: string;
+  startsAt?: string | null;
   endsAt?: string | null;
+  dateStatus: EventDateStatus;
+  dateLabel?: string | null;
   priceAmount?: number | null;
   priceText?: string | null;
   currency: string;
@@ -40,8 +43,10 @@ export type LocalizedEvent = {
   area?: string | null;
   venueName: string;
   address?: string | null;
-  startsAt: string;
+  startsAt?: string | null;
   endsAt?: string | null;
+  dateStatus: EventDateStatus;
+  dateLabel?: string | null;
   priceAmount?: number | null;
   priceText?: string | null;
   currency: string;

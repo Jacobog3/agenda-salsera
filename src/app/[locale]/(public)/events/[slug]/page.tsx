@@ -12,7 +12,12 @@ import {
   getRelatedOrganizerForEvent,
   getRelatedTeachersForEvent
 } from "@/lib/queries/relations";
-import { formatCurrency, formatEventDateTime, formatEventDateRange } from "@/lib/utils/formatters";
+import {
+  formatCurrency,
+  formatEventDateStatusLabel,
+  formatEventDateTime,
+  formatEventDateRange
+} from "@/lib/utils/formatters";
 import { Calendar, MapPin, User, Banknote, Globe, ExternalLink } from "lucide-react";
 import { env } from "@/lib/utils/env";
 import type { LocalizedAcademy } from "@/types/academy";
@@ -129,8 +134,10 @@ function EventJsonLd({
     venueName: string;
     address?: string | null;
     city: string;
-    startsAt: string;
+    startsAt?: string | null;
     endsAt?: string | null;
+    dateStatus: "confirmed" | "coming_soon";
+    dateLabel?: string | null;
     priceAmount?: number | null;
     currency: string;
     organizerName: string;
@@ -144,6 +151,8 @@ function EventJsonLd({
   relatedAcademy?: LocalizedAcademy | null;
   relatedTeachers: LocalizedTeacher[];
 }) {
+  if (!event.startsAt) return null;
+
   const eventUrl = locale === "es"
     ? `${siteUrl}/eventos/${event.slug}`
     : `${siteUrl}/en/events/${event.slug}`;
@@ -252,8 +261,14 @@ export default async function EventDetailPage({
     getRelatedTeachersForEvent(currentLocale, event.id)
   ]);
   const isLongEvent =
+    !!event.startsAt &&
     !!event.endsAt &&
     new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
+  const dateText = event.dateStatus === "coming_soon" || !event.startsAt
+    ? formatEventDateStatusLabel(event.dateLabel, currentLocale)
+    : isLongEvent
+      ? formatEventDateRange(event.startsAt, event.endsAt!, currentLocale)
+      : formatEventDateTime(event.startsAt, currentLocale);
 
   return (
     <>
@@ -289,11 +304,9 @@ export default async function EventDetailPage({
             <aside className="rounded-2xl bg-surface-soft p-4 md:rounded-3xl md:p-6">
               <div className="grid gap-3 md:gap-4">
                 <InfoRow icon={Calendar} label={common("date")}>
-                  {isLongEvent
-                    ? formatEventDateRange(event.startsAt, event.endsAt!, currentLocale)
-                    : formatEventDateTime(event.startsAt, currentLocale)}
+                  {dateText}
                 </InfoRow>
-                {isLongEvent ? (
+                {isLongEvent && event.startsAt ? (
                   <InfoRow icon={Calendar} label={common("duration")}>
                     <span className="block">
                       <strong>{common("starts")}:</strong> {formatEventDateTime(event.startsAt, currentLocale)}

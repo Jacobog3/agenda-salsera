@@ -78,6 +78,13 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
       kind: "string",
       allowedValues: ["salsa", "bachata", "salsa_bachata", "other"]
     },
+    {
+      key: "date_status",
+      label: "Estado de fecha",
+      kind: "string",
+      allowedValues: ["confirmed", "coming_soon"]
+    },
+    { key: "date_label", label: "Texto visible cuando no hay fecha confirmada", kind: "string" },
     { key: "starts_at", label: "Fecha y hora de inicio (YYYY-MM-DDTHH:MM)", kind: "string" },
     { key: "ends_at", label: "Fecha y hora de cierre (YYYY-MM-DDTHH:MM)", kind: "string" },
     { key: "venue_name", label: "Nombre del lugar", kind: "string" },
@@ -223,7 +230,7 @@ export function getAiUpdatePrompt(
   );
 
   const eventDateNote = entity === "event" ? `
-IMPORTANT — for date/time fields (starts_at, ends_at): extract the date and time from the flyer and return them in ISO format "YYYY-MM-DDTHH:MM" (e.g. "2026-05-10T20:00"). If only the date is visible, use "YYYY-MM-DDT00:00". Current year context: 2026. If the date is ambiguous, omit it rather than guess.
+IMPORTANT — for event date fields: if the material says "próximamente", "proximamente", "coming soon", "fecha por anunciar", "TBA", or clearly has no confirmed date, return date_status: "coming_soon" and date_label: "Próximamente"; do not invent starts_at. If a real date/time is visible, return date_status: "confirmed" plus starts_at/ends_at in ISO format "YYYY-MM-DDTHH:MM" (e.g. "2026-05-10T20:00"). If only the date is visible, use "YYYY-MM-DDT00:00". Current year context: 2026. If the date is ambiguous, omit starts_at rather than guess.
 ` : "";
 
   const multiImageNote = `

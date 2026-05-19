@@ -38,6 +38,20 @@ export function formatEventDateRange(startsAt: string, endsAt: string, locale: L
   return `${start} – ${end}`;
 }
 
+export function formatEventDateStatusLabel(
+  dateLabel: string | null | undefined,
+  locale: Locale
+) {
+  const normalized = String(dateLabel ?? "").trim();
+  if (!normalized) return locale === "es" ? "Próximamente" : "Coming soon";
+
+  if (/^proximamente$/i.test(normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))) {
+    return locale === "es" ? "Próximamente" : "Coming soon";
+  }
+
+  return normalized;
+}
+
 export function formatCurrency(
   amount: number | null | undefined,
   currency: string,

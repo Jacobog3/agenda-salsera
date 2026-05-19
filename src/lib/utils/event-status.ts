@@ -8,8 +8,9 @@ const guatemalaDateFormatter = new Intl.DateTimeFormat("en-CA", {
 });
 
 type EventTiming = {
-  startsAt: string;
+  startsAt?: string | null;
   endsAt?: string | null;
+  dateStatus?: "confirmed" | "coming_soon";
 };
 
 function isValidDate(value: Date) {
@@ -21,7 +22,7 @@ function getDateKeyInGuatemala(date: Date) {
 }
 
 export function hasMeaningfulEventEnd({ startsAt, endsAt }: EventTiming) {
-  if (!endsAt) return false;
+  if (!startsAt || !endsAt) return false;
 
   const startDate = new Date(startsAt);
   const endDate = new Date(endsAt);
@@ -33,7 +34,10 @@ export function hasMeaningfulEventEnd({ startsAt, endsAt }: EventTiming) {
   return endDate.getTime() > startDate.getTime();
 }
 
-export function isEventActive({ startsAt, endsAt }: EventTiming, now = new Date()) {
+export function isEventActive({ startsAt, endsAt, dateStatus }: EventTiming, now = new Date()) {
+  if (dateStatus === "coming_soon") return true;
+  if (!startsAt) return false;
+
   const startDate = new Date(startsAt);
   if (!isValidDate(startDate)) return false;
 

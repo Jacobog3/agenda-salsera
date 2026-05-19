@@ -13,7 +13,9 @@ create table if not exists public.events (
   area text,
   venue_name text not null,
   address text,
-  starts_at timestamptz not null,
+  starts_at timestamptz,
+  date_status text not null default 'confirmed',
+  date_label text,
   price_amount numeric(10,2),
   currency text not null default 'GTQ',
   organizer_name text not null,
@@ -21,7 +23,12 @@ create table if not exists public.events (
   external_url text,
   is_featured boolean not null default false,
   is_published boolean not null default true,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  constraint events_date_status_check check (
+    (date_status = 'confirmed' and starts_at is not null)
+    or
+    (date_status = 'coming_soon' and starts_at is null)
+  )
 );
 
 create table if not exists public.academies (

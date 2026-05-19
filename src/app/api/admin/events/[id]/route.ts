@@ -14,6 +14,10 @@ function normalizeTeacherIds(value: unknown) {
   return [...new Set(value.map((entry) => String(entry ?? "").trim()).filter(Boolean))];
 }
 
+function normalizeDateStatus(value: unknown) {
+  return value === "coming_soon" ? "coming_soon" : "confirmed";
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -57,6 +61,21 @@ export async function PATCH(
   body.cover_image_url = finalCoverImageUrl;
   body.organizer_id = normalizeNullableId(body.organizer_id);
   body.academy_id = normalizeNullableId(body.academy_id);
+  body.date_status = normalizeDateStatus(body.date_status);
+
+  if (body.date_status === "coming_soon") {
+    body.starts_at = null;
+    body.ends_at = null;
+    body.date_label = String(body.date_label ?? "Próximamente").trim() || "Próximamente";
+  } else {
+    body.date_label = null;
+    if (!body.starts_at) {
+      return NextResponse.json(
+        { error: "La fecha de inicio es obligatoria." },
+        { status: 400 }
+      );
+    }
+  }
 
   const { data: updated, error } = await supabase
     .from("events")

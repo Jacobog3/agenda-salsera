@@ -13,6 +13,8 @@ type EventFilters = {
 };
 
 function normalizeEvent(row: Record<string, unknown>): EventRecord {
+  const dateStatus = row.date_status === "coming_soon" ? "coming_soon" : "confirmed";
+
   return {
     id: String(row.id),
     slug: String(row.slug),
@@ -27,8 +29,10 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     area: row.area ? String(row.area) : null,
     venueName: String(row.venue_name),
     address: row.address ? String(row.address) : null,
-    startsAt: String(row.starts_at),
+    startsAt: row.starts_at ? String(row.starts_at) : null,
     endsAt: row.ends_at ? String(row.ends_at) : null,
+    dateStatus,
+    dateLabel: row.date_label ? String(row.date_label) : null,
     priceAmount:
       row.price_amount === null || row.price_amount === undefined
         ? null
@@ -73,6 +77,7 @@ export async function getEvents(
       }
 
       if (filters?.dateRangeInDays && filters.dateRangeInDays !== "all") {
+        if (!event.startsAt) return false;
         const limit = new Date();
         limit.setDate(todayStart.getDate() + Number(filters.dateRangeInDays));
         if (new Date(event.startsAt) > limit) return false;
@@ -80,7 +85,12 @@ export async function getEvents(
 
       return true;
     })
-    .sort((a, b) => +new Date(a.startsAt) - +new Date(b.startsAt))
+    .sort((a, b) => {
+      if (!a.startsAt && !b.startsAt) return 0;
+      if (!a.startsAt) return 1;
+      if (!b.startsAt) return -1;
+      return +new Date(a.startsAt) - +new Date(b.startsAt);
+    })
     .map((event) => localizeEvent(event, locale));
 }
 
@@ -100,7 +110,7 @@ async function fetchSupabaseEvents(): Promise<EventRecord[]> {
     .from("events")
     .select("*")
     .eq("is_published", true)
-    .order("starts_at", { ascending: true });
+    .order("starts_at", { ascending: true, nullsFirst: false });
 
   if (error) {
     console.error("[events] Supabase error:", error.message);

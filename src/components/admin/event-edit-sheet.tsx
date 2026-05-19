@@ -36,11 +36,18 @@ const CURRENCY_OPTIONS = [
   { value: "", label: "No aplica / Gratis" }
 ];
 
+const DATE_STATUS_OPTIONS = [
+  { value: "confirmed", label: "Fecha confirmada" },
+  { value: "coming_soon", label: "Próximamente" }
+];
+
 const AI_FIELD_LABELS: Record<string, string> = {
   cover_image_url: "Flyer principal",
   gallery_urls: "Galería",
   title_es: "Título",
   dance_style: "Estilo",
+  date_status: "Estado de fecha",
+  date_label: "Texto de fecha",
   starts_at: "Fecha y hora de inicio",
   ends_at: "Fecha y hora de cierre",
   venue_name: "Lugar",
@@ -70,6 +77,8 @@ function buildInitialData(item: EventData | null): EventData {
       title_es: "",
       description_es: "",
       dance_style: "salsa_bachata",
+      date_status: "confirmed",
+      date_label: "",
       starts_at_date: "",
       starts_at_time: "",
       ends_at_date: "",
@@ -96,6 +105,8 @@ function buildInitialData(item: EventData | null): EventData {
 
   return {
     ...item,
+    date_status: item.date_status === "coming_soon" ? "coming_soon" : "confirmed",
+    date_label: item.date_label ? String(item.date_label) : "",
     gallery_urls: Array.isArray(item.gallery_urls)
       ? item.gallery_urls.map((entry) => String(entry ?? "")).filter(Boolean)
       : [],
@@ -517,6 +528,8 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
       const startsAt = parseDateTimeLocal(String(normalized.starts_at));
       normalized.starts_at_date = startsAt.date;
       normalized.starts_at_time = startsAt.time;
+      normalized.date_status = "confirmed";
+      normalized.date_label = "";
     }
 
     if (normalized.ends_at) {
@@ -539,22 +552,29 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     setSaving(true);
     setSaveError("");
     try {
+      const dateStatus = data.date_status === "coming_soon" ? "coming_soon" : "confirmed";
       const startsAtDate = String(data.starts_at_date ?? "").trim();
       const startsAtTime = String(data.starts_at_time ?? "").trim();
-      if (!startsAtDate) {
+      if (dateStatus === "confirmed" && !startsAtDate) {
         throw new Error("La fecha de inicio es obligatoria.");
       }
 
       const endsAtDate = String(data.ends_at_date ?? "").trim();
       const endsAtTime = String(data.ends_at_time ?? "").trim();
-      if (endsAtDate && new Date(endsAtDate) < new Date(startsAtDate)) {
+      if (dateStatus === "confirmed" && endsAtDate && new Date(endsAtDate) < new Date(startsAtDate)) {
         throw new Error("La fecha final no puede ser anterior a la fecha inicial.");
       }
 
       const payload: EventData = {
         ...data,
-        starts_at: `${startsAtDate}T${startsAtTime || "20:00"}:00-06:00`,
-        ends_at: endsAtDate
+        date_status: dateStatus,
+        date_label: dateStatus === "coming_soon"
+          ? String(data.date_label ?? "Próximamente").trim() || "Próximamente"
+          : null,
+        starts_at: dateStatus === "coming_soon" ? null : `${startsAtDate}T${startsAtTime || "20:00"}:00-06:00`,
+        ends_at: dateStatus === "coming_soon" || !endsAtDate
+          ? null
+          : endsAtDate
           ? `${endsAtDate}T${endsAtTime || startsAtTime || "20:00"}:00-06:00`
           : null,
         gallery_urls: Array.isArray(data.gallery_urls)
@@ -714,6 +734,42 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
             </div>
 
             <SectionHeading>Fecha y lugar</SectionHeading>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <FieldLabel label="Estado de fecha" />
+                <select
+                  value={String(data.date_status ?? "confirmed")}
+                  onChange={(e) => {
+                    const nextStatus = e.target.value;
+                    setData((prev) => ({
+                      ...prev,
+                      date_status: nextStatus,
+                      date_label: nextStatus === "coming_soon"
+                        ? String(prev.date_label ?? "Próximamente") || "Próximamente"
+                        : ""
+                    }));
+                  }}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {DATE_STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {data.date_status === "coming_soon" ? (
+                <div className="space-y-1">
+                  <FieldLabel label="Texto visible" />
+                  <Input
+                    value={String(data.date_label ?? "Próximamente")}
+                    onChange={(e) => set("date_label", e.target.value)}
+                    placeholder="Próximamente"
+                    className="h-9 text-sm"
+                  />
+                </div>
+              ) : null}
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <FieldLabel label="Fecha de inicio" />
@@ -721,6 +777,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                   type="date"
                   value={String(data.starts_at_date ?? "")}
                   onChange={(e) => set("starts_at_date", e.target.value)}
+                  disabled={data.date_status === "coming_soon"}
                   className="h-9 text-sm"
                 />
               </div>
@@ -730,6 +787,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                   type="time"
                   value={String(data.starts_at_time ?? "")}
                   onChange={(e) => set("starts_at_time", e.target.value)}
+                  disabled={data.date_status === "coming_soon"}
                   className="h-9 text-sm"
                 />
               </div>
@@ -741,6 +799,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                   type="date"
                   value={String(data.ends_at_date ?? "")}
                   onChange={(e) => set("ends_at_date", e.target.value)}
+                  disabled={data.date_status === "coming_soon"}
                   className="h-9 text-sm"
                 />
               </div>
@@ -750,6 +809,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                   type="time"
                   value={String(data.ends_at_time ?? "")}
                   onChange={(e) => set("ends_at_time", e.target.value)}
+                  disabled={data.date_status === "coming_soon"}
                   className="h-9 text-sm"
                 />
               </div>

@@ -8,9 +8,11 @@ import { isEventExpired } from "@/lib/utils/event-status";
 const EVENT_COLUMNS = [
   { key: "title_es", label: "Título" },
   { key: "starts_at", label: "Fecha", format: (_: unknown, item?: Record<string, unknown>) => {
+    if (item?.date_status === "coming_soon" || !item?.starts_at) {
+      return String(item?.date_label ?? "Próximamente");
+    }
     const startsAt = String(item?.starts_at ?? "");
     const endsAt = String(item?.ends_at ?? "");
-    if (!startsAt) return "";
     const startText = new Date(startsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
     if (!endsAt || new Date(endsAt).toDateString() === new Date(startsAt).toDateString()) {
       return startText;
@@ -65,8 +67,9 @@ export default function AdminEventsPage() {
         dateKey="starts_at"
         statusResolver={(item) =>
           isEventExpired({
-            startsAt: String(item.starts_at ?? ""),
-            endsAt: item.ends_at ? String(item.ends_at) : null
+            startsAt: item.starts_at ? String(item.starts_at) : null,
+            endsAt: item.ends_at ? String(item.ends_at) : null,
+            dateStatus: item.date_status === "coming_soon" ? "coming_soon" : "confirmed"
           })
             ? "expired"
             : "active"

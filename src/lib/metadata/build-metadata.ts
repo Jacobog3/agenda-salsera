@@ -199,7 +199,7 @@ export function buildEventMetadata(event: {
   slug: string;
   venueName: string;
   city: string;
-  startsAt: string;
+  startsAt?: string | null;
   priceAmount?: number | null;
   currency: string;
   organizerName: string;

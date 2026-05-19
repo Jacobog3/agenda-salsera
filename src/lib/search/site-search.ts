@@ -2,7 +2,7 @@ import { getAcademies } from "@/lib/queries/academies";
 import { getEvents } from "@/lib/queries/events";
 import { getSpots } from "@/lib/queries/spots";
 import { getTeachers } from "@/lib/queries/teachers";
-import { formatEventDate, formatEventDateRange } from "@/lib/utils/formatters";
+import { formatEventDate, formatEventDateRange, formatEventDateStatusLabel } from "@/lib/utils/formatters";
 import type { Locale } from "@/types/locale";
 
 export type SearchResultType = "event" | "spot" | "academy" | "teacher";
@@ -146,8 +146,14 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
         if (score === null) return null;
 
         const isRange =
+          !!event.startsAt &&
           !!event.endsAt &&
           new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
+        const meta = event.startsAt
+          ? isRange
+            ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
+            : formatEventDate(event.startsAt, locale)
+          : formatEventDateStatusLabel(event.dateLabel, locale);
 
         return {
           id: event.id,
@@ -158,9 +164,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           description: event.description,
           imageUrl: event.coverImageUrl,
           badges: [event.danceStyle],
-          meta: isRange
-            ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
-            : formatEventDate(event.startsAt, locale),
+          meta,
           score
         };
       })

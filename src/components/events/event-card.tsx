@@ -4,7 +4,12 @@ import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
-import { formatCardPrice, formatEventDate, formatEventDateRange } from "@/lib/utils/formatters";
+import {
+  formatCardPrice,
+  formatEventDate,
+  formatEventDateRange,
+  formatEventDateStatusLabel
+} from "@/lib/utils/formatters";
 import type { LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
@@ -16,9 +21,16 @@ export async function EventCard({
   locale: Locale;
 }) {
   const t = await getTranslations("common");
+  const isComingSoon = event.dateStatus === "coming_soon" || !event.startsAt;
   const isLongEvent =
+    !!event.startsAt &&
     !!event.endsAt &&
     new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
+  const dateText = isComingSoon
+    ? formatEventDateStatusLabel(event.dateLabel, locale)
+    : isLongEvent
+      ? formatEventDateRange(event.startsAt!, event.endsAt!, locale)
+      : formatEventDate(event.startsAt!, locale);
 
   return (
     <Link
@@ -37,9 +49,7 @@ export async function EventCard({
           />
           <div className="absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-black/50 to-transparent p-3 pt-8 md:block">
             <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-foreground backdrop-blur-sm">
-              {isLongEvent
-                ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
-                : formatEventDate(event.startsAt, locale)}
+              {dateText}
             </span>
           </div>
         </div>
@@ -56,9 +66,7 @@ export async function EventCard({
               </Badge>
             ) : null}
             <span className="text-[11px] text-muted-foreground md:hidden">
-              {isLongEvent
-                ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
-                : formatEventDate(event.startsAt, locale)}
+              {dateText}
             </span>
           </div>
 

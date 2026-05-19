@@ -15,6 +15,10 @@ function normalizeTeacherIds(value: unknown) {
   return [...new Set(value.map((entry) => String(entry ?? "").trim()).filter(Boolean))];
 }
 
+function normalizeDateStatus(value: unknown) {
+  return value === "coming_soon" ? "coming_soon" : "confirmed";
+}
+
 function generateSlug(title: string): string {
   return (
     title
@@ -35,7 +39,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from("events")
     .select("*, event_teachers(teacher_id)")
-    .order("starts_at", { ascending: false });
+    .order("starts_at", { ascending: false, nullsFirst: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({
@@ -72,7 +76,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!body.title_es || !body.city || !body.venue_name || !body.starts_at) {
+  const dateStatus = normalizeDateStatus(body.date_status);
+  const startsAt = dateStatus === "coming_soon" ? null : body.starts_at;
+  const endsAt = dateStatus === "coming_soon" ? null : body.ends_at || null;
+  const dateLabel = dateStatus === "coming_soon"
+    ? String(body.date_label ?? "Próximamente").trim() || "Próximamente"
+    : null;
+
+  if (!body.title_es || !body.city || !body.venue_name || (dateStatus === "confirmed" && !startsAt)) {
     return NextResponse.json(
       { error: "Missing required fields: title, city, venue, date" },
       { status: 400 }
@@ -100,8 +111,10 @@ export async function POST(request: NextRequest) {
         area: body.area || null,
         venue_name: body.venue_name,
         address: body.address || null,
-        starts_at: body.starts_at,
-        ends_at: body.ends_at || null,
+        starts_at: startsAt,
+        ends_at: endsAt,
+        date_status: dateStatus,
+        date_label: dateLabel,
         price_amount: body.price_amount ?? null,
         price_text: body.price_text || null,
         currency: body.currency || "GTQ",
