@@ -31,6 +31,21 @@ function generateSlug(title: string): string {
   );
 }
 
+function isSchemaCacheColumnError(error: { message?: string; code?: string } | null) {
+  const message = error?.message ?? "";
+  return error?.code === "PGRST204" || /schema cache|date_label|date_status/i.test(message);
+}
+
+function schemaMigrationErrorResponse() {
+  return NextResponse.json(
+    {
+      error:
+        "Falta aplicar la migración de fechas flexibles en Supabase. Ejecuta supabase/migrations/20260519_event_date_status.sql y recarga el schema cache."
+    },
+    { status: 500 }
+  );
+}
+
 export async function GET(request: NextRequest) {
   const denied = requireAdmin(request);
   if (denied) return denied;
@@ -129,6 +144,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
+      if (isSchemaCacheColumnError(error)) {
+        return schemaMigrationErrorResponse();
+      }
+
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
