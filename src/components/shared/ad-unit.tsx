@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -19,13 +19,39 @@ export function AdUnit({
   layoutKey?: string;
   className?: string;
 }) {
+  const insRef = useRef<HTMLElement>(null);
+  const [hidden, setHidden] = useState(false);
+
   useEffect(() => {
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
       // adsbygoogle not ready
     }
+
+    const el = insRef.current;
+    if (!el) return;
+
+    const hide = () => {
+      const style = el.getAttribute("style") ?? "";
+      if (style.includes("display: none") || style.includes("display:none") || el.offsetHeight === 0) {
+        setHidden(true);
+      }
+    };
+
+    const observer = new MutationObserver(hide);
+    observer.observe(el, { attributes: true, attributeFilter: ["style"] });
+
+    // Fallback: if no ad filled after 2s, hide the empty block
+    const timer = setTimeout(hide, 2000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
   }, []);
+
+  if (hidden) return null;
 
   return (
     <div className={className}>
@@ -36,6 +62,7 @@ export function AdUnit({
           </span>
         </div>
         <ins
+          ref={insRef as React.RefObject<HTMLModElement>}
           className="adsbygoogle"
           style={{ display: "block" }}
           data-ad-format="fluid"
