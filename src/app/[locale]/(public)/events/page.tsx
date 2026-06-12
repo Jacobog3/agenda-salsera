@@ -5,6 +5,7 @@ import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { LastUpdatedBadge } from "@/components/shared/last-updated-badge";
+import { AdUnit } from "@/components/shared/ad-unit";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { getEvents } from "@/lib/queries/events";
 import { getLastUpdated } from "@/lib/queries/last-updated";
@@ -55,13 +56,13 @@ export default async function EventsPage({
         />
         {events.length ? (
           <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
-            {events.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                locale={currentLocale}
-              />
-            ))}
+            {events.flatMap((event, index) => {
+              const card = <EventCard key={event.id} event={event} locale={currentLocale} />;
+              const showAd = (index + 1) % 4 === 0 && index < events.length - 1;
+              return showAd
+                ? [card, <AdUnit key={`ad-${index}`} slot="3657012273" layoutKey="-gy+x-4m-bc+129" className="sm:col-span-2" />]
+                : [card];
+            })}
           </div>
         ) : (
           <EmptyState title={t("empty")} />

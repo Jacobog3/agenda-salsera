@@ -12,6 +12,7 @@ import { getFeaturedAcademies } from "@/lib/queries/academies";
 import { getFeaturedEvents } from "@/lib/queries/events";
 import { getFeaturedSpots } from "@/lib/queries/spots";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
+import { AdUnit } from "@/components/shared/ad-unit";
 import type { Locale } from "@/types/locale";
 
 export async function generateMetadata({
@@ -57,13 +58,13 @@ export default async function HomePage({
               </Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 md:gap-5">
-              {events.map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  locale={currentLocale}
-                />
-              ))}
+              {events.flatMap((event, index) => {
+                const card = <EventCard key={event.id} event={event} locale={currentLocale} />;
+                const showAd = (index + 1) % 4 === 0 && index < events.length - 1;
+                return showAd
+                  ? [card, <AdUnit key={`ad-${index}`} slot="4401946872" layoutKey="-gy+x-4m-bk+12q" className="sm:col-span-2" />]
+                  : [card];
+              })}
             </div>
           </Container>
         </section>
