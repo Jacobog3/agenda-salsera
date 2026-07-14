@@ -7,9 +7,7 @@ import {
   isGeminiJsonTruncated
 } from "@/lib/utils/gemini-response";
 import { env } from "@/lib/utils/env";
-
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
+import { getGeminiGenerateContentUrl, logGeminiUsage } from "@/lib/ai/gemini";
 
 const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages, captions, and flyer images about dance events in Guatemala.
 
@@ -165,13 +163,15 @@ export async function POST(request: Request) {
   let finishReason = "";
   let parseError: unknown = null;
 
-  for (const maxOutputTokens of [
+  const outputTokenLimits = [
     GEMINI_DEFAULT_MAX_OUTPUT_TOKENS,
     GEMINI_RETRY_MAX_OUTPUT_TOKENS
-  ]) {
+  ];
+
+  for (const [attemptIndex, maxOutputTokens] of outputTokenLimits.entries()) {
     let response: Response;
     try {
-      response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
+      response = await fetch(`${getGeminiGenerateContentUrl()}?key=${env.geminiApiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -204,6 +204,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
+    logGeminiUsage("parse-flyer", data, attemptIndex + 1);
     const candidate = extractGeminiText(data);
     rawText = candidate.rawText;
     finishReason = candidate.finishReason;

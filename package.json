@@ -14,7 +14,9 @@
     "normalize:academy-cities": "node --env-file=.env.local scripts/normalize-event-cities.mjs --entity=academies",
     "normalize:academy-cities:apply": "node --env-file=.env.local scripts/normalize-event-cities.mjs --entity=academies --apply",
     "normalize:event-relations": "node --env-file=.env.local scripts/normalize-event-relations.mjs",
-    "normalize:event-relations:apply": "node --env-file=.env.local scripts/normalize-event-relations.mjs --apply"
+    "normalize:event-relations:apply": "node --env-file=.env.local scripts/normalize-event-relations.mjs --apply",
+    "benchmark:ai": "node --env-file=.env.local scripts/benchmark-gemini-models.mjs",
+    "benchmark:ai:run": "node --env-file=.env.local scripts/benchmark-gemini-models.mjs --run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
