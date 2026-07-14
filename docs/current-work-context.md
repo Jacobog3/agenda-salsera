@@ -79,3 +79,22 @@ Both passed successfully.
 - Confirm the event create flow feels good now that it uses the sheet instead of the old inline section
 - Verify the academy production deploy on Vercel if pricing still looks missing in production
 - Decide whether the old `AdminEventForm` should be kept for reference or removed after confidence is high
+
+## Release and Rollback Rule (Effective 2026-07-14)
+
+- All new work must happen on a `codex/*` feature branch; `main` is the stable production line.
+- Verified production deployments receive semantic version tags.
+- Code rollback and Supabase data rollback are separate operations.
+- Database cleanup requires a dry run, explicit confirmation, guarded writes, and a restorable snapshot for future bulk/destructive updates.
+- Schema changes are forward-only migrations; applied migrations are never edited.
+- The full checklist is documented in `docs/release-and-rollback.md`.
+
+## Current Checkpoint
+
+- Branch: `codex/admin-mobile-data-normalization`
+- Scope: mobile-first admin improvements, content audit and normalization tooling,
+  canonical city handling, safe event relationship inference, and verified production
+  city/relationship cleanup.
+- Verification completed before checkpoint: `npm run typecheck`, `npm run lint`, and
+  `npm run build`.
+- Do not tag this release until its deployment has been verified in production.

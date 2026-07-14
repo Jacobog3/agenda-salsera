@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
 
 function generateSlug(name: string) {
   return (
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     description_es: String(body.description_es ?? "").trim(),
     description_en: String(body.description_en ?? body.description_es ?? "").trim(),
     cover_image_url: String(body.cover_image_url).trim(),
-    city: String(body.city).trim(),
+    city: normalizeGuatemalaCityName(body.city),
     area: emptyToNull(body.area),
     address: emptyToNull(body.address),
     schedule_es: String(body.schedule_es ?? "").trim(),

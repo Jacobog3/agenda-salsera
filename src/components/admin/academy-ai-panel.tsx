@@ -347,15 +347,20 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
             ))}
           </div>
 
-          <Button
-            type="button"
-            onClick={applySelected}
-            disabled={acceptedCount === 0}
-            className="w-full gap-2"
-          >
-            <Sparkles className="h-4 w-4" />
-            Aplicar {acceptedCount} campo{acceptedCount !== 1 ? "s" : ""}
-          </Button>
+          <div className="sticky bottom-0 z-10 -mx-3 -mb-3 border-t border-brand-100 bg-white/95 p-3 shadow-[0_-8px_20px_-16px_rgba(15,23,42,0.45)] backdrop-blur">
+            <p className="mb-2 text-center text-xs text-gray-500">
+              Aplica los campos seleccionados para revisarlos antes de guardar.
+            </p>
+            <Button
+              type="button"
+              onClick={applySelected}
+              disabled={acceptedCount === 0}
+              className="min-h-11 w-full gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              Aplicar {acceptedCount} campo{acceptedCount !== 1 ? "s" : ""}
+            </Button>
+          </div>
         </div>
       )}
     </div>

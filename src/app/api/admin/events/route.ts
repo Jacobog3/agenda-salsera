@@ -4,11 +4,8 @@ import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-
-function normalizeNullableId(value: unknown) {
-  const normalized = String(value ?? "").trim();
-  return normalized || null;
-}
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { inferEventRelations } from "@/lib/admin/event-relations";
 
 function normalizeTeacherIds(value: unknown) {
   if (!Array.isArray(value)) return [];
@@ -110,6 +107,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = createSupabaseAdminClient();
+    const relations = await inferEventRelations(supabase, body);
 
     const { data, error } = await supabase
       .from("events")
@@ -122,7 +120,7 @@ export async function POST(request: NextRequest) {
         cover_image_url: body.cover_image_url || "",
         gallery_urls: Array.isArray(body.gallery_urls) ? body.gallery_urls : [],
         dance_style: body.dance_style || "salsa_bachata",
-        city: body.city,
+        city: normalizeGuatemalaCityName(body.city),
         area: body.area || null,
         venue_name: body.venue_name,
         address: body.address || null,
@@ -133,9 +131,9 @@ export async function POST(request: NextRequest) {
         price_amount: body.price_amount ?? null,
         price_text: body.price_text || null,
         currency: body.currency || "GTQ",
-        organizer_name: body.organizer_name || "",
-        organizer_id: normalizeNullableId(body.organizer_id),
-        academy_id: normalizeNullableId(body.academy_id),
+        organizer_name: relations.organizer_name,
+        organizer_id: relations.organizer_id,
+        academy_id: relations.academy_id,
         contact_url: body.contact_url || "",
         is_featured: body.is_featured || false,
         is_published: body.is_published !== false

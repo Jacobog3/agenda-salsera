@@ -971,10 +971,10 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         )}
       </div>
 
-      <div className="shrink-0 space-y-2 border-t border-gray-100 bg-white p-4">
+      <div className="shrink-0 space-y-2 border-t border-gray-100 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_20px_-18px_rgba(15,23,42,0.45)]">
         {saveError ? <p className="text-xs font-medium text-red-600">{saveError}</p> : null}
         <div className="flex gap-2">
-          <Button onClick={() => save(false)} disabled={saving} className="flex-1 gap-1.5">
+          <Button onClick={() => save(false)} disabled={saving} className="min-h-11 flex-1 gap-1.5">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Guardar
           </Button>
@@ -983,7 +983,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
             onClick={() => save(true)}
             disabled={saving}
             title="Guardar y regenerar traducción al inglés"
-            className="shrink-0 gap-1.5"
+            className="min-h-11 shrink-0 gap-1.5"
           >
             <Languages className="h-4 w-4" />
             <span className="hidden sm:inline">+ inglés</span>
@@ -998,7 +998,15 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
       <Drawer.Root open onOpenChange={(open) => { if (!open) onClose(); }} shouldScaleBackground handleOnly fixed repositionInputs={false}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] min-h-0 flex-col rounded-t-2xl bg-white shadow-2xl outline-none">
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex h-[calc(100dvh-0.75rem)] max-h-[calc(100dvh-0.75rem)] min-h-0 flex-col rounded-t-2xl bg-white shadow-2xl outline-none">
+            <Drawer.Title className="sr-only">
+              {isCreating ? "Nuevo evento" : String(data.title_es || "Editar evento")}
+            </Drawer.Title>
+            <Drawer.Description className="sr-only">
+              {isCreating
+                ? "Usa la IA para generar el borrador o rellena el formulario"
+                : "Editar información del evento"}
+            </Drawer.Description>
             <Drawer.Handle className="mx-auto mt-3 mb-1 h-1 w-10 rounded-full bg-gray-200" />
             {panelContent}
           </Drawer.Content>

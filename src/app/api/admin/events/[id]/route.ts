@@ -3,6 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { inferEventRelations } from "@/lib/admin/event-relations";
 
 function normalizeNullableId(value: unknown) {
   const normalized = String(value ?? "").trim();
@@ -54,7 +56,7 @@ export async function PATCH(
 
   const { data: existing, error: existingError } = await supabase
     .from("events")
-    .select("slug, cover_image_url, is_published")
+    .select("slug, cover_image_url, is_published, title_es, organizer_name, organizer_id, academy_id, venue_name")
     .eq("id", id)
     .single();
 
@@ -74,8 +76,30 @@ export async function PATCH(
   }
 
   body.cover_image_url = finalCoverImageUrl;
-  body.organizer_id = normalizeNullableId(body.organizer_id);
-  body.academy_id = normalizeNullableId(body.academy_id);
+  if ("city" in body) {
+    body.city = normalizeGuatemalaCityName(body.city);
+  }
+  const organizerIdWasSubmitted = "organizer_id" in body;
+  const academyIdWasSubmitted = "academy_id" in body;
+  body.organizer_id = organizerIdWasSubmitted
+    ? normalizeNullableId(body.organizer_id)
+    : existing?.organizer_id ?? null;
+  body.academy_id = academyIdWasSubmitted
+    ? normalizeNullableId(body.academy_id)
+    : existing?.academy_id ?? null;
+  const relations = await inferEventRelations(supabase, {
+    title_es: body.title_es ?? existing?.title_es,
+    organizer_name: body.organizer_name ?? existing?.organizer_name,
+    venue_name: body.venue_name ?? existing?.venue_name,
+    organizer_id: body.organizer_id,
+    academy_id: body.academy_id
+  }, {
+    inferOrganizer: !(organizerIdWasSubmitted && existing?.organizer_id && body.organizer_id === null),
+    inferAcademy: !(academyIdWasSubmitted && existing?.academy_id && body.academy_id === null)
+  });
+  body.organizer_name = relations.organizer_name;
+  body.organizer_id = relations.organizer_id;
+  body.academy_id = relations.academy_id;
   body.date_status = normalizeDateStatus(body.date_status);
 
   if (body.date_status === "coming_soon") {

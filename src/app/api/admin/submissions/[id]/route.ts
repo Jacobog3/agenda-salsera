@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
 
 export async function DELETE(
   request: Request,
@@ -62,7 +63,7 @@ export async function POST(
     cover_image_url: body.image_url || "",
     gallery_urls: [],
     dance_style: body.dance_style || "salsa_bachata",
-    city: body.city || "Guatemala",
+    city: normalizeGuatemalaCityName(body.city || "Ciudad de Guatemala"),
     area: body.address || null,
     venue_name: body.venue_name || "",
     address: body.address || null,
