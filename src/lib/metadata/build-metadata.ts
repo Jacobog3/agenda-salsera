@@ -12,6 +12,8 @@ type MetadataKey =
   | "spotsDescription"
   | "academiesTitle"
   | "academiesDescription"
+  | "aboutTitle"
+  | "aboutDescription"
   | "submitEventTitle"
   | "submitEventDescription"
   | "submitAcademyTitle"
@@ -35,6 +37,7 @@ const PAGE_PATHS: Record<string, { es: string; en: string } | string> = {
   "/spots": { es: "/lugares", en: "/spots" },
   "/academies": { es: "/academias", en: "/academies" },
   "/search": { es: "/buscar", en: "/search" },
+  "/about": { es: "/acerca-de", en: "/about" },
   "/submit-event": { es: "/enviar-evento", en: "/submit-event" },
   "/submit-academy": { es: "/enviar-academia", en: "/submit-academy" },
   "/submit-teacher": { es: "/enviar-maestro", en: "/submit-teacher" },

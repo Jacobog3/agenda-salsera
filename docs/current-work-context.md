@@ -141,3 +141,5 @@ Both passed successfully.
 - GA4 and Search Console should collect 2-4 weeks of evidence before building derived permanent
   pages or requesting another AdSense review.
 - Full priorities and constraints remain in `docs/adsense-content-reuse-plan.md`.
+- Branch `codex/adsense-next-phase-plan` now implements the bilingual trust/editorial-method page
+  and removes misleading request-time `lastModified` values from every sitemap entry.

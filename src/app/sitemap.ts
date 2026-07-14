@@ -14,7 +14,6 @@ function url(
 ): MetadataRoute.Sitemap[number] {
   return {
     url: `${BASE}${path}`,
-    lastModified: new Date(),
     changeFrequency,
     priority
   };
@@ -75,11 +74,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url("/eventos", 0.9, "daily"),
     url("/lugares", 0.8, "weekly"),
     url("/academias", 0.8, "weekly"),
+    url("/acerca-de", 0.5, "yearly"),
     url("/legal/terminos", 0.3, "yearly"),
     url("/legal/privacidad", 0.3, "yearly"),
     url("/en/events", 0.7, "daily"),
     url("/en/spots", 0.6, "weekly"),
     url("/en/academies", 0.6, "weekly"),
+    url("/en/about", 0.4, "yearly"),
     url("/en/legal/terms", 0.3, "yearly"),
     url("/en/legal/privacy", 0.3, "yearly"),
     ...eventEntries,

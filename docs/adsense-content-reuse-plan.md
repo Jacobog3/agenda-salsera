@@ -107,6 +107,9 @@ Create one bilingual, low-maintenance page explaining:
 Link it from the footer and include it in the sitemap. This closes the clearest remaining trust
 gap from the initial AdSense audit without adding recurring work.
 
+Status: implemented on `codex/adsense-next-phase-plan` with localized routes `/acerca-de` and
+`/en/about`.
+
 ### 2. Correct sitemap freshness and connect Search Console
 
 - Stop assigning the current timestamp to every sitemap entry on every request.
@@ -117,6 +120,9 @@ gap from the initial AdSense audit without adding recurring work.
 
 Search Console account actions require the product owner; code changes should remain limited to
 accurate metadata and verification support if needed.
+
+Status: sitemap false freshness was removed on `codex/adsense-next-phase-plan`. Search Console
+account validation remains pending.
 
 ### 3. Observe before creating derived pages
 
