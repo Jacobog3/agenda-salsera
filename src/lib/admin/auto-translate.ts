@@ -1,7 +1,5 @@
 import { env } from "@/lib/utils/env";
-
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
+import { getGeminiGenerateContentUrl, logGeminiUsage } from "@/lib/ai/gemini";
 
 type TranslationMapping<T extends Record<string, unknown>> = {
   sourceKey: keyof T;
@@ -67,7 +65,7 @@ Return JSON with these exact target keys:
 ${pending.map((mapping) => `- ${String(mapping.targetKey)}`).join("\n")}`;
 
   try {
-    const response = await fetch(`${GEMINI_URL}?key=${env.geminiApiKey}`, {
+    const response = await fetch(`${getGeminiGenerateContentUrl()}?key=${env.geminiApiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -87,6 +85,7 @@ ${pending.map((mapping) => `- ${String(mapping.targetKey)}`).join("\n")}`;
     }
 
     const data = await response.json();
+    logGeminiUsage("auto-translate", data);
     const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const parsed = JSON.parse(cleaned) as Record<string, string>;

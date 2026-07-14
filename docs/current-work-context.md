@@ -98,3 +98,16 @@ Both passed successfully.
 - Verification completed before checkpoint: `npm run typecheck`, `npm run lint`, and
   `npm run build`.
 - Do not tag this release until its deployment has been verified in production.
+
+## AI Cost Optimization (2026-07-14)
+
+- Branch: `codex/ai-provider-benchmark`
+- Added token and estimated-cost logging for flyer parsing, admin AI updates, and automatic translation.
+- Centralized the Gemini model behind `GEMINI_MODEL`.
+- Benchmarked three real event flyers with Gemini 3 Flash Preview, Gemini 3.1 Flash-Lite,
+  GPT-5 nano, and GPT-5.4 nano.
+- Gemini 3.1 Flash-Lite was selected as the default because it preserved comparable
+  extraction quality while reducing measured cost by about 51% and latency by about 43%.
+- Rollback does not require code changes: set `GEMINI_MODEL=gemini-3-flash-preview`.
+- GPT-5 nano remains a possible future translation-only optimization, but using a second
+  provider is intentionally deferred because its absolute savings are small.
