@@ -775,8 +775,9 @@ export function AdminEntityList({
     : [];
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("es");
   const tabItems = hasDateSplit ? (tab === "active" ? activeItems : expiredItems) : items;
+  const searchItems = normalizedSearchQuery && hasDateSplit ? items : tabItems;
   const visibleItems = normalizedSearchQuery
-    ? tabItems.filter((item) =>
+    ? searchItems.filter((item) =>
         displayColumns.some((column) => {
           const value = column.format
             ? column.format(item[column.key], item)
@@ -1140,7 +1141,7 @@ export function AdminEntityList({
             type="search"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder={hasDateSplit && tab === "expired" ? "Buscar evento vencido" : "Buscar por nombre, fecha, precio o ciudad"}
+            placeholder={hasDateSplit ? "Buscar en todos los eventos" : "Buscar por nombre, fecha, precio o ciudad"}
             aria-label="Buscar registros"
             className="h-11 bg-white pl-10 pr-10 text-sm"
           />
@@ -1155,6 +1156,12 @@ export function AdminEntityList({
             </button>
           ) : null}
         </div>
+      ) : null}
+
+      {normalizedSearchQuery && hasDateSplit ? (
+        <p className="px-1 text-xs text-gray-500" aria-live="polite">
+          {visibleItems.length} resultado{visibleItems.length === 1 ? "" : "s"} en vigentes y expirados
+        </p>
       ) : null}
 
       {isCreating && !disableInlineCreate ? (
@@ -1204,6 +1211,17 @@ export function AdminEntityList({
                           {col.format ? col.format(item[col.key], item) : String(item[col.key] ?? "")}
                         </span>
                       ))}
+                      {normalizedSearchQuery && hasDateSplit ? (
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            resolveItemStatus(item) === "expired"
+                              ? "bg-gray-100 text-gray-600"
+                              : "bg-emerald-50 text-emerald-700"
+                          }`}
+                        >
+                          {resolveItemStatus(item) === "expired" ? "Expirado" : "Vigente"}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 

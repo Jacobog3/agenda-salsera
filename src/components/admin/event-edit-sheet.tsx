@@ -440,6 +440,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
   const isCreating = item === null;
   const isDesktop = useIsDesktop();
   const [tab, setTab] = useState<"ai" | "form">("ai");
+  const [aiAppliedNotice, setAiAppliedNotice] = useState(false);
   const [data, setData] = useState<EventData>(() => buildInitialData(item));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -545,6 +546,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     }
 
     setData((prev) => ({ ...prev, ...normalized }));
+    setAiAppliedNotice(true);
     setTab("form");
   }
 
@@ -686,6 +688,11 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
           </div>
         ) : (
           <div className="space-y-3 p-4">
+            {aiAppliedNotice ? (
+              <div className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5 text-xs leading-5 text-brand-800">
+                Los campos de IA ya están aplicados. Revisa los cambios y usa el botón Guardar que permanece abajo.
+              </div>
+            ) : null}
             <SectionHeading>Imágenes</SectionHeading>
             <ImageField
               label="Flyer principal"

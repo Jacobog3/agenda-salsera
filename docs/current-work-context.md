@@ -111,3 +111,12 @@ Both passed successfully.
 - Rollback does not require code changes: set `GEMINI_MODEL=gemini-3-flash-preview`.
 - GPT-5 nano remains a possible future translation-only optimization, but using a second
   provider is intentionally deferred because its absolute savings are small.
+
+## Expired Event Mobile Flow (2026-07-14)
+
+- Branch: `codex/admin-expired-event-mobile-flow`
+- Event search now checks both active and expired records, regardless of the selected tab.
+- Search results show whether each event is active or expired, reducing the steps needed to
+  locate and edit older records.
+- After applying AI suggestions, the event form shows a clear confirmation and points to the
+  persistent mobile save action.
