@@ -276,6 +276,9 @@ export default async function EventDetailPage({
     : isLongEvent
       ? formatEventDateRange(event.startsAt, event.endsAt!, currentLocale)
       : formatEventDateTime(event.startsAt, currentLocale);
+  const hasDirectRecommendation = relatedUpcomingEvents.some(
+    ({ recommendationType }) => recommendationType !== "local"
+  );
 
   return (
     <>
@@ -417,14 +420,25 @@ export default async function EventDetailPage({
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {relatedUpcomingEvents.length > 0
-                    ? t("relatedUpcomingDescription")
+                    ? t(hasDirectRecommendation
+                        ? "relatedUpcomingDescription"
+                        : "relatedUpcomingLocalDescription")
                     : t("relatedUpcomingFallback")}
                 </p>
               </div>
               {relatedUpcomingEvents.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {relatedUpcomingEvents.map((relatedEvent) => (
-                    <EventCard key={relatedEvent.id} event={relatedEvent} locale={currentLocale} />
+                  {relatedUpcomingEvents.map(({ event: relatedEvent, recommendationType }) => (
+                    <EventCard
+                      key={relatedEvent.id}
+                      event={relatedEvent}
+                      locale={currentLocale}
+                      analytics={{
+                        eventName: "historical_event_recommendation_click",
+                        sourceEventId: event.id,
+                        recommendationType
+                      }}
+                    />
                   ))}
                 </div>
               ) : null}
@@ -432,6 +446,9 @@ export default async function EventDetailPage({
                 <Link
                   href="/events"
                   className="inline-flex min-h-11 items-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                  data-analytics-event="historical_event_agenda_click"
+                  data-analytics-source-event-id={event.id}
+                  data-analytics-recommendation-type="agenda"
                 >
                   {t("viewCurrentAgenda")}
                 </Link>

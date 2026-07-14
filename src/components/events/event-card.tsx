@@ -15,10 +15,16 @@ import type { Locale } from "@/types/locale";
 
 export async function EventCard({
   event,
-  locale
+  locale,
+  analytics
 }: {
   event: LocalizedEvent;
   locale: Locale;
+  analytics?: {
+    eventName: string;
+    sourceEventId: string;
+    recommendationType: "organizer" | "academy" | "venue" | "local";
+  };
 }) {
   const t = await getTranslations("common");
   const isComingSoon = event.dateStatus === "coming_soon" || !event.startsAt;
@@ -36,6 +42,10 @@ export async function EventCard({
     <Link
       href={{ pathname: "/events/[slug]", params: { slug: event.slug } }}
       className="block"
+      data-analytics-event={analytics?.eventName}
+      data-analytics-source-event-id={analytics?.sourceEventId}
+      data-analytics-destination-event-id={analytics ? event.id : undefined}
+      data-analytics-recommendation-type={analytics?.recommendationType}
     >
       <Card className="group flex flex-row overflow-hidden bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98] md:flex-col">
         {/* Image: compact square on mobile, full-width on desktop */}

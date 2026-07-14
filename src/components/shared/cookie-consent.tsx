@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { COOKIE_CONSENT_EVENT } from "@/components/shared/google-analytics";
 
 const STORAGE_KEY = "cookie_consent";
 
@@ -19,11 +20,13 @@ export function CookieConsent() {
 
   function accept() {
     localStorage.setItem(STORAGE_KEY, "accepted");
+    window.dispatchEvent(new Event(COOKIE_CONSENT_EVENT));
     setVisible(false);
   }
 
   function dismiss() {
     localStorage.setItem(STORAGE_KEY, "dismissed");
+    window.dispatchEvent(new Event(COOKIE_CONSENT_EVENT));
     setVisible(false);
   }
 

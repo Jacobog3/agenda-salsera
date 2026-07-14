@@ -129,3 +129,5 @@ Both passed successfully.
 - Current branch: `codex/public-expired-event-history`.
 - Current scope: accessible expired URLs, explicit ended state, conservative `noindex`, removal
   of obsolete CTAs, related upcoming events, and quality-only historical sitemap inclusion.
+- Follow-up branch: `codex/historical-recommendation-measurement` distinguishes direct entity
+  matches from city/style fallbacks and measures historical-to-current event clicks in GA4.
