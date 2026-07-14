@@ -131,3 +131,13 @@ Both passed successfully.
   of obsolete CTAs, related upcoming events, and quality-only historical sitemap inclusion.
 - Follow-up branch: `codex/historical-recommendation-measurement` distinguishes direct entity
   matches from city/style fallbacks and measures historical-to-current event clicks in GA4.
+
+## Current Stable Checkpoint (2026-07-14)
+
+- Stable production release: `v0.5.1` (`e755007`).
+- PRs #1 through #5 are merged and their Vercel production deployments were verified.
+- The next recommended implementation is a bilingual trust/editorial-method page, followed by
+  accurate sitemap timestamps and Search Console validation.
+- GA4 and Search Console should collect 2-4 weeks of evidence before building derived permanent
+  pages or requesting another AdSense review.
+- Full priorities and constraints remain in `docs/adsense-content-reuse-plan.md`.
