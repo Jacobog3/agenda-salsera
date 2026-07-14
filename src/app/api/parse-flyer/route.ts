@@ -22,7 +22,7 @@ Extract the following fields and return ONLY a valid JSON object with these exac
 - venue: venue/place name only, not the full address (string)
 - area: zone, mall, neighborhood, district, or short area reference such as "Zona 10", "Cayala", "Arkadia", or "Novicentro" (string)
 - address: full address or location details (string)
-- city: city name, default "Guatemala" if zone number mentioned (string)
+- city: canonical city name. If a zone number in the capital is mentioned, use "Ciudad de Guatemala" (string)
 - price: ALL price options in a compact readable string separated by " · " e.g. "Preventa Q50 · Puerta Q75" or "Full Pass Q1,160/$145 · 1 Taller Q260/$35 · Sociales Q160/$20" or "Gratis" (string)
 - organizerName: organizer or instructor name (string)
 - contactLink: phone number, WhatsApp link, or website URL for tickets (string)
@@ -36,7 +36,7 @@ Rules:
 - Keep important concrete details in description when available: workshop names, levels, instructors, key price structure, venue reference, parking, or capacity notes
 - Do not over-summarize the description into a vague generic blurb
 - For danceStyle: use "other" for cumbia, merengue, kizomba, etc.
-- For city: if text mentions "zona [number]" without city, use "Guatemala"
+- For city: if text mentions "zona [number]" in the capital without a city, use "Ciudad de Guatemala". Use "Antigua Guatemala", not "Antigua".
 - For venue vs area vs address:
   - venue = studio/place/business name
   - area = short zone or area reference
@@ -50,7 +50,7 @@ const ACADEMY_PROMPT = `You are an assistant that extracts structured dance acad
 Extract the following fields and return ONLY a valid JSON object with these exact keys:
 - name: academy or school name (string)
 - description: 1-2 sentence description in Spanish (string)
-- city: city name, default "Guatemala" if zone number mentioned (string)
+- city: canonical city name. If a zone number in the capital is mentioned, use "Ciudad de Guatemala". Use "Antigua Guatemala", not "Antigua" (string)
 - address: full address or location reference (string)
 - scheduleText: class schedule as readable text e.g. "Lunes y miércoles 6pm · Sábados 10am" (string)
 - levels: levels offered e.g. "Principiante, Intermedio, Avanzado" (string)

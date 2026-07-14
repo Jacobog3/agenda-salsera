@@ -4,6 +4,7 @@ import {
   normalizeAcademyScheduleData,
   normalizeAcademyStyleTags
 } from "@/lib/academies/academy-helpers";
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
 
 function parseStringList(value: unknown) {
   if (Array.isArray(value)) {
@@ -37,7 +38,7 @@ export function normalizeTeacherPayload(rawBody: Record<string, unknown>) {
     bio_en: String(rawBody.bio_en ?? rawBody.bio_es ?? "").trim(),
     profile_image_url: emptyToNull(rawBody.profile_image_url),
     banner_image_url: emptyToNull(rawBody.banner_image_url),
-    city: String(rawBody.city ?? "").trim(),
+    city: normalizeGuatemalaCityName(rawBody.city),
     area: emptyToNull(rawBody.area),
     address: emptyToNull(rawBody.address),
     styles_taught: inferAcademyPrimaryStyles(styleTags, rawBody.styles_taught),

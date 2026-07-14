@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
 
 export async function PATCH(
   request: Request,
@@ -20,6 +21,9 @@ export async function PATCH(
     { sourceKey: "schedule_es", targetKey: "schedule_en", label: "Spot schedule" },
     { sourceKey: "cover_charge_es", targetKey: "cover_charge_en", label: "Spot cover charge" }
   ], { force: forceAutoTranslate });
+  if ("city" in body) {
+    body.city = normalizeGuatemalaCityName(body.city);
+  }
   const supabase = createSupabaseAdminClient();
 
   const { data: existing } = await supabase

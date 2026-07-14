@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "audit:data": "node --env-file=.env.local scripts/audit-content.mjs",
+    "normalize:cities": "node --env-file=.env.local scripts/normalize-event-cities.mjs",
+    "normalize:cities:apply": "node --env-file=.env.local scripts/normalize-event-cities.mjs --apply",
+    "normalize:academy-cities": "node --env-file=.env.local scripts/normalize-event-cities.mjs --entity=academies",
+    "normalize:academy-cities:apply": "node --env-file=.env.local scripts/normalize-event-cities.mjs --entity=academies --apply",
+    "normalize:event-relations": "node --env-file=.env.local scripts/normalize-event-relations.mjs",
+    "normalize:event-relations:apply": "node --env-file=.env.local scripts/normalize-event-relations.mjs --apply"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

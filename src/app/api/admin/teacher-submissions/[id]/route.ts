@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
+import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
 
 function splitCommaList(value: string | null | undefined) {
   return value
@@ -64,7 +65,7 @@ export async function POST(
     bio_en: body.bio_en || body.description || "",
     profile_image_url: body.image_url || null,
     banner_image_url: null,
-    city: body.city || "Guatemala",
+    city: normalizeGuatemalaCityName(body.city || "Ciudad de Guatemala"),
     area: null,
     address: body.address || null,
     styles_taught: normalizedStyles,

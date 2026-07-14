@@ -249,6 +249,7 @@ Rules:
 - Prefer operational details such as schedules, prices, levels, venues, links, and contact info.
 - Include name and summary text only when the material makes them clear.
 - Never invent missing information.
+- For city names, use canonical values: "Ciudad de Guatemala" instead of "Guatemala" or "Guatemala City", and "Antigua Guatemala" instead of "Antigua".
 - If the material shows schedules across multiple images, merge all days into a single schedule_data array.
 - If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, prices, or trial class mentions.
 - Preserve visible substyles as \`style_tags\` when they appear in the material, for example Mambo, Chachacha, Lady Style, Shines, Belly Dance, Hip-Hop, or Reggaeton.
@@ -279,6 +280,7 @@ Rules:
 - Do not include fields that should stay as they are.
 - Prefer improving operational details such as schedules, prices, levels, venues, links, and contact info.
 - Never invent missing information.
+- For city names, use canonical values: "Ciudad de Guatemala" instead of "Guatemala" or "Guatemala City", and "Antigua Guatemala" instead of "Antigua".
 - Do not replace a specific current value with a more generic one.
 - If the material shows schedules across multiple images, merge ALL days found into a single schedule_data — do not drop days that already exist in the current record unless the new material explicitly replaces them.
 - If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, prices, or trial class mentions.

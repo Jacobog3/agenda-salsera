@@ -467,6 +467,7 @@ export function AdminEntityList({
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"active" | "expired">("active");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dynamicOptions, setDynamicOptions] = useState<Record<string, { value: string; label: string }[]>>({});
   const [aiExpanded, setAiExpanded] = useState(false);
   const [aiText, setAiText] = useState("");
@@ -772,7 +773,18 @@ export function AdminEntityList({
   const expiredItems = hasDateSplit
     ? items.filter((it) => resolveItemStatus(it) === "expired")
     : [];
-  const visibleItems = hasDateSplit ? (tab === "active" ? activeItems : expiredItems) : items;
+  const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("es");
+  const tabItems = hasDateSplit ? (tab === "active" ? activeItems : expiredItems) : items;
+  const visibleItems = normalizedSearchQuery
+    ? tabItems.filter((item) =>
+        displayColumns.some((column) => {
+          const value = column.format
+            ? column.format(item[column.key], item)
+            : String(item[column.key] ?? "");
+          return value.toLocaleLowerCase("es").includes(normalizedSearchQuery);
+        })
+      )
+    : tabItems;
 
   const groups = Array.from(new Set(fields.map((f) => f.group ?? "General")));
   const isCreating = editingId === NEW_ENTITY_ID;
@@ -1121,6 +1133,30 @@ export function AdminEntityList({
         </div>
       )}
 
+      {items.length > 8 ? (
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder={hasDateSplit && tab === "expired" ? "Buscar evento vencido" : "Buscar por nombre, fecha, precio o ciudad"}
+            aria-label="Buscar registros"
+            className="h-11 bg-white pl-10 pr-10 text-sm"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Limpiar búsqueda"
+              className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
       {isCreating && !disableInlineCreate ? (
         <div className="overflow-hidden rounded-xl border border-dashed border-brand-200 bg-brand-50/30 shadow-sm">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
@@ -1135,7 +1171,11 @@ export function AdminEntityList({
 
       {visibleItems.length === 0 && !isCreating ? (
         <p className="py-10 text-center text-sm text-gray-400">
-          {hasDateSplit ? (tab === "active" ? "No hay eventos vigentes" : "No hay eventos expirados") : "No hay registros"}
+          {normalizedSearchQuery
+            ? "No encontramos registros con esa búsqueda"
+            : hasDateSplit
+              ? (tab === "active" ? "No hay eventos vigentes" : "No hay eventos expirados")
+              : "No hay registros"}
         </p>
       ) : (
         <div className="space-y-2">
@@ -1153,7 +1193,7 @@ export function AdminEntityList({
                 <div className="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3">
                   {thumbUrl && (
                     <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-gray-100 md:h-12 md:w-12">
-                      <Image src={thumbUrl} alt="" fill className="object-cover" />
+                      <Image src={thumbUrl} alt="" fill sizes="48px" className="object-cover" />
                     </div>
                   )}
 
@@ -1174,17 +1214,20 @@ export function AdminEntityList({
                         ? onEditOverride(item)
                         : isEditing ? cancelEdit() : startEdit(item)
                       }
-                      className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                      aria-label={`Editar ${String(item[displayColumns[0]?.key] ?? "registro")}`}
+                      className="inline-flex h-11 items-center gap-1.5 rounded-lg px-3 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
                     >
                       {!onEditOverride && isEditing
                         ? <ChevronDown className="h-4 w-4 rotate-180" />
                         : <Pencil className="h-4 w-4" />
                       }
+                      <span className="text-xs font-semibold">Editar</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeleteConfirm(isDeleting ? null : id)}
-                      className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                      aria-label={`Eliminar ${String(item[displayColumns[0]?.key] ?? "registro")}`}
+                      className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
