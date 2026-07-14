@@ -121,24 +121,37 @@ export async function getRelatedUpcomingEvents(
   return events
     .map((event) => {
       let score = 0;
-      if (currentEvent.organizerId && event.organizerId === currentEvent.organizerId) score += 100;
-      if (currentEvent.academyId && event.academyId === currentEvent.academyId) score += 80;
+      let recommendationType: "organizer" | "academy" | "venue" | "local" = "local";
+      if (currentEvent.organizerId && event.organizerId === currentEvent.organizerId) {
+        score += 100;
+        recommendationType = "organizer";
+      }
+      if (currentEvent.academyId && event.academyId === currentEvent.academyId) {
+        score += 80;
+        if (recommendationType !== "organizer") recommendationType = "academy";
+      }
       if (
         normalized(currentEvent.organizerName) &&
         normalized(event.organizerName) === normalized(currentEvent.organizerName)
-      ) score += 60;
+      ) {
+        score += 60;
+        recommendationType = "organizer";
+      }
       if (
         normalized(currentEvent.venueName) &&
         normalized(event.venueName) === normalized(currentEvent.venueName)
-      ) score += 40;
+      ) {
+        score += 40;
+        if (recommendationType === "local") recommendationType = "venue";
+      }
       if (event.city === currentEvent.city) score += 10;
       if (event.danceStyle === currentEvent.danceStyle) score += 5;
-      return { event, score };
+      return { event, score, recommendationType };
     })
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
-    .map(({ event }) => event);
+    .map(({ event, recommendationType }) => ({ event, recommendationType }));
 }
 
 async function getPublishedEventRecords(): Promise<EventRecord[]> {

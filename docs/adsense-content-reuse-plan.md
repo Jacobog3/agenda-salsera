@@ -59,6 +59,18 @@ The initial quality threshold requires at least 250 characters of localized desc
 flyer, city, venue, and identifiable organizer or related academy. With the production inventory
 at implementation time, this keeps 21 of 59 expired events indexable and marks 38 as `noindex`.
 
+## Recommendation Measurement (2026-07-14)
+
+- Initial coverage audit: 6 of 59 historical events have a strong upcoming match, 51 have only a
+  city/style fallback, and 2 have no recommendation.
+- Direct organizer, academy, and venue matches must be described separately from local fallbacks.
+- Clicks from historical pages to upcoming events use the GA4 event
+  `historical_event_recommendation_click`, including source event, destination event, and
+  recommendation type.
+- Clicks from a historical page to the full current calendar use
+  `historical_event_agenda_click`.
+- Google Analytics loads only after explicit analytics-cookie acceptance.
+
 ## Non-goals
 
 - No mandatory event-series model.

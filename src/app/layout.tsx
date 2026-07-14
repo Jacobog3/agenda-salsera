@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { getLocale } from "next-intl/server";
 import { env } from "@/lib/utils/env";
+import { GoogleAnalytics } from "@/components/shared/google-analytics";
 import "@/app/globals.css";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -92,17 +92,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        {GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
-            </Script>
-          </>
-        )}
+        <GoogleAnalytics measurementId={GA_ID} />
         {children}
       </body>
     </html>
