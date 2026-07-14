@@ -151,6 +151,12 @@
     "empty": "No hay eventos que coincidan con los filtros actuales.",
     "detailCta": "Hablar con el organizador",
     "sectionTitle": "Detalles del evento",
+    "finishedBadge": "Evento finalizado",
+    "finishedNotice": "Este evento ya finalizó. Conservamos la información como referencia de la comunidad.",
+    "relatedUpcomingTitle": "Próximos eventos relacionados",
+    "relatedUpcomingDescription": "Estas son opciones vigentes del mismo organizador, academia, lugar o comunidad cercana.",
+    "relatedUpcomingFallback": "Explora la agenda actual para encontrar otras opciones vigentes.",
+    "viewCurrentAgenda": "Ver agenda vigente",
     "filtersTitle": "Filtra por lo que te conviene",
     "filters": {
       "allCities": "Todas las ciudades",

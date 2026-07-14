@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { env } from "@/lib/utils/env";
-import { getEvents } from "@/lib/queries/events";
+import { getEvents, getIndexableHistoricalEvents } from "@/lib/queries/events";
 import { getSpots } from "@/lib/queries/spots";
 import { getAcademies } from "@/lib/queries/academies";
 import { getTeachers } from "@/lib/queries/teachers";
@@ -21,8 +21,9 @@ function url(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, spots, academies, teachers] = await Promise.allSettled([
+  const [events, historicalEvents, spots, academies, teachers] = await Promise.allSettled([
     getEvents("es"),
+    getIndexableHistoricalEvents("es"),
     getSpots("es"),
     getAcademies("es"),
     getTeachers("es")
@@ -33,6 +34,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? events.value.flatMap((e) => [
           url(`/eventos/${e.slug}`, 0.8, "weekly"),
           url(`/en/events/${e.slug}`, 0.6, "weekly")
+        ])
+      : [];
+
+  const historicalEventEntries =
+    historicalEvents.status === "fulfilled"
+      ? historicalEvents.value.flatMap((event) => [
+          url(`/eventos/${event.slug}`, 0.5, "monthly"),
+          url(`/en/events/${event.slug}`, 0.4, "monthly")
         ])
       : [];
 
@@ -74,6 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url("/en/legal/terms", 0.3, "yearly"),
     url("/en/legal/privacy", 0.3, "yearly"),
     ...eventEntries,
+    ...historicalEventEntries,
     ...spotEntries,
     ...academyEntries,
     ...teacherEntries

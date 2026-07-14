@@ -120,3 +120,12 @@ Both passed successfully.
   locate and edit older records.
 - After applying AI suggestions, the event form shows a clear confirmation and points to the
   persistent mobile save action.
+
+## AdSense Content Reuse (2026-07-14)
+
+- The source-of-truth product plan is `docs/adsense-content-reuse-plan.md`.
+- The primary goal is to improve AdSense readiness by automatically preserving value from
+  published content without adding steps to the flyer publishing workflow.
+- Current branch: `codex/public-expired-event-history`.
+- Current scope: accessible expired URLs, explicit ended state, conservative `noindex`, removal
+  of obsolete CTAs, related upcoming events, and quality-only historical sitemap inclusion.

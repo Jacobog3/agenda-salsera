@@ -143,6 +143,7 @@ export function buildDetailMetadata(options: {
   esPath: string;
   enPath: string;
   type?: "website" | "article";
+  noIndex?: boolean;
 }): Metadata {
   const siteUrl = env.siteUrl;
   const title = sanitizeTitle(options.title);
@@ -167,6 +168,13 @@ export function buildDetailMetadata(options: {
         en: `${siteUrl}${options.enPath}`
       }
     },
+    robots: options.noIndex
+      ? {
+          index: false,
+          follow: true,
+          googleBot: { index: false, follow: true }
+        }
+      : undefined,
     openGraph: {
       title,
       description,
@@ -203,7 +211,7 @@ export function buildEventMetadata(event: {
   priceAmount?: number | null;
   currency: string;
   organizerName: string;
-}, locale: Locale): Metadata {
+}, locale: Locale, options?: { noIndex?: boolean }): Metadata {
   return buildDetailMetadata({
     locale,
     title: event.title,
@@ -211,6 +219,7 @@ export function buildEventMetadata(event: {
     image: event.coverImageUrl,
     esPath: `/eventos/${event.slug}`,
     enPath: `/en/events/${event.slug}`,
-    type: "article"
+    type: "article",
+    noIndex: options?.noIndex
   });
 }

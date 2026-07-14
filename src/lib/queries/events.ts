@@ -1,7 +1,7 @@
 import { sampleEvents } from "@/content/sample-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
-import { isEventActive } from "@/lib/utils/event-status";
+import { isEventActive, isEventExpired, isHistoricalEventIndexable } from "@/lib/utils/event-status";
 import { localizeEvent } from "@/lib/utils/localize";
 import type { DanceStyle, EventRecord, LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
@@ -53,9 +53,7 @@ export async function getEvents(
   locale: Locale,
   filters?: EventFilters
 ): Promise<LocalizedEvent[]> {
-  const records = isSupabaseConfigured
-    ? await fetchSupabaseEvents()
-    : sampleEvents;
+  const records = await getPublishedEventRecords();
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -100,8 +98,51 @@ export async function getFeaturedEvents(locale: Locale) {
 }
 
 export async function getEventBySlug(locale: Locale, slug: string) {
-  const events = await getEvents(locale);
+  const events = (await getPublishedEventRecords()).map((event) => localizeEvent(event, locale));
   return events.find((event) => event.slug === slug) ?? null;
+}
+
+export async function getIndexableHistoricalEvents(locale: Locale) {
+  return (await getPublishedEventRecords())
+    .map((event) => localizeEvent(event, locale))
+    .filter((event) => isEventExpired(event) && isHistoricalEventIndexable(event));
+}
+
+export async function getRelatedUpcomingEvents(
+  locale: Locale,
+  currentEvent: LocalizedEvent,
+  limit = 3
+) {
+  const events = (await getEvents(locale)).filter((event) => event.id !== currentEvent.id);
+
+  const normalized = (value?: string | null) =>
+    String(value ?? "").trim().toLocaleLowerCase("es");
+
+  return events
+    .map((event) => {
+      let score = 0;
+      if (currentEvent.organizerId && event.organizerId === currentEvent.organizerId) score += 100;
+      if (currentEvent.academyId && event.academyId === currentEvent.academyId) score += 80;
+      if (
+        normalized(currentEvent.organizerName) &&
+        normalized(event.organizerName) === normalized(currentEvent.organizerName)
+      ) score += 60;
+      if (
+        normalized(currentEvent.venueName) &&
+        normalized(event.venueName) === normalized(currentEvent.venueName)
+      ) score += 40;
+      if (event.city === currentEvent.city) score += 10;
+      if (event.danceStyle === currentEvent.danceStyle) score += 5;
+      return { event, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ event }) => event);
+}
+
+async function getPublishedEventRecords(): Promise<EventRecord[]> {
+  return isSupabaseConfigured ? fetchSupabaseEvents() : sampleEvents;
 }
 
 async function fetchSupabaseEvents(): Promise<EventRecord[]> {
