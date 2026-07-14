@@ -69,6 +69,7 @@ export async function SiteFooter() {
                   {t("legalTitle")}
                 </p>
                 <ul className="space-y-1.5 text-xs text-gray-700 md:space-y-2.5 md:text-sm">
+                  <li><Link href="/about" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{t("about")}</Link></li>
                   <li><Link href="/legal/terms" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{t("terms")}</Link></li>
                   <li><Link href="/legal/privacy" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{t("privacy")}</Link></li>
                 </ul>
