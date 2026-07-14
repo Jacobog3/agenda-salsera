@@ -151,6 +151,12 @@
     "empty": "There are no events matching the current filters.",
     "detailCta": "Talk to the organizer",
     "sectionTitle": "Event details",
+    "finishedBadge": "Event ended",
+    "finishedNotice": "This event has ended. We keep the information available as a community reference.",
+    "relatedUpcomingTitle": "Related upcoming events",
+    "relatedUpcomingDescription": "These are current options from the same organizer, academy, venue, or nearby community.",
+    "relatedUpcomingFallback": "Explore the current calendar to find other upcoming options.",
+    "viewCurrentAgenda": "View current calendar",
     "filtersTitle": "Filter what matters",
     "filters": {
       "allCities": "All cities",

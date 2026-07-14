@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { ReportForm } from "@/components/shared/report-form";
 import { EventImageGallery } from "@/components/events/event-image-gallery";
-import { getEventBySlug } from "@/lib/queries/events";
+import { EventCard } from "@/components/events/event-card";
+import { getEventBySlug, getRelatedUpcomingEvents } from "@/lib/queries/events";
 import { buildEventMetadata } from "@/lib/metadata/build-metadata";
+import { isEventExpired, isHistoricalEventIndexable } from "@/lib/utils/event-status";
 import {
   getRelatedAcademyForEvent,
   getRelatedOrganizerForEvent,
@@ -18,7 +20,7 @@ import {
   formatEventDateTime,
   formatEventDateRange
 } from "@/lib/utils/formatters";
-import { Calendar, MapPin, User, Banknote, Globe, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, User, Banknote, Globe, ExternalLink, History } from "lucide-react";
 import { env } from "@/lib/utils/env";
 import type { LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
@@ -115,7 +117,10 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const event = await getEventBySlug(locale as Locale, slug);
   if (!event) return {};
-  return buildEventMetadata(event, locale as Locale);
+  const expired = isEventExpired(event);
+  return buildEventMetadata(event, locale as Locale, {
+    noIndex: expired && !isHistoricalEventIndexable(event)
+  });
 }
 
 function EventJsonLd({
@@ -255,10 +260,12 @@ export default async function EventDetailPage({
     notFound();
   }
 
-  const [relatedAcademy, relatedOrganizer, relatedTeachers] = await Promise.all([
+  const expired = isEventExpired(event);
+  const [relatedAcademy, relatedOrganizer, relatedTeachers, relatedUpcomingEvents] = await Promise.all([
     getRelatedAcademyForEvent(currentLocale, event.academyId),
     getRelatedOrganizerForEvent(event.organizerId),
-    getRelatedTeachersForEvent(currentLocale, event.id)
+    getRelatedTeachersForEvent(currentLocale, event.id),
+    expired ? getRelatedUpcomingEvents(currentLocale, event) : Promise.resolve([])
   ]);
   const isLongEvent =
     !!event.startsAt &&
@@ -272,14 +279,16 @@ export default async function EventDetailPage({
 
   return (
     <>
-      <EventJsonLd
-        event={event}
-        siteUrl={env.siteUrl}
-        locale={currentLocale}
-        relatedOrganizer={relatedOrganizer}
-        relatedAcademy={relatedAcademy}
-        relatedTeachers={relatedTeachers}
-      />
+      {!expired ? (
+        <EventJsonLd
+          event={event}
+          siteUrl={env.siteUrl}
+          locale={currentLocale}
+          relatedOrganizer={relatedOrganizer}
+          relatedAcademy={relatedAcademy}
+          relatedTeachers={relatedTeachers}
+        />
+      ) : null}
 
       <section className="page-section pb-24 md:pb-16">
         <Container>
@@ -291,9 +300,21 @@ export default async function EventDetailPage({
 
           <div className="mt-4 grid gap-5 md:mt-8 md:grid-cols-[1.2fr_0.8fr] md:gap-10">
             <div className="space-y-3 md:space-y-4">
+              {expired ? (
+                <div className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+                  <History className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+                  <div>
+                    <p className="text-sm font-semibold">{t("finishedBadge")}</p>
+                    <p className="mt-1 text-xs leading-5 text-amber-900/80 md:text-sm">
+                      {t("finishedNotice")}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
               <div className="flex flex-wrap gap-2">
                 <Badge>{common(`danceStyles.${event.danceStyle}`)}</Badge>
                 {isLongEvent ? <Badge>{common("longEvent")}</Badge> : null}
+                {expired ? <Badge variant="outline">{t("finishedBadge")}</Badge> : null}
               </div>
               <h1 className="font-display text-2xl font-bold tracking-tight md:text-4xl lg:text-5xl">
                 {event.title}
@@ -370,7 +391,7 @@ export default async function EventDetailPage({
                   </InfoRow>
                 ) : null}
               </div>
-              {event.contactUrl && (() => {
+              {!expired && event.contactUrl && (() => {
                 const info = getContactInfo(event.contactUrl);
                 if (!info) return null;
                 return (
@@ -387,6 +408,36 @@ export default async function EventDetailPage({
               })()}
             </aside>
           </div>
+
+          {expired ? (
+            <section className="mt-8 border-t border-gray-100 pt-8 md:mt-10 md:pt-10">
+              <div className="mb-5">
+                <h2 className="font-display text-xl font-bold tracking-tight md:text-2xl">
+                  {t("relatedUpcomingTitle")}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {relatedUpcomingEvents.length > 0
+                    ? t("relatedUpcomingDescription")
+                    : t("relatedUpcomingFallback")}
+                </p>
+              </div>
+              {relatedUpcomingEvents.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {relatedUpcomingEvents.map((relatedEvent) => (
+                    <EventCard key={relatedEvent.id} event={relatedEvent} locale={currentLocale} />
+                  ))}
+                </div>
+              ) : null}
+              <div className="mt-5">
+                <Link
+                  href="/events"
+                  className="inline-flex min-h-11 items-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                >
+                  {t("viewCurrentAgenda")}
+                </Link>
+              </div>
+            </section>
+          ) : null}
 
           <div className="mt-8 flex justify-center border-t border-gray-100 pt-4 md:mt-10">
             <ReportForm entityType="event" entityId={event.id} />
