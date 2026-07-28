@@ -34,6 +34,7 @@ export type AcademyRecord = {
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   websiteUrl?: string | null;
+  googlePlaceId?: string | null;
   isFeatured: boolean;
 };
 
@@ -59,5 +60,6 @@ export type LocalizedAcademy = {
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   websiteUrl?: string | null;
+  googlePlaceId?: string | null;
   isFeatured: boolean;
 };

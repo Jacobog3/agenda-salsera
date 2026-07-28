@@ -5,7 +5,8 @@ export const env = {
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   adminPassword: process.env.ADMIN_PASSWORD,
   geminiApiKey: process.env.GEMINI_API_KEY,
-  geminiModel: process.env.GEMINI_MODEL
+  geminiModel: process.env.GEMINI_MODEL,
+  googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY
 };
 
 export const isSupabaseConfigured = Boolean(

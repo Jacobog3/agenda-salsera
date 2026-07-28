@@ -6,12 +6,14 @@ import { TeacherCard } from "@/components/teachers/teacher-card";
 import { Container } from "@/components/shared/container";
 import { AcademySchedule } from "@/components/academies/academy-schedule";
 import { AcademyPricing } from "@/components/academies/academy-pricing";
+import { GoogleRating } from "@/components/academies/google-rating";
 import { ContactIconLinks } from "@/components/shared/contact-icon-links";
 import { EventCard } from "@/components/events/event-card";
 import { ReportForm } from "@/components/shared/report-form";
 import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
 import { env } from "@/lib/utils/env";
 import { getAcademyBySlug } from "@/lib/queries/academies";
+import { getGooglePlaceRating } from "@/lib/google/places";
 import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 import {
   getEventsForAcademy,
@@ -129,9 +131,10 @@ export default async function AcademyDetailPage({
 
   if (!academy) notFound();
 
-  const [relatedEvents, relatedTeachers] = await Promise.all([
+  const [relatedEvents, relatedTeachers, googleRating] = await Promise.all([
     getEventsForAcademy(currentLocale, academy.id),
-    getTeachersForAcademy(currentLocale, academy.id)
+    getTeachersForAcademy(currentLocale, academy.id),
+    getGooglePlaceRating(academy.googlePlaceId)
   ]);
   const hasBanner = !!academy.bannerImageUrl;
   const socialLinks = [
@@ -292,6 +295,16 @@ export default async function AcademyDetailPage({
                 <AcademyPricing
                   priceText={academy.priceText}
                   title={t("pricingTitle")}
+                />
+              )}
+
+              {googleRating && (
+                <GoogleRating
+                  rating={googleRating}
+                  reviewCountLabel={t("googleReviewCount", {
+                    count: googleRating.userRatingCount
+                  })}
+                  linkLabel={t("viewGoogleReviews")}
                 />
               )}
 
