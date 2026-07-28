@@ -245,6 +245,8 @@
     "hybrid": "Hybrid (in-person + online)",
     "pricingTitle": "Pricing & packages",
     "contactTitle": "Contact",
+    "googleReviewCount": "{count, plural, one {# Google review} other {# Google reviews}}",
+    "viewGoogleReviews": "View reviews on Google Maps",
     "teachers": {
       "label": "Teacher",
       "teachesAtLabel": "Teaches in",

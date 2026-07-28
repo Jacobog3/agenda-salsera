@@ -39,6 +39,7 @@ export function normalizeAcademyPayload(rawBody: Record<string, unknown>) {
     instagram_url: emptyToNull(rawBody.instagram_url),
     facebook_url: emptyToNull(rawBody.facebook_url),
     website_url: emptyToNull(rawBody.website_url),
+    google_place_id: emptyToNull(rawBody.google_place_id),
     is_featured: Boolean(rawBody.is_featured),
     is_published: rawBody.is_published !== false
   };

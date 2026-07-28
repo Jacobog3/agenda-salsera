@@ -36,6 +36,7 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     instagramUrl: row.instagram_url ? String(row.instagram_url) : null,
     facebookUrl: row.facebook_url ? String(row.facebook_url) : null,
     websiteUrl: row.website_url ? String(row.website_url) : null,
+    googlePlaceId: row.google_place_id ? String(row.google_place_id) : null,
     isFeatured: Boolean(row.is_featured)
   };
 }
