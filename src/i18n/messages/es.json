@@ -48,7 +48,7 @@
   },
   "navigation": {
     "home": "Inicio",
-    "events": "Eventos",
+    "events": "Agenda",
     "spots": "Lugares",
     "academies": "Academias",
     "search": "Buscar",
@@ -67,7 +67,7 @@
     "submitSpotDesc": "Lugar donde hay salsa o bachata seguido"
   },
   "footer": {
-    "description": "Agenda simple para descubrir eventos, sociales y academias de salsa y bachata en Guatemala.",
+    "description": "Plataforma para descubrir eventos, lugares, academias y maestros de salsa y bachata en Guatemala.",
     "navigationTitle": "Navegación",
     "contactTitle": "Contacto",
     "madeFor": "Hecho para la comunidad salsera de Guatemala.",
@@ -81,7 +81,7 @@
   },
   "about": {
     "eyebrow": "Acerca de ExploraGuate",
-    "title": "Información clara para encontrar dónde bailar",
+    "title": "Información clara para bailar, aprender y conectar",
     "intro": "ExploraGuate organiza información dispersa sobre salsa y bachata en Guatemala para que la comunidad pueda encontrar eventos, academias, maestros y lugares desde un solo sitio.",
     "missionTitle": "Nuestra misión",
     "missionText": "Queremos reducir el tiempo que toma buscar información entre grupos de WhatsApp, flyers y publicaciones sociales. ExploraGuate es un proyecto independiente desarrollado y mantenido en Guatemala para servir a la comunidad de baile latino.",
@@ -101,9 +101,9 @@
     "independenceText": "ExploraGuate no organiza los eventos listados ni vende entradas. Los flyers e imágenes pertenecen a sus respectivos autores. Antes de asistir o pagar, recomendamos confirmar los detalles vigentes con el organizador mediante los enlaces mostrados en cada ficha."
   },
   "home": {
-    "eyebrow": "Agenda salsa y bachata en Guatemala",
-    "title": "Encuentra dónde bailar esta semana",
-    "heroSubtitle": "Eventos, lugares y academias de salsa y bachata en Guatemala. Todo en un solo lugar.",
+    "eyebrow": "Explora la comunidad de baile en Guatemala",
+    "title": "Encuentra dónde bailar y aprender",
+    "heroSubtitle": "Descubre la agenda, lugares, academias y maestros de salsa y bachata en Guatemala.",
     "primaryCta": "Ver agenda",
     "secondaryCta": "Explorar lugares",
     "filterToday": "Hoy",
@@ -118,6 +118,8 @@
     },
     "agendaEyebrow": "Agenda de la escena",
     "eventsTitle": "Agenda",
+    "agendaPartnerLabel": "En alianza con",
+    "agendaPartnerName": "Puro Salsero",
     "spotsTitle": "Lugares para bailar",
     "academiesTitle": "Academias",
     "submitTitle": "¿Querés publicar algo?",
@@ -150,8 +152,8 @@
       }
     },
     "localStrip": {
-      "title": "Una agenda clara basada en cómo la comunidad comparte sus flyers",
-      "description": "Fecha, venue, cover y precio. Solo lo necesario para decidir rápido.",
+      "title": "Una guía clara para moverte por la escena de baile",
+      "description": "Agenda, lugares, academias y maestros reunidos para decidir qué hacer y con quién conectar.",
       "items": {
         "city": "Ciudad y venue visibles",
         "contact": "Flyer y detalle juntos",
@@ -168,8 +170,10 @@
     }
   },
   "events": {
-    "title": "Eventos de salsa y bachata",
-    "description": "Explora fiestas, sociales, workshops y encuentros próximos en Guatemala.",
+    "title": "Agenda Salsera",
+    "description": "Encuentra fiestas, sociales, talleres y encuentros próximos en Guatemala.",
+    "partnerLabel": "En alianza con",
+    "partnerName": "Puro Salsero",
     "empty": "No hay eventos que coincidan con los filtros actuales.",
     "detailCta": "Hablar con el organizador",
     "sectionTitle": "Detalles del evento",
@@ -326,10 +330,10 @@
   },
   "metadata": {
     "siteName": "Exploraguate",
-    "homeTitle": "Exploraguate | Salsa y bachata en Guatemala",
-    "homeDescription": "Descubre eventos, academias y actividades de salsa y bachata en Guatemala.",
-    "eventsTitle": "Eventos | Exploraguate",
-    "eventsDescription": "Lista de próximos eventos de salsa y bachata en Guatemala.",
+    "homeTitle": "Salsa y bachata en Guatemala",
+    "homeDescription": "Descubre la agenda, lugares, academias y maestros de salsa y bachata en Guatemala.",
+    "eventsTitle": "Agenda de salsa y bachata | Exploraguate",
+    "eventsDescription": "Agenda de próximos eventos de salsa y bachata en Guatemala, en colaboración con Puro Salsero.",
     "spotsTitle": "Lugares | Exploraguate",
     "spotsDescription": "Lugares con noches regulares de salsa y bachata en Guatemala.",
     "academiesTitle": "Academias | Exploraguate",

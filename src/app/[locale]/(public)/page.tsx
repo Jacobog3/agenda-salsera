@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { HeroSection } from "@/components/home/hero-section";
 import { AcademyCard } from "@/components/academies/academy-card";
 import { EventCard } from "@/components/events/event-card";
@@ -49,9 +50,18 @@ export default async function HomePage({
       {events.length > 0 && (
         <section className="page-section">
           <Container className="space-y-4 md:space-y-8">
-            <div className="flex items-end justify-between gap-4">
-              <SectionHeading icon={CalendarDays} title={t("eventsTitle")} />
-              <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5 md:gap-3">
+                <Image
+                  src="/images/puro-salsero-logo-color-transparent.png"
+                  alt={t("agendaPartnerName")}
+                  width={605}
+                  height={479}
+                  className="h-auto w-12 shrink-0 md:w-14"
+                />
+                <h2 className="section-title max-w-2xl">{t("eventsTitle")}</h2>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-xs md:text-[13px]">
                 <Link href="/events" aria-label={`${common("viewAll")} ${t("eventsTitle")}`}>
                   {common("viewAll")}
                 </Link>

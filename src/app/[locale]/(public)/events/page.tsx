@@ -1,10 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { EventCard } from "@/components/events/event-card";
 import { FilterBar } from "@/components/events/filter-bar";
+import { AgendaIntro } from "@/components/events/agenda-intro";
 import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
-import { SectionHeading } from "@/components/shared/section-heading";
-import { LastUpdatedBadge } from "@/components/shared/last-updated-badge";
 import { AdUnit } from "@/components/shared/ad-unit";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { getEvents } from "@/lib/queries/events";
@@ -45,11 +44,15 @@ export default async function EventsPage({
 
   return (
     <section className="page-section pb-16">
-      <Container className="space-y-4 md:space-y-8">
-        <div>
-          <SectionHeading title={t("title")} description={t("description")} as="h1" />
-          <LastUpdatedBadge date={lastUpdated} locale={currentLocale} />
-        </div>
+      <Container className="space-y-4 md:space-y-7">
+        <AgendaIntro
+          title={t("title")}
+          description={t("description")}
+          partnerLabel={t("partnerLabel")}
+          partnerName={t("partnerName")}
+          lastUpdated={lastUpdated}
+          locale={currentLocale}
+        />
         <FilterBar
           currentDate={filters.date || "all"}
           currentDanceStyle={filters.danceStyle || "all"}

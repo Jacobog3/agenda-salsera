@@ -3,8 +3,7 @@ import { GraduationCap, UserRound } from "lucide-react";
 import { AcademyCard } from "@/components/academies/academy-card";
 import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
-import { SectionHeading } from "@/components/shared/section-heading";
-import { LastUpdatedBadge } from "@/components/shared/last-updated-badge";
+import { PageIntro } from "@/components/shared/page-intro";
 import { TeacherCard } from "@/components/teachers/teacher-card";
 import { Link } from "@/i18n/navigation";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
@@ -48,10 +47,12 @@ export default async function AcademiesPage({
   return (
     <section className="page-section pb-16">
       <Container className="space-y-6 md:space-y-8">
-        <div>
-          <SectionHeading title={t("title")} description={t("description")} as="h1" />
-          <LastUpdatedBadge date={lastUpdated} locale={currentLocale} />
-        </div>
+        <PageIntro
+          title={t("title")}
+          description={t("description")}
+          lastUpdated={lastUpdated}
+          locale={currentLocale}
+        />
 
         <div className="inline-flex w-full rounded-[1.25rem] border border-border bg-white p-1.5 shadow-sm sm:w-auto">
           {[

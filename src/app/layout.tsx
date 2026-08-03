@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     template: "%s | ExploraGuate"
   },
   description:
-    "Agenda de salsa y bachata en Guatemala. Encontrá eventos, lugares y academias de baile cerca de vos.",
+    "Plataforma de salsa y bachata en Guatemala para encontrar agenda, lugares, academias y maestros de baile.",
   metadataBase: new URL(SITE_URL),
   openGraph: {
     siteName: "ExploraGuate",
