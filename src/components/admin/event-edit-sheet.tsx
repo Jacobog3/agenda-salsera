@@ -16,7 +16,6 @@ import {
   getDefaultCurrency,
   getDefaultTimeZone,
   isoToZonedDateTimeFields,
-  normalizeCountryCode,
   zonedDateTimeToIso
 } from "@/lib/locations";
 
@@ -54,51 +53,6 @@ const DATE_STATUS_OPTIONS = [
   { value: "confirmed", label: "Fecha confirmada" },
   { value: "coming_soon", label: "Próximamente" }
 ];
-
-function isValidTimeZone(value: string) {
-  try {
-    new Intl.DateTimeFormat("es", { timeZone: value }).format();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function parseAiDateTimeFields(value: unknown, timeZone: string) {
-  const text = String(value ?? "").trim();
-  if (!text) return null;
-
-  const localMatch = text.match(
-    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::\d{2})?$/
-  );
-  if (localMatch) {
-    const [, year, month, day, hour, minute] = localMatch;
-    const yearNumber = Number(year);
-    const monthNumber = Number(month);
-    const dayNumber = Number(day);
-    const hourNumber = Number(hour);
-    const minuteNumber = Number(minute);
-    const calendarDate = new Date(Date.UTC(yearNumber, monthNumber - 1, dayNumber));
-    const validCalendarDate =
-      calendarDate.getUTCFullYear() === yearNumber &&
-      calendarDate.getUTCMonth() === monthNumber - 1 &&
-      calendarDate.getUTCDate() === dayNumber;
-
-    if (validCalendarDate && hourNumber <= 23 && minuteNumber <= 59) {
-      return { date: `${year}-${month}-${day}`, time: `${hour}:${minute}` };
-    }
-    return null;
-  }
-
-  const parsedDate = new Date(text);
-  if (!Number.isFinite(parsedDate.getTime())) return null;
-
-  try {
-    return isoToZonedDateTimeFields(parsedDate.toISOString(), timeZone);
-  } catch {
-    return null;
-  }
-}
 
 const AI_FIELD_LABELS: Record<string, string> = {
   cover_image_url: "Flyer principal",
@@ -589,65 +543,20 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
   function applyAiSuggestions(fields: Record<string, unknown>) {
     const normalized = { ...fields };
-    const warnings: string[] = [];
-    const currentCountryCode = normalizeCountryCode(data.country_code);
-    const suggestionCountryCode = normalizeCountryCode(normalized.country_code, currentCountryCode);
-    if ("country_code" in normalized) {
-      if (suggestionCountryCode) {
-        normalized.country_code = suggestionCountryCode;
-      } else {
-        delete normalized.country_code;
-        warnings.push("el país detectado no era válido");
-      }
-    }
-
-    const hasSuggestedTimeZone = typeof normalized.time_zone === "string" && normalized.time_zone.trim().length > 0;
-    const requestedTimeZone = String(normalized.time_zone ?? data.time_zone ?? "").trim();
-    const fallbackTimeZone = getDefaultTimeZone(suggestionCountryCode || currentCountryCode);
-    const countryChanged = Boolean(suggestionCountryCode && suggestionCountryCode !== currentCountryCode);
-    const suggestionTimeZone = countryChanged && !hasSuggestedTimeZone
-      ? fallbackTimeZone
-      : isValidTimeZone(requestedTimeZone)
-      ? requestedTimeZone
-      : fallbackTimeZone;
-    if ("time_zone" in normalized || requestedTimeZone !== suggestionTimeZone) {
-      normalized.time_zone = suggestionTimeZone;
-      if (requestedTimeZone && requestedTimeZone !== suggestionTimeZone) {
-        warnings.push("la zona horaria detectada se corrigió automáticamente");
-      }
-    }
-
-    if (normalized.date_status === "coming_soon") {
-      normalized.starts_at_date = "";
-      normalized.starts_at_time = "";
-      normalized.ends_at_date = "";
-      normalized.ends_at_time = "";
-      delete normalized.starts_at;
-      delete normalized.ends_at;
-    }
+    const suggestionTimeZone = String(normalized.time_zone ?? data.time_zone ?? DEFAULT_TIME_ZONE);
 
     if (normalized.starts_at) {
-      const startsAt = parseAiDateTimeFields(normalized.starts_at, suggestionTimeZone);
-      if (startsAt) {
-        normalized.starts_at_date = startsAt.date;
-        normalized.starts_at_time = startsAt.time;
-        normalized.date_status = "confirmed";
-        normalized.date_label = "";
-      } else {
-        warnings.push("la fecha de inicio no se aplicó porque tenía un formato inválido");
-      }
-      delete normalized.starts_at;
+      const startsAt = isoToZonedDateTimeFields(String(normalized.starts_at), suggestionTimeZone);
+      normalized.starts_at_date = startsAt.date;
+      normalized.starts_at_time = startsAt.time;
+      normalized.date_status = "confirmed";
+      normalized.date_label = "";
     }
 
     if (normalized.ends_at) {
-      const endsAt = parseAiDateTimeFields(normalized.ends_at, suggestionTimeZone);
-      if (endsAt) {
-        normalized.ends_at_date = endsAt.date;
-        normalized.ends_at_time = endsAt.time;
-      } else {
-        warnings.push("la fecha final no se aplicó porque tenía un formato inválido");
-      }
-      delete normalized.ends_at;
+      const endsAt = isoToZonedDateTimeFields(String(normalized.ends_at), suggestionTimeZone);
+      normalized.ends_at_date = endsAt.date;
+      normalized.ends_at_time = endsAt.time;
     }
 
     const nextCurrency = String(normalized.currency ?? data.currency ?? "GTQ");
@@ -658,8 +567,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
     setData((prev) => ({ ...prev, ...normalized }));
     setAiAppliedNotice(true);
-    setTab("form");
-    return warnings.length > 0 ? { warning: warnings.join("; ") } : undefined;
+    window.setTimeout(() => setTab("form"), 0);
   }
 
   async function save(forceTranslate = false) {
