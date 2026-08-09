@@ -120,6 +120,7 @@ export default async function SpotDetailPage({
                 src={spot.coverImageUrl}
                 alt={spot.name}
                 fill
+                sizes="(min-width: 1024px) 896px, 100vw"
                 className="object-cover"
               />
             </div>

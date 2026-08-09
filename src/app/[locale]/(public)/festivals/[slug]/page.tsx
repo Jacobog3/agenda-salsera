@@ -92,7 +92,7 @@ export default async function FestivalDetailPage({
         <div className="overflow-hidden rounded-[2rem] border border-gray-100 bg-white shadow-sm">
           {cover ? (
             <div className="relative aspect-[16/8] bg-gray-50 md:aspect-[16/6]">
-              <Image src={cover} alt={festival.name} fill className="object-cover" priority />
+              <Image src={cover} alt={festival.name} fill sizes="(min-width: 1024px) 896px, 100vw" className="object-cover" priority />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5 text-white md:p-9">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-accentScale-500">{typeLabel} · {t("permanentProfile")}</p>
@@ -309,7 +309,7 @@ function ArtistCardContent({
   return (
     <>
       <div className="relative aspect-square overflow-hidden rounded-xl bg-salsaOrange-50">
-        {artist.profileImageUrl ? <Image src={artist.profileImageUrl} alt={artist.name} fill className="object-cover" /> : <UsersRound className="absolute inset-0 m-auto h-8 w-8 text-salsaOrange-500" />}
+        {artist.profileImageUrl ? <Image src={artist.profileImageUrl} alt={artist.name} fill sizes="96px" className="object-cover" /> : <UsersRound className="absolute inset-0 m-auto h-8 w-8 text-salsaOrange-500" />}
       </div>
       <h3 className="mt-3 font-semibold text-gray-950">{artist.name}</h3>
       {artist.roles.length > 0 ? <p className="mt-1 text-xs text-gray-500">{artist.roles.map((role) => roleLabels[role] ?? role).join(" · ")}</p> : null}

@@ -5,6 +5,7 @@ import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 import { normalizeCityName } from "@/lib/utils/normalize-city";
 import { normalizeCountryCode } from "@/lib/locations";
+import { applyResolvedSubmissionRelations } from "@/lib/submissions/server";
 
 function splitCommaList(value: string | null | undefined) {
   return value
@@ -90,7 +91,7 @@ export async function POST(
     price_text: null,
     is_featured: false,
     is_published: true
-  }).select("slug").single();
+  }).select("id,slug").single();
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
@@ -98,8 +99,12 @@ export async function POST(
 
   await supabase
     .from("teacher_submissions")
-    .update({ status: "approved" })
+    .update({ status: "approved", published_entity_id: inserted?.id ?? null })
     .eq("id", id);
+
+  if (inserted?.id) {
+    await applyResolvedSubmissionRelations(supabase, "teacher", id, inserted.id);
+  }
 
   await submitIndexNowEntity({ type: "teacher", slug: inserted?.slug ?? slug });
 

@@ -55,7 +55,7 @@ export function getGeminiUsage(payload: unknown) {
 }
 
 export function logGeminiUsage(
-  operation: "parse-flyer" | "admin-ai-update" | "auto-translate",
+  operation: "parse-flyer" | "admin-ai-update" | "submission-analysis" | "auto-translate",
   payload: unknown,
   attempt = 1
 ) {

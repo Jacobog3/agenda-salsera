@@ -1,5 +1,33 @@
 # Current Work Context
 
+## 2026-08-09 — Image cost and AI submission workflow
+
+- Active branch: `codex/image-ai-submission-workflow`.
+- Next.js image optimization now uses one WebP output quality, a reduced responsive-size
+  allowlist, a 31-day cache TTL, and only the three remote hosts currently present in
+  published content. Galleries and rotating covers render only the visible image instead of
+  requesting transformations for hidden slides.
+- New public uploads receive a 31-day immutable-object cache lifetime in Supabase storage.
+- Public event, academy, artist, and venue forms keep the fast flow: optional Gemini 3.1
+  Flash-Lite autofill, manual review, then submission. Draft text and fields are retained on
+  the device for seven days; image binaries are not retained.
+- Public AI parsing is limited per client to protect the Gemini budget. Submission fingerprints
+  and idempotency keys prevent repeat clicks from creating duplicate pending records.
+- Basic AI may flag professionals, academies, organizers, venues, and festivals for admin
+  review without creating canonical profiles automatically.
+- The admin review screen has an on-demand advanced Gemini pass, deterministic canonical
+  matching, cached analysis by source hash, explicit candidate approval/ignore actions, and
+  relation backfill after publishing.
+- Submission failures can be reported from the preserved form. The admin inbox shows both
+  unresolved entity candidates and incident reports.
+- Migration `20260809000500_submission_ai_workflow.sql` is applied in production. It adds AI
+  metadata to all four submission tables plus `submission_mentions` and
+  `submission_incidents`.
+- Mobile browser QA passed for all four public submission flows and `/admin/submissions` at
+  390×844. The Celia Pergo sample correctly extracted the academy and two related references
+  without saving a production submission.
+- Verification completed: `npm run typecheck`, `npm run lint`, and `npm run build`.
+
 ## 2026-08-09 — Admin AI apply crash hotfix
 
 - The production stack was traced to `next-intl`'s `useLocale()` hook, not to

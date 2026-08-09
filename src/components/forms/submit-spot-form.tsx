@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   CheckCircle2,
   AlertCircle,
+  Sparkles,
   ImagePlus,
   Loader2,
   X
@@ -17,6 +18,14 @@ import {
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
 import { CountrySelect } from "@/components/forms/country-select";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
+import { SubmissionErrorNotice } from "@/components/forms/submission-error-notice";
+import {
+  analyzeSubmissionMaterial,
+  createSubmissionIdempotencyKey
+} from "@/lib/submissions/client";
+import type { ReviewSignals } from "@/lib/submissions/analysis";
+import { useSubmissionDraft } from "@/hooks/use-submission-draft";
+import { DraftRestoredNotice } from "@/components/forms/draft-restored-notice";
 
 type Fields = {
   name: string;
@@ -55,6 +64,21 @@ export function SubmitSpotForm() {
   const [submitError, setSubmitError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof Fields, string>>>({});
   const fileRef = useRef<HTMLInputElement>(null);
+  const idempotencyKey = useRef(createSubmissionIdempotencyKey("spot"));
+  const [sourceText, setSourceText] = useState("");
+  const [parsing, setParsing] = useState(false);
+  const [parseError, setParseError] = useState("");
+  const [reviewSignals, setReviewSignals] = useState<ReviewSignals>({ reasons: [], mentions: [] });
+  const [aiBasicStatus, setAiBasicStatus] = useState<"not_run" | "completed" | "failed">("not_run");
+  const draft = useSubmissionDraft({
+    storageKey: "somossalsa:draft:spot",
+    value: { fields, sourceText },
+    onRestore: (saved) => {
+      setFields(saved.fields);
+      setSourceText(saved.sourceText || "");
+    },
+    enabled: status !== "success"
+  });
 
   function requiredMessage(label: string) {
     return f("fieldRequired", { field: label });
@@ -89,6 +113,35 @@ export function SubmitSpotForm() {
       return await uploadSubmissionImage(imageFile, "spots");
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleParse() {
+    if (!sourceText.trim() && !imageFile) return;
+    setParsing(true);
+    setParseError("");
+    try {
+      const d = await analyzeSubmissionMaterial({ type: "spot", text: sourceText, imageFile });
+      setReviewSignals(d.reviewSignals);
+      setAiBasicStatus("completed");
+      setFields((prev) => ({
+        ...prev,
+        name: d.name || prev.name,
+        description: d.description || prev.description,
+        city: d.city || prev.city,
+        countryCode: d.countryCode || prev.countryCode,
+        address: d.address || prev.address,
+        schedule: d.schedule || prev.schedule,
+        coverCharge: d.coverCharge || prev.coverCharge,
+        whatsapp: d.whatsapp || prev.whatsapp,
+        instagram: d.instagram || prev.instagram,
+        contactName: d.contactName || prev.contactName
+      }));
+    } catch (error) {
+      setAiBasicStatus("failed");
+      setParseError(error instanceof Error ? error.message : f("connectionError"));
+    } finally {
+      setParsing(false);
     }
   }
 
@@ -156,13 +209,18 @@ export function SubmitSpotForm() {
           name: fields.name,
           description: fields.description,
           city: fields.city,
+          countryCode: fields.countryCode,
           address: fields.address,
           image_url: imageUrl,
           schedule: fields.schedule,
           cover_charge: fields.coverCharge,
           whatsapp: fields.whatsapp,
           instagram: fields.instagram,
-          contact_name: fields.contactName
+          contact_name: fields.contactName,
+          sourceText,
+          reviewSignals,
+          aiBasicStatus,
+          idempotencyKey: idempotencyKey.current
         })
       });
       const json = await res.json().catch(() => ({}));
@@ -174,6 +232,11 @@ export function SubmitSpotForm() {
         setSubmitError("");
         setImageFile(null);
         setImagePreview("");
+        setSourceText("");
+        setReviewSignals({ reasons: [], mentions: [] });
+        setAiBasicStatus("not_run");
+        idempotencyKey.current = createSubmissionIdempotencyKey("spot");
+        draft.clearDraft();
       } else {
         setStatus("error");
         applyApiFieldErrors(json.fieldErrors);
@@ -203,6 +266,7 @@ export function SubmitSpotForm() {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
+      {draft.restored ? <DraftRestoredNotice message={f("draftRestored")} /> : null}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           {f("step1Image")}
@@ -239,7 +303,47 @@ export function SubmitSpotForm() {
         ) : null}
       </div>
 
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {f("step2TextResource")}
+        </p>
+        <Textarea
+          rows={5}
+          placeholder={f("pasteHere")}
+          value={sourceText}
+          onChange={(event) => setSourceText(event.target.value)}
+          className="resize-none font-mono text-xs"
+        />
+        {parseError ? (
+          <SubmissionErrorNotice
+            message={parseError}
+            submissionType="spot"
+            step="ai_basic"
+            route="/api/parse-flyer"
+          />
+        ) : null}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={(!sourceText.trim() && !imageFile) || parsing}
+          onClick={handleParse}
+          className="gap-2"
+        >
+          {parsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-brand-500" />}
+          {parsing ? f("extracting") : f("autofill")}
+        </Button>
+        {aiBasicStatus === "completed" && reviewSignals.mentions.length > 0 ? (
+          <p className="text-xs text-brand-700">
+            {f("additionalInfoFound", { count: reviewSignals.mentions.length })}
+          </p>
+        ) : null}
+      </div>
+
       <div className="space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {f("step3Review")}
+        </p>
         <div className="space-y-4">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("spotSectionBasics")}</p>
           <div className="grid gap-4 md:grid-cols-3 md:gap-5">
@@ -302,12 +406,12 @@ export function SubmitSpotForm() {
       </div>
 
       {status === "error" || submitError ? (
-        <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 md:p-4">
-          <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
-          <p className="text-xs font-medium text-red-600">
-            {submitError || f("submitError")}
-          </p>
-        </div>
+        <SubmissionErrorNotice
+          message={submitError || f("submitError")}
+          submissionType="spot"
+          step="submit"
+          route="/api/spot-submissions"
+        />
       ) : null}
 
       <p className="text-[11px] leading-relaxed text-muted-foreground">

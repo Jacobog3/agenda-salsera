@@ -3,15 +3,36 @@ import type { NextConfig } from "next";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+const supabaseImageHostname = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "").hostname;
+  } catch {
+    return "oenwhpcyzznytpoypcfc.supabase.co";
+  }
+})();
+
 const nextConfig: NextConfig = {
   images: {
-    formats: ["image/avif", "image/webp"],
-    deviceSizes: [360, 414, 640, 768, 1024, 1280, 1536],
-    imageSizes: [32, 48, 64, 96, 128, 256, 384],
+    // A single output format and a narrow size allowlist prevent the same flyer
+    // from consuming many Vercel transformations across devices and browsers.
+    formats: ["image/webp"],
+    qualities: [75],
+    deviceSizes: [360, 640, 768, 1024, 1280],
+    imageSizes: [48, 96, 128, 256, 384],
+    minimumCacheTTL: 2_678_400,
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**"
+        hostname: supabaseImageHostname,
+        pathname: "/storage/v1/object/public/**"
+      },
+      {
+        protocol: "https",
+        hostname: "antiguasbf.com"
+      },
+      {
+        protocol: "https",
+        hostname: "www.guatesalsa.com"
       }
     ]
   },

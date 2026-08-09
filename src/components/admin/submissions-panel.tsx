@@ -11,8 +11,19 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { AdminCountrySelect } from "@/components/forms/country-select";
 import { DEFAULT_COUNTRY_CODE, getDefaultTimeZone } from "@/lib/locations";
+import {
+  SubmissionAiReview,
+  SubmissionReviewBadge
+} from "@/components/admin/submission-ai-review";
+import type { ReviewPriority } from "@/lib/submissions/analysis";
 
-type EventSub = {
+type AiReviewFields = {
+  review_priority?: ReviewPriority | null;
+  ai_basic_status?: string | null;
+  ai_advanced_status?: string | null;
+};
+
+type EventSub = AiReviewFields & {
   id: string; title: string; description: string | null;
   image_url: string | null; dance_style: string; date: string; time: string;
   price_text: string | null; city: string; country_code: string; time_zone: string; venue_name: string;
@@ -20,7 +31,7 @@ type EventSub = {
   contact_url: string | null; created_at: string;
 };
 
-type AcademySub = {
+type AcademySub = AiReviewFields & {
   id: string; name: string; description: string | null;
   image_url: string | null; city: string; country_code: string; address: string | null;
   schedule_text: string | null; levels: string | null;
@@ -29,7 +40,7 @@ type AcademySub = {
   contact_name: string | null; created_at: string;
 };
 
-type TeacherSub = {
+type TeacherSub = AiReviewFields & {
   id: string; name: string; description: string | null;
   image_url: string | null; city: string; country_code: string; address: string | null;
   styles: string | null; levels: string | null; modality: string;
@@ -40,7 +51,7 @@ type TeacherSub = {
   created_at: string;
 };
 
-type SpotSub = {
+type SpotSub = AiReviewFields & {
   id: string; name: string; description: string | null;
   image_url: string | null; city: string; country_code: string; address: string | null;
   schedule: string | null; cover_charge: string | null;
@@ -268,6 +279,7 @@ export function SubmissionsPanel() {
               </select>
             </EditField>
             <EditField label="Descripción"><Textarea rows={3} value={editingEvent.description ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, description: e.target.value }))} /></EditField>
+            <SubmissionAiReview submissionType="event" submissionId={selectedEvent.id} initialPriority={selectedEvent.review_priority} />
             {actionMsg && <p className="text-sm font-medium text-brand-600">{actionMsg}</p>}
             <ActionButtons onPublish={handlePublishEvent} onReject={handleRejectEvent} publishing={publishing} rejecting={rejecting} label="Publicar evento" />
           </div>
@@ -333,6 +345,7 @@ export function SubmissionsPanel() {
               <EditField label="Instagram"><Input value={editingAcademy.instagram ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, instagram: e.target.value }))} /></EditField>
               <EditField label="Web"><Input value={editingAcademy.website ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, website: e.target.value }))} /></EditField>
             </div>
+            <SubmissionAiReview submissionType="academy" submissionId={selectedAcademy.id} initialPriority={selectedAcademy.review_priority} />
             {actionMsg && <p className="text-sm font-medium text-brand-600">{actionMsg}</p>}
             <ActionButtons onPublish={handlePublishAcademy} onReject={handleRejectAcademy} publishing={publishing} rejecting={rejecting} label="Publicar academia" />
           </div>
@@ -395,6 +408,7 @@ export function SubmissionsPanel() {
               <EditField label="Instagram"><Input value={editingTeacher.instagram ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, instagram: e.target.value }))} /></EditField>
               <EditField label="Web"><Input value={editingTeacher.website ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, website: e.target.value }))} /></EditField>
             </div>
+            <SubmissionAiReview submissionType="teacher" submissionId={selectedTeacher.id} initialPriority={selectedTeacher.review_priority} />
             {actionMsg && <p className="text-sm font-medium text-brand-600">{actionMsg}</p>}
             <ActionButtons onPublish={handlePublishTeacher} onReject={handleRejectTeacher} publishing={publishing} rejecting={rejecting} label="Publicar maestro" />
           </div>
@@ -444,6 +458,7 @@ export function SubmissionsPanel() {
               <EditField label="Instagram"><Input value={editingSpot.instagram ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, instagram: e.target.value }))} /></EditField>
               <EditField label="Google Maps"><Input value={editingSpot.google_maps_url ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, google_maps_url: e.target.value }))} /></EditField>
             </div>
+            <SubmissionAiReview submissionType="spot" submissionId={selectedSpot.id} initialPriority={selectedSpot.review_priority} />
             {actionMsg && <p className="text-sm font-medium text-brand-600">{actionMsg}</p>}
             <ActionButtons onPublish={handlePublishSpot} onReject={handleRejectSpot} publishing={publishing} rejecting={rejecting} label="Publicar spot" />
           </div>
@@ -536,7 +551,10 @@ export function SubmissionsPanel() {
                 </div>
               )}
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="truncate font-semibold text-foreground">{sub.title}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="min-w-0 truncate font-semibold text-foreground">{sub.title}</p>
+                  <SubmissionReviewBadge priority={sub.review_priority} />
+                </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   {sub.date && <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{sub.date}</span>}
                   {sub.time && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.time}</span>}
@@ -564,7 +582,10 @@ export function SubmissionsPanel() {
                 </div>
               )}
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="truncate font-semibold text-foreground">{sub.name}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="min-w-0 truncate font-semibold text-foreground">{sub.name}</p>
+                  <SubmissionReviewBadge priority={sub.review_priority} />
+                </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   {sub.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{sub.city}</span>}
                   {sub.schedule_text && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.schedule_text}</span>}
@@ -590,7 +611,10 @@ export function SubmissionsPanel() {
                 </div>
               )}
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="truncate font-semibold text-foreground">{sub.name}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="min-w-0 truncate font-semibold text-foreground">{sub.name}</p>
+                  <SubmissionReviewBadge priority={sub.review_priority} />
+                </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   {sub.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{sub.city}</span>}
                   {sub.class_formats && <span className="flex items-center gap-1"><Tag className="h-3 w-3" />{sub.class_formats}</span>}
@@ -616,7 +640,10 @@ export function SubmissionsPanel() {
                 </div>
               )}
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="truncate font-semibold text-foreground">{sub.name}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="min-w-0 truncate font-semibold text-foreground">{sub.name}</p>
+                  <SubmissionReviewBadge priority={sub.review_priority} />
+                </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   {sub.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{sub.city}</span>}
                   {sub.schedule && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{sub.schedule}</span>}
