@@ -1,13 +1,19 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
+import { Check, Film, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
 import { compressImageFileForAi } from "@/lib/utils/image-data-url";
+import { extractVideoFramesForAi } from "@/lib/utils/video-frames";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { AiUpdateEntity, AiWorkflowMode } from "@/lib/admin/ai-update";
 
-type ImageEntry = { dataUrl: string; name: string; publicUrl: string };
+type ImageEntry = {
+  dataUrl: string;
+  name: string;
+  publicUrl: string;
+  sourceKind: "image" | "video-frame";
+};
 
 type SuggestionEntry = {
   key: string;
@@ -21,7 +27,7 @@ type Props = {
   mode: AiWorkflowMode;
   currentData: Record<string, unknown>;
   fieldLabels: Record<string, string>;
-  onApply: (fields: Record<string, unknown>) => void;
+  onApply: (fields: Record<string, unknown>) => void | { warning?: string };
 };
 
 const PRIMARY_IMAGE_FIELD_BY_ENTITY: Record<AiUpdateEntity, string> = {
@@ -30,6 +36,33 @@ const PRIMARY_IMAGE_FIELD_BY_ENTITY: Record<AiUpdateEntity, string> = {
   spot: "cover_image_url",
   teacher: "profile_image_url"
 };
+
+const MAX_AI_MATERIALS = 6;
+const MAX_AI_DATA_URL_LENGTH = 3_000_000;
+
+function dataUrlToFile(dataUrl: string, originalName: string) {
+  const [header, encoded] = dataUrl.split(",", 2);
+  const mimeType = header.match(/^data:(.+?);base64$/)?.[1] ?? "image/jpeg";
+  const bytes = atob(encoded);
+  const data = new Uint8Array(bytes.length);
+  for (let index = 0; index < bytes.length; index += 1) {
+    data[index] = bytes.charCodeAt(index);
+  }
+
+  const baseName = originalName.replace(/\.[^.]+$/, "") || "post";
+  return new File([data], `${baseName}.jpg`, { type: mimeType });
+}
+
+function validateAiMaterialBudget(entries: ImageEntry[]) {
+  if (entries.length > MAX_AI_MATERIALS) {
+    throw new Error(`Analiza como máximo ${MAX_AI_MATERIALS} imágenes o fotogramas a la vez.`);
+  }
+
+  const totalLength = entries.reduce((total, entry) => total + entry.dataUrl.length, 0);
+  if (totalLength > MAX_AI_DATA_URL_LENGTH) {
+    throw new Error("El material combinado es demasiado pesado. Analiza menos piezas a la vez.");
+  }
+}
 
 function formatPreview(value: unknown): string {
   if (value === null || value === undefined || value === "") return "Vacío";
@@ -91,36 +124,80 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
   const [suggestions, setSuggestions] = useState<SuggestionEntry[] | null>(null);
   const primaryImageField = PRIMARY_IMAGE_FIELD_BY_ENTITY[entity];
 
-  function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
 
-    const toProcess = files;
     setProcessingImages(true);
     setError("");
+    e.target.value = "";
 
-    Promise.all(
-      toProcess.map(async (file) => {
-        const [dataUrl, publicUrl] = await Promise.all([
-          compressImageFileForAi(file, { maxDataUrlLength: 900_000 }),
-          uploadAdminImage(file)
-        ]);
+    try {
+      const expectedMaterialCount = files.reduce(
+        (total, file) => total + (file.type.startsWith("video/") ? 4 : 1),
+        images.length
+      );
+      if (expectedMaterialCount > MAX_AI_MATERIALS) {
+        throw new Error(`Analiza como máximo ${MAX_AI_MATERIALS} imágenes o fotogramas a la vez.`);
+      }
 
-        return {
+      const preparedEntries: Array<ImageEntry & { uploadFile?: File }> = [];
+
+      for (const file of files) {
+        if (file.type.startsWith("video/")) {
+          const frames = await extractVideoFramesForAi(file);
+          preparedEntries.push(
+            ...frames.map((dataUrl, index) => ({
+              dataUrl,
+              name: `${file.name} · fotograma ${index + 1}`,
+              publicUrl: "",
+              sourceKind: "video-frame" as const
+            }))
+          );
+          continue;
+        }
+
+        if (!file.type.startsWith("image/")) {
+          throw new Error(`Formato no compatible: ${file.name}`);
+        }
+
+        const dataUrl = await compressImageFileForAi(file, {
+          maxDimension: 1400,
+          maxDataUrlLength: 550_000
+        });
+        preparedEntries.push({
           dataUrl,
           name: file.name,
-          publicUrl
-        };
-      })
-    )
-      .then((entries) => {
-        setImages((prev) => [...prev, ...entries]);
-        setError("");
-      })
-      .catch((err) => setError(err instanceof Error ? err.message : "No se pudo leer o subir una o más imágenes."))
-      .finally(() => setProcessingImages(false));
+          publicUrl: "",
+          sourceKind: "image",
+          uploadFile: dataUrlToFile(dataUrl, file.name)
+        });
+      }
 
-    e.target.value = "";
+      validateAiMaterialBudget([...images, ...preparedEntries]);
+      const nextEntries: ImageEntry[] = [];
+      for (const entry of preparedEntries) {
+        nextEntries.push({
+          dataUrl: entry.dataUrl,
+          name: entry.name,
+          publicUrl: entry.uploadFile ? await uploadAdminImage(entry.uploadFile) : "",
+          sourceKind: entry.sourceKind
+        });
+      }
+
+      const combinedEntries = [...images, ...nextEntries];
+      validateAiMaterialBudget(combinedEntries);
+      setImages(combinedEntries);
+      setNotice(
+        nextEntries.some((entry) => entry.sourceKind === "video-frame")
+          ? "Se extrajeron fotogramas temporalmente. El video no se subió ni se guardará."
+          : ""
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo preparar el material.");
+    } finally {
+      setProcessingImages(false);
+    }
   }
 
   function removeImage(index: number) {
@@ -204,11 +281,26 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
     const accepted = Object.fromEntries(
       suggestions.filter((s) => s.accepted).map((s) => [s.key, s.value])
     );
-    onApply(accepted);
-    setSuggestions(null);
-    setImages([]);
-    setText("");
-    setNotice("Sugerencias aplicadas. Revisa los campos y guarda.");
+    setError("");
+
+    try {
+      const result = onApply(accepted);
+      setSuggestions(null);
+      setImages([]);
+      setText("");
+      setNotice(
+        result?.warning
+          ? `Sugerencias aplicadas con una advertencia: ${result.warning}`
+          : "Sugerencias aplicadas. Revisa los campos y guarda."
+      );
+    } catch (err) {
+      console.error("[admin-ai-apply]", err);
+      setError(
+        err instanceof Error
+          ? `No se pudieron aplicar los campos: ${err.message}`
+          : "No se pudieron aplicar los campos detectados."
+      );
+    }
   }
 
   const canAnalyze = (images.length > 0 || text.trim().length >= 10) && !loading && !processingImages;
@@ -226,6 +318,11 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img.dataUrl} alt={img.name} className="h-full w-full object-cover" />
+              {img.sourceKind === "video-frame" ? (
+                <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-medium text-white">
+                  <Film className="h-3 w-3" /> Temporal
+                </span>
+              ) : null}
               <button
                 type="button"
                 onClick={() => removeImage(i)}
@@ -254,7 +351,7 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/mp4,video/webm,video/quicktime"
           multiple
           className="hidden"
           onChange={handleFiles}
@@ -262,13 +359,13 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
 
         {images.length > 0 && (
           <p className="mt-1.5 text-xs text-gray-400">
-            {images.length} post{images.length !== 1 ? "s" : ""} · La IA unifica la información de todos
+            {images.length} pieza{images.length !== 1 ? "s" : ""} visual{images.length !== 1 ? "es" : ""} · La IA unifica la información
           </p>
         )}
         {processingImages && (
           <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-brand-700">
             <Loader2 className="h-3 w-3 animate-spin" />
-            Preparando imagen para IA e imagen principal...
+            Preparando material para IA...
           </p>
         )}
       </div>
@@ -298,7 +395,7 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
           <>
             <Sparkles className="h-4 w-4" />
             {images.length > 1
-              ? `Analizar ${images.length} posts juntos`
+              ? `Analizar ${images.length} piezas juntas`
               : "Analizar material"}
           </>
         )}

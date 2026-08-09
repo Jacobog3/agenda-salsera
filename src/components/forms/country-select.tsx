@@ -24,7 +24,7 @@ export function CountrySelect({
       value={value}
       required={required}
       onChange={(event) => onChange(event.target.value)}
-      className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+      className="flex h-11 w-full rounded-xl border border-input bg-white px-3 py-2 text-base text-foreground shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 md:text-sm"
     >
       <option value="" disabled={required}>
         {placeholder}

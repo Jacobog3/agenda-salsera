@@ -53,10 +53,12 @@ This avoids duplicate records when the same guest teaches a workshop, performs a
 ### Media
 
 - Images remain compatible with the existing `event-flyers` bucket.
-- Rich media uses the `dance-media` bucket.
-- Admin video formats: MP4, WebM, and QuickTime, up to 200 MB.
+- Documents and legacy rich media use the `dance-media` bucket.
+- Admin may select MP4, WebM, and QuickTime for temporary local frame
+  extraction, but video binaries are not uploaded or stored by SomosSalsa.
 - Public submission forms remain image-only until moderation and abuse controls are defined.
-- Video files are stored separately from metadata so captions, thumbnails, source, role, order, and entity association stay searchable.
+- External video metadata remains searchable independently: source URL,
+  captions, thumbnails, role, order, validity, and entity association.
 
 ## Execution phases
 
@@ -95,14 +97,14 @@ This avoids duplicate records when the same guest teaches a workshop, performs a
 - [ ] Associate Celia Pergo with the In Motion guest workshops as the first guest-profile workflow.
 - [ ] Add source-aware duplicate detection before creating a professional profile.
 
-### Phase 4 — Video and AI ingestion
+### Phase 4 — External video and AI ingestion
 
-- [x] Add a media schema that supports video and a protected admin upload endpoint.
+- [x] Add a media schema that supports externally hosted video and a protected image/document upload endpoint.
 - [x] Configure the media bucket contract and limits in migration.
-- [ ] Build the admin media manager with upload progress, poster frame, captions, role, source, and ordering.
+- [ ] Build the admin external-media manager with poster, captions, role, source, validity, and ordering.
 - [x] Extend Gemini 3.1 Flash-Lite extraction to return event kind, festival edition, and source-backed candidate artists with roles, affiliation, and origin.
 - [ ] Extend Gemini 3.1 Flash-Lite extraction to return structured passes, price tiers, and source confidence.
-- [ ] Extract representative frames from uploaded videos before sending material to Gemini.
+- [x] Extract representative frames from locally selected videos before sending material to Gemini without storing the video.
 - [ ] Present matches and new-profile candidates for human approval; never create people automatically without review.
 
 ### Phase 5 — Geographic growth and data quality
