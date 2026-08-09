@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { formatAcademySchedulePreview } from "@/lib/academies/academy-helpers";
 import type { AiUpdateEntity } from "@/lib/admin/ai-update";
+import { DEFAULT_TIME_ZONE, zonedDateTimeToIso } from "@/lib/locations";
 import { compressImageFileForAi } from "@/lib/utils/image-data-url";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -710,7 +711,11 @@ export function AdminEntityList({
           if (dateValue) {
             const d = String(dateValue);
             const t = String(timeValue || "20:00");
-            payload[field.key] = `${d}T${t}:00-06:00`;
+            payload[field.key] = zonedDateTimeToIso(
+              d,
+              t,
+              String(payload.time_zone ?? editData.time_zone ?? DEFAULT_TIME_ZONE)
+            );
           } else {
             payload[field.key] = null;
           }

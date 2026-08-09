@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/utils/env";
+import { normalizeCountryCode } from "@/lib/locations";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -12,6 +13,10 @@ export async function POST(request: Request) {
 
   if (!String(body.city ?? "").trim()) {
     fieldErrors.city = "required";
+  }
+
+  if (!/^[A-Za-z]{2}$/.test(String(body.countryCode ?? "").trim())) {
+    fieldErrors.countryCode = "required";
   }
 
   if (!String(body.image_url ?? "").trim()) {
@@ -34,6 +39,7 @@ export async function POST(request: Request) {
     name: body.name,
     description: body.description || null,
     city: body.city,
+    country_code: normalizeCountryCode(body.countryCode),
     address: body.address || null,
     styles: body.styles || null,
     schedule_text: body.scheduleText || null,

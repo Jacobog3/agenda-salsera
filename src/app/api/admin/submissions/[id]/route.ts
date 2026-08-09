@@ -3,7 +3,13 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import {
+  getDefaultCurrency,
+  getDefaultTimeZone,
+  normalizeCountryCode,
+  zonedDateTimeToIso
+} from "@/lib/locations";
 
 export async function DELETE(
   request: Request,
@@ -48,10 +54,15 @@ export async function POST(
     .substring(0, 80)
     + `-${Date.now()}`;
 
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
+  if (!countryCode || !String(body.city ?? "").trim()) {
+    return NextResponse.json({ error: "Ciudad y país son obligatorios." }, { status: 400 });
+  }
+  const timeZone = String(body.time_zone ?? body.timeZone ?? getDefaultTimeZone(countryCode));
   const startsAt = body.date && body.time
-    ? `${body.date}T${body.time}:00-06:00`
+    ? zonedDateTimeToIso(body.date, body.time, timeZone)
     : body.date
-      ? `${body.date}T20:00:00-06:00`
+      ? zonedDateTimeToIso(body.date, "20:00", timeZone)
       : null;
 
   const { data: inserted, error: insertError } = await supabase.from("events").insert({
@@ -63,14 +74,16 @@ export async function POST(
     cover_image_url: body.image_url || "",
     gallery_urls: [],
     dance_style: body.dance_style || "salsa_bachata",
-    city: normalizeGuatemalaCityName(body.city || "Ciudad de Guatemala"),
+    city: normalizeCityName(body.city, countryCode),
+    country_code: countryCode,
+    time_zone: timeZone,
     area: body.address || null,
     venue_name: body.venue_name || "",
     address: body.address || null,
     starts_at: startsAt,
     price_amount: null,
     price_text: body.price_text || null,
-    currency: "GTQ",
+    currency: body.currency || getDefaultCurrency(countryCode),
     organizer_name: body.organizer_name || null,
     contact_url: body.contact_url || null,
     is_featured: false,

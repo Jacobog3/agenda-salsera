@@ -1,8 +1,8 @@
-# Exploraguate Architecture
+# SomosSalsa Architecture
 
 ## Product Direction
 
-Exploraguate starts as a salsa and bachata discovery product for Guatemala and expands later into other communities.
+SomosSalsa starts as a salsa, bachata, and Latin dance discovery product in Guatemala and expands later to other cities and countries in the same dance ecosystem.
 
 ## Architecture Summary
 

@@ -1,4 +1,5 @@
 import { Container } from "@/components/shared/container";
+import { brand } from "@/lib/brand";
 import type { Locale } from "@/types/locale";
 
 export async function generateMetadata({
@@ -9,10 +10,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const isEs = (locale as Locale) === "es";
   return {
-    title: isEs ? "Política de Privacidad | ExploraGuate" : "Privacy Policy | ExploraGuate",
+    title: isEs ? `Política de Privacidad | ${brand.name}` : `Privacy Policy | ${brand.name}`,
     description: isEs
-      ? "Política de privacidad y tratamiento de datos del sitio ExploraGuate."
-      : "Privacy policy and data handling for the ExploraGuate website.",
+      ? `Política de privacidad y tratamiento de datos del sitio ${brand.name}.`
+      : `Privacy policy and data handling for the ${brand.name} website.`,
     robots: { index: true, follow: true }
   };
 }
@@ -34,12 +35,12 @@ export default function PrivacyPage() {
               Este Sitio es operado por <strong>GuatCloud</strong>, desarrollador
               independiente con actividad en la República de Guatemala, responsable del
               tratamiento de los datos recogidos a través de{" "}
-              <strong>salsa.exploraguate.com</strong>.
+              <strong>{brand.domain}</strong>.
             </p>
             <p className="mt-3">
               Para consultas de privacidad o solicitudes sobre tus datos, escribinos a{" "}
-              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                info@exploraguate.com
+              <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                {brand.email}
               </a>
               . Nos comprometemos a responder en un plazo de 15 días hábiles.
             </p>
@@ -84,17 +85,17 @@ export default function PrivacyPage() {
 
           <LegalSection title="3. Contenido de fuentes públicas">
             <p>
-              ExploraGuate recopila y publica información de eventos culturales y de baile
+              SomosSalsa recopila y publica información de eventos culturales y de baile
               proveniente de publicaciones públicas en redes sociales como Instagram,
               Facebook, WhatsApp y otras plataformas, realizadas por organizadores,
               academias y locales de entretenimiento.
             </p>
             <p className="mt-3">
               Esta información es de acceso público y no incluye datos personales de
-              usuarios privados. ExploraGuate la utiliza con fines informativos y culturales.
+              usuarios privados. SomosSalsa la utiliza con fines informativos y culturales.
               Si deseás solicitar la remoción de contenido, podés escribirnos a{" "}
-              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                info@exploraguate.com
+              <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                {brand.email}
               </a>
               .
             </p>
@@ -146,8 +147,8 @@ export default function PrivacyPage() {
               <li>
                 Solicitar acceso, rectificación o eliminación de datos enviados a través
                 del Sitio escribiéndonos a{" "}
-                <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                  info@exploraguate.com
+                <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                  {brand.email}
                 </a>
               </li>
               <li>Optar por no ser rastreado desactivando las cookies en tu navegador</li>
@@ -169,8 +170,8 @@ export default function PrivacyPage() {
             <p>
               Para reclamos relacionados con el tratamiento de tus datos o el contenido
               del Sitio, escribinos a{" "}
-              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                info@exploraguate.com
+              <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                {brand.email}
               </a>
               . Atenderemos tu solicitud en un plazo de 15 días hábiles.
             </p>
@@ -217,8 +218,8 @@ export default function PrivacyPage() {
 
           <LegalSection title="12. Contacto">
             Para consultas sobre privacidad escribinos a{" "}
-            <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-              info@exploraguate.com
+            <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+              {brand.email}
             </a>
             .
           </LegalSection>

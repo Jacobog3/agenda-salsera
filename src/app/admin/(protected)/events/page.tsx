@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AdminEntityList } from "@/components/admin/admin-entity-list";
 import { EventEditSheet } from "@/components/admin/event-edit-sheet";
 import { isEventExpired } from "@/lib/utils/event-status";
+import { DEFAULT_TIME_ZONE } from "@/lib/locations";
 
 const EVENT_COLUMNS = [
   { key: "title_es", label: "Título" },
@@ -13,18 +14,20 @@ const EVENT_COLUMNS = [
     }
     const startsAt = String(item?.starts_at ?? "");
     const endsAt = String(item?.ends_at ?? "");
-    const startText = new Date(startsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
+    const timeZone = String(item?.time_zone ?? DEFAULT_TIME_ZONE);
+    const startText = new Date(startsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short", timeZone });
     if (!endsAt || new Date(endsAt).toDateString() === new Date(startsAt).toDateString()) {
       return startText;
     }
-    const endText = new Date(endsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short" });
+    const endText = new Date(endsAt).toLocaleDateString("es-GT", { day: "numeric", month: "short", timeZone });
     return `${startText} - ${endText}`;
   }},
   { key: "price_text", label: "Precio", format: (v: unknown) => {
     const s = String(v ?? "");
     return s.length > 30 ? s.slice(0, 30) + "…" : s || "—";
   }},
-  { key: "city", label: "Ciudad" }
+  { key: "city", label: "Ciudad" },
+  { key: "country_code", label: "País" }
 ];
 
 export default function AdminEventsPage() {
@@ -69,7 +72,8 @@ export default function AdminEventsPage() {
           isEventExpired({
             startsAt: item.starts_at ? String(item.starts_at) : null,
             endsAt: item.ends_at ? String(item.ends_at) : null,
-            dateStatus: item.date_status === "coming_soon" ? "coming_soon" : "confirmed"
+            dateStatus: item.date_status === "coming_soon" ? "coming_soon" : "confirmed",
+            timeZone: item.time_zone ? String(item.time_zone) : undefined
           })
             ? "expired"
             : "active"

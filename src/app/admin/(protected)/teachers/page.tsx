@@ -7,6 +7,7 @@ import { TeacherEditSheet } from "@/components/admin/teacher-edit-sheet";
 const TEACHER_COLUMNS = [
   { key: "name", label: "Nombre" },
   { key: "city", label: "Ciudad" },
+  { key: "country_code", label: "País" },
   { key: "is_published", label: "Estado", format: (v: unknown) => v ? "✓" : "✗" }
 ];
 
@@ -34,9 +35,9 @@ export default function AdminTeachersPage() {
     <>
       <AdminEntityList
         key={listKey}
-        title="Gestión de Maestros"
+        title="Gestión de artistas y profesionales"
         apiBase="/api/admin/teachers"
-        createLabel="Nuevo maestro"
+        createLabel="Nuevo perfil"
         fields={[]}
         displayColumns={TEACHER_COLUMNS}
         imageKey="profile_image_url"

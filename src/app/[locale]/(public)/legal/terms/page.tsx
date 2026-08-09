@@ -1,4 +1,5 @@
 import { Container } from "@/components/shared/container";
+import { brand } from "@/lib/brand";
 import type { Locale } from "@/types/locale";
 
 export async function generateMetadata({
@@ -9,10 +10,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const isEs = (locale as Locale) === "es";
   return {
-    title: isEs ? "Términos de Uso | ExploraGuate" : "Terms of Use | ExploraGuate",
+    title: isEs ? `Términos de Uso | ${brand.name}` : `Terms of Use | ${brand.name}`,
     description: isEs
-      ? "Términos y condiciones de uso del sitio ExploraGuate."
-      : "Terms and conditions for using the ExploraGuate website.",
+      ? `Términos y condiciones de uso del sitio ${brand.name}.`
+      : `Terms and conditions for using the ${brand.name} website.`,
     robots: { index: true, follow: true }
   };
 }
@@ -34,22 +35,23 @@ export default function TermsPage() {
               Este Sitio es operado por <strong>GuatCloud</strong>, desarrollador independiente
               con actividad en la República de Guatemala. Para cualquier consulta podés
               escribirnos a{" "}
-              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                info@exploraguate.com
+              <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                {brand.email}
               </a>.
             </p>
           </LegalSection>
 
           <LegalSection title="2. Aceptación de los términos">
-            Al acceder y usar <strong>salsa.exploraguate.com</strong> (el &quot;Sitio&quot;),
+            Al acceder y usar <strong>{brand.domain}</strong> (el &quot;Sitio&quot;),
             operado por GuatCloud, aceptás quedar sujeto a estos Términos de Uso.
             Si no estás de acuerdo, por favor no uses el Sitio.
           </LegalSection>
 
           <LegalSection title="3. Descripción del servicio">
-            ExploraGuate es una agenda y directorio de eventos, lugares y academias de
-            salsa, bachata y baile latino en Guatemala. El contenido es informativo y
-            tiene como fin ayudar a la comunidad a descubrir actividades de baile.
+            SomosSalsa es una agenda y directorio de eventos, lugares, academias y maestros
+            de salsa, bachata y baile latino. El contenido es informativo y tiene como fin
+            ayudar a la comunidad a descubrir actividades de baile. La cobertura empieza
+            en Guatemala y puede incorporar otras ubicaciones.
           </LegalSection>
 
           <LegalSection title="4. Uso de información de publicaciones públicas">
@@ -62,14 +64,14 @@ export default function TermsPage() {
             <p className="mt-3">
               Dicha información es de acceso público y es utilizada únicamente con
               fines informativos y de difusión cultural, sin fines comerciales directos
-              sobre el contenido de terceros. ExploraGuate no se atribuye autoría de
+              sobre el contenido de terceros. SomosSalsa no se atribuye autoría de
               flyers, imágenes ni descripciones originales de terceros.
             </p>
             <p className="mt-3">
               Si sos propietario de contenido publicado en este Sitio y deseás que sea
               removido o modificado, podés contactarnos a{" "}
-              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                info@exploraguate.com
+              <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                {brand.email}
               </a>{" "}
               y atenderemos tu solicitud a la brevedad.
             </p>
@@ -89,7 +91,7 @@ export default function TermsPage() {
           </LegalSection>
 
           <LegalSection title="7. Exactitud de la información">
-            ExploraGuate no garantiza la exactitud, integridad ni vigencia de la
+            SomosSalsa no garantiza la exactitud, integridad ni vigencia de la
             información de eventos. Las fechas, precios y lugares son sujetos a cambios
             por parte de los organizadores. Recomendamos verificar los detalles directamente
             con el organizador antes de asistir.
@@ -105,8 +107,8 @@ export default function TermsPage() {
             <p>
               Para cualquier reclamo o consulta sobre el contenido del Sitio, escribinos
               a{" "}
-              <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-                info@exploraguate.com
+              <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+                {brand.email}
               </a>
               . Nos comprometemos a responder en un plazo razonable.
             </p>
@@ -153,8 +155,8 @@ export default function TermsPage() {
 
           <LegalSection title="12. Contacto">
             Para consultas sobre estos Términos, escribinos a{" "}
-            <a href="mailto:info@exploraguate.com" className="text-brand-600 hover:underline">
-              info@exploraguate.com
+            <a href={`mailto:${brand.email}`} className="text-brand-600 hover:underline">
+              {brand.email}
             </a>.
           </LegalSection>
         </div>

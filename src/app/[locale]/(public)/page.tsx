@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { HeroSection } from "@/components/home/hero-section";
 import { AcademyCard } from "@/components/academies/academy-card";
 import { EventCard } from "@/components/events/event-card";
@@ -7,10 +8,11 @@ import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPinned, GraduationCap, UserRound } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPinned, GraduationCap, PartyPopper, UserRound } from "lucide-react";
 import { getFeaturedAcademies } from "@/lib/queries/academies";
 import { getFeaturedEvents } from "@/lib/queries/events";
 import { getFeaturedSpots } from "@/lib/queries/spots";
+import { getFestivals } from "@/lib/queries/festivals";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { AdUnit } from "@/components/shared/ad-unit";
 import type { Locale } from "@/types/locale";
@@ -36,10 +38,11 @@ export default async function HomePage({
     locale: currentLocale,
     namespace: "common"
   });
-  const [events, spots, academies] = await Promise.all([
+  const [events, spots, academies, festivals] = await Promise.all([
     getFeaturedEvents(currentLocale),
     getFeaturedSpots(currentLocale),
-    getFeaturedAcademies(currentLocale)
+    getFeaturedAcademies(currentLocale),
+    getFestivals(currentLocale)
   ]);
 
   return (
@@ -50,7 +53,7 @@ export default async function HomePage({
         <section className="page-section">
           <Container className="space-y-4 md:space-y-8">
             <div className="flex items-end justify-between gap-4">
-              <SectionHeading icon={CalendarDays} title={t("eventsTitle")} />
+              <SectionHeading icon={CalendarDays} title={t("eventsTitle")} tone="red" />
               <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
                 <Link href="/events" aria-label={`${common("viewAll")} ${t("eventsTitle")}`}>
                   {common("viewAll")}
@@ -70,11 +73,38 @@ export default async function HomePage({
         </section>
       )}
 
+      {festivals.length > 0 && (
+        <section className="page-section">
+          <Container>
+            <Link
+              href={{ pathname: "/festivals/[slug]", params: { slug: festivals[0].slug } }}
+              className="group grid overflow-hidden rounded-3xl border border-salsaRed-100 bg-white shadow-sm transition hover:shadow-card md:grid-cols-[0.9fr_1.1fr]"
+            >
+              <div className="relative min-h-52 overflow-hidden bg-salsaRed-50 md:min-h-72">
+                {festivals[0].bannerImageUrl ? (
+                  <Image src={festivals[0].bannerImageUrl} alt={festivals[0].name} fill className="object-cover transition duration-500 group-hover:scale-[1.02]" />
+                ) : (
+                  <PartyPopper className="absolute inset-0 m-auto h-12 w-12 text-salsaRed-500" />
+                )}
+              </div>
+              <div className="flex flex-col justify-center p-5 md:p-9">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-salsaRed-600">{t("festivalsEyebrow")}</p>
+                <h2 className="mt-2 font-display text-2xl font-bold text-gray-950 md:text-4xl">{t("festivalsTitle")}</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-gray-600 md:text-base">{t("festivalsDescription")}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-700">
+                  {t("festivalsCta")} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
+          </Container>
+        </section>
+      )}
+
       {spots.length > 0 && (
         <section className="page-section">
           <Container className="space-y-4 md:space-y-8">
             <div className="flex items-end justify-between gap-4">
-              <SectionHeading icon={MapPinned} title={t("spotsTitle")} />
+              <SectionHeading icon={MapPinned} title={t("spotsTitle")} tone="green" />
               <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
                 <Link href="/spots" aria-label={`${common("viewAll")} ${t("spotsTitle")}`}>
                   {common("viewAll")}
@@ -94,7 +124,7 @@ export default async function HomePage({
         <section className="page-section">
           <Container className="space-y-4 md:space-y-8">
             <div className="flex items-end justify-between gap-4">
-              <SectionHeading icon={GraduationCap} title={t("academiesTitle")} />
+              <SectionHeading icon={GraduationCap} title={t("academiesTitle")} tone="yellow" />
               <Button asChild variant="ghost" size="sm" className="text-xs md:text-[13px]">
                 <Link href="/academies" aria-label={`${common("viewAll")} ${t("academiesTitle")}`}>
                   {common("viewAll")}
@@ -113,7 +143,9 @@ export default async function HomePage({
       <section className="page-section pb-4 md:pb-6">
         <Container>
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 p-5 text-white shadow-glow md:rounded-3xl md:p-10">
-            <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+            <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-salsaRed-400/30 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-10 left-1/3 h-32 w-32 rounded-full bg-accentScale-500/25 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-12 -left-8 h-32 w-32 rounded-full bg-salsaGreen-400/25 blur-2xl" />
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
               <div className="space-y-1.5 md:space-y-2">
                 <h2 className="font-display text-xl font-bold tracking-tight md:text-3xl">

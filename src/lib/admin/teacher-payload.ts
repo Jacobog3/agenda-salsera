@@ -4,7 +4,8 @@ import {
   normalizeAcademyScheduleData,
   normalizeAcademyStyleTags
 } from "@/lib/academies/academy-helpers";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { normalizeCountryCode } from "@/lib/locations";
 
 function parseStringList(value: unknown) {
   if (Array.isArray(value)) {
@@ -26,6 +27,7 @@ function emptyToNull(value: unknown) {
 }
 
 export function normalizeTeacherPayload(rawBody: Record<string, unknown>) {
+  const countryCode = normalizeCountryCode(rawBody.country_code ?? rawBody.countryCode);
   const styleTags = normalizeAcademyStyleTags(rawBody.style_tags);
   const scheduleData = normalizeAcademyScheduleData(rawBody.schedule_data);
   const scheduleText =
@@ -38,7 +40,21 @@ export function normalizeTeacherPayload(rawBody: Record<string, unknown>) {
     bio_en: String(rawBody.bio_en ?? rawBody.bio_es ?? "").trim(),
     profile_image_url: emptyToNull(rawBody.profile_image_url),
     banner_image_url: emptyToNull(rawBody.banner_image_url),
-    city: normalizeGuatemalaCityName(rawBody.city),
+    city: normalizeCityName(rawBody.city, countryCode),
+    country_code: countryCode,
+    profile_kind: ["couple", "team"].includes(String(rawBody.profile_kind))
+      ? String(rawBody.profile_kind)
+      : "person",
+    professional_roles: parseStringList(rawBody.professional_roles).length > 0
+      ? parseStringList(rawBody.professional_roles)
+      : ["teacher"],
+    nationality_country_code: emptyToNull(rawBody.nationality_country_code),
+    source_url: emptyToNull(rawBody.source_url),
+    source_label: emptyToNull(rawBody.source_label),
+    verification_status: ["source_confirmed", "owner_confirmed"].includes(String(rawBody.verification_status))
+      ? String(rawBody.verification_status)
+      : "unverified",
+    last_verified_at: emptyToNull(rawBody.last_verified_at),
     area: emptyToNull(rawBody.area),
     address: emptyToNull(rawBody.address),
     styles_taught: inferAcademyPrimaryStyles(styleTags, rawBody.styles_taught),

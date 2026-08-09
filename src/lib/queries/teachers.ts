@@ -3,6 +3,7 @@ import { buildAcademyScheduleText, normalizeAcademyScheduleData } from "@/lib/ac
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeTeacher } from "@/lib/utils/localize";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 import type { Locale } from "@/types/locale";
 import type { TeacherRecord } from "@/types/teacher";
 
@@ -24,6 +25,20 @@ function normalizeTeacher(row: Record<string, unknown>): TeacherRecord {
     profileImageUrl: row.profile_image_url ? String(row.profile_image_url) : null,
     bannerImageUrl: row.banner_image_url ? String(row.banner_image_url) : null,
     city: String(row.city),
+    countryCode: String(row.country_code ?? DEFAULT_COUNTRY_CODE),
+    profileKind: ["couple", "team"].includes(String(row.profile_kind))
+      ? String(row.profile_kind) as "couple" | "team"
+      : "person",
+    professionalRoles: Array.isArray(row.professional_roles)
+      ? row.professional_roles.map(String)
+      : ["teacher"],
+    nationalityCountryCode: row.nationality_country_code ? String(row.nationality_country_code) : null,
+    sourceUrl: row.source_url ? String(row.source_url) : null,
+    sourceLabel: row.source_label ? String(row.source_label) : null,
+    verificationStatus: row.verification_status === "source_confirmed" || row.verification_status === "owner_confirmed"
+      ? row.verification_status
+      : "unverified",
+    lastVerifiedAt: row.last_verified_at ? String(row.last_verified_at) : null,
     area: row.area ? String(row.area) : null,
     address: row.address ? String(row.address) : null,
     stylesTaught: Array.isArray(row.styles_taught)

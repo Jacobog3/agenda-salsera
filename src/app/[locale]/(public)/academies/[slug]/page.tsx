@@ -25,6 +25,7 @@ import {
   MessageCircle
 } from "lucide-react";
 import type { Locale } from "@/types/locale";
+import { formatLocation, getCountryName } from "@/lib/locations";
 
 const MODALITY_MAP: Record<string, "inPerson" | "online" | "hybrid"> = {
   presencial: "inPerson",
@@ -38,13 +39,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const academy = await getAcademyBySlug(locale as Locale, slug);
+  const currentLocale = locale as Locale;
+  const academy = await getAcademyBySlug(currentLocale, slug);
 
   if (!academy) return {};
 
   const title = locale === "es"
-    ? `${academy.name} | Academia de baile en ${academy.city}`
-    : `${academy.name} | Dance academy in ${academy.city}`;
+    ? `${academy.name} | Academia de baile en ${formatLocation(academy.city, academy.countryCode, currentLocale)}`
+    : `${academy.name} | Dance academy in ${formatLocation(academy.city, academy.countryCode, currentLocale)}`;
 
   return buildDetailMetadata({
     locale: locale as Locale,
@@ -67,6 +69,7 @@ function AcademyJsonLd({
     coverImageUrl: string;
     slug: string;
     city: string;
+    countryCode: string;
     address?: string | null;
     stylesTaught: string[];
     styleTags?: string[];
@@ -101,9 +104,9 @@ function AcademyJsonLd({
       "@type": "PostalAddress",
       streetAddress: academy.address ?? academy.city,
       addressLocality: academy.city,
-      addressCountry: "GT"
+      addressCountry: academy.countryCode
     },
-    areaServed: "Guatemala",
+    areaServed: getCountryName(academy.countryCode, locale),
     knowsAbout: styleKeywords,
     ...(sameAs.length > 0 ? { sameAs } : {})
   };
@@ -188,7 +191,7 @@ export default async function AcademyDetailPage({
               <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" />
-                  {academy.city}
+                  {formatLocation(academy.city, academy.countryCode, currentLocale)}
                 </span>
                 {academy.area ? (
                   <span className="flex items-center gap-1">
@@ -303,7 +306,9 @@ export default async function AcademyDetailPage({
                 </h3>
                 <div className="text-sm text-foreground">
                   {academy.address && <p>{academy.address}</p>}
-                  <p className="text-muted-foreground">{academy.city}</p>
+                  <p className="text-muted-foreground">
+                    {formatLocation(academy.city, academy.countryCode, currentLocale)}
+                  </p>
                 </div>
               </div>
 

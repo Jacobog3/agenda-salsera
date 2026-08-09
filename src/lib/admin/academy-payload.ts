@@ -4,7 +4,8 @@ import {
   normalizeAcademyScheduleData,
   normalizeAcademyStyleTags
 } from "@/lib/academies/academy-helpers";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { normalizeCountryCode } from "@/lib/locations";
 
 function emptyToNull(value: unknown) {
   const text = String(value ?? "").trim();
@@ -12,6 +13,7 @@ function emptyToNull(value: unknown) {
 }
 
 export function normalizeAcademyPayload(rawBody: Record<string, unknown>) {
+  const countryCode = normalizeCountryCode(rawBody.country_code ?? rawBody.countryCode);
   const styleTags = normalizeAcademyStyleTags(rawBody.style_tags);
   const scheduleData = normalizeAcademyScheduleData(rawBody.schedule_data);
   const scheduleText =
@@ -24,7 +26,8 @@ export function normalizeAcademyPayload(rawBody: Record<string, unknown>) {
     description_en: String(rawBody.description_en ?? rawBody.description_es ?? "").trim(),
     cover_image_url: String(rawBody.cover_image_url ?? "").trim(),
     banner_image_url: emptyToNull(rawBody.banner_image_url),
-    city: normalizeGuatemalaCityName(rawBody.city),
+    city: normalizeCityName(rawBody.city, countryCode),
+    country_code: countryCode,
     area: emptyToNull(rawBody.area),
     address: emptyToNull(rawBody.address),
     styles_taught: inferAcademyPrimaryStyles(styleTags, rawBody.styles_taught),

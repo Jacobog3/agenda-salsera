@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/shared/container";
 import { buildMetadata } from "@/lib/metadata/build-metadata";
+import { brand } from "@/lib/brand";
 import type { Locale } from "@/types/locale";
 
 export async function generateMetadata({
@@ -62,10 +63,10 @@ export default async function AboutPage() {
             <p>
               {t("correctionsText")} {" "}
               <a
-                href="mailto:info@exploraguate.com"
+                href={`mailto:${brand.email}`}
                 className="font-medium text-brand-600 hover:underline"
               >
-                info@exploraguate.com
+                {brand.email}
               </a>
               .
             </p>

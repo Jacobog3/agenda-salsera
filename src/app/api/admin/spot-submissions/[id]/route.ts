@@ -3,7 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { normalizeCountryCode } from "@/lib/locations";
 
 function generateSlug(name: string) {
   return (
@@ -71,6 +72,10 @@ export async function POST(
 
   const supabase = createSupabaseAdminClient();
   const slug = generateSlug(String(body.name));
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
+  if (!countryCode) {
+    return NextResponse.json({ error: "El país es obligatorio." }, { status: 400 });
+  }
 
   const { data: inserted, error: insertError } = await supabase
     .from("spots")
@@ -80,7 +85,8 @@ export async function POST(
       description_es: String(body.description ?? "").trim(),
       description_en: String(body.description_en ?? body.description ?? "").trim(),
       cover_image_url: String(body.image_url).trim(),
-      city: normalizeGuatemalaCityName(body.city),
+      city: normalizeCityName(body.city, countryCode),
+      country_code: countryCode,
       area: emptyToNull(body.area),
       address: emptyToNull(body.address),
       schedule_es: String(body.schedule ?? "").trim(),

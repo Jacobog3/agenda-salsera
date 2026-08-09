@@ -3,7 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { getDefaultTimeZone, normalizeCountryCode } from "@/lib/locations";
 import { inferEventRelations } from "@/lib/admin/event-relations";
 
 function normalizeNullableId(value: unknown) {
@@ -76,9 +77,15 @@ export async function PATCH(
   }
 
   body.cover_image_url = finalCoverImageUrl;
-  if ("city" in body) {
-    body.city = normalizeGuatemalaCityName(body.city);
+  const hasCountryCode = "country_code" in body || "countryCode" in body;
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
+  if (hasCountryCode && !countryCode) {
+    return NextResponse.json({ error: "Selecciona el país del evento." }, { status: 400 });
   }
+  delete body.countryCode;
+  if (hasCountryCode) body.country_code = countryCode;
+  if ("city" in body) body.city = normalizeCityName(body.city, hasCountryCode ? countryCode : "");
+  if (hasCountryCode && !body.time_zone) body.time_zone = getDefaultTimeZone(countryCode);
   const organizerIdWasSubmitted = "organizer_id" in body;
   const academyIdWasSubmitted = "academy_id" in body;
   body.organizer_id = organizerIdWasSubmitted

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Exploraguate** — a bilingual (Spanish/English) event and community discovery platform for Guatemala, focused initially on the salsa and bachata dance community.
+**SomosSalsa** — a bilingual (Spanish/English) discovery platform for salsa, bachata, and Latin dance. Guatemala is the first active location, not the limit of the product.
 
 ## Commands
 

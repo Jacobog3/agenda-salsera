@@ -12,6 +12,7 @@ import {
 } from "@/lib/utils/formatters";
 import type { LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
+import { formatLocation } from "@/lib/locations";
 
 export async function EventCard({
   event,
@@ -35,8 +36,8 @@ export async function EventCard({
   const dateText = isComingSoon
     ? formatEventDateStatusLabel(event.dateLabel, locale)
     : isLongEvent
-      ? formatEventDateRange(event.startsAt!, event.endsAt!, locale)
-      : formatEventDate(event.startsAt!, locale);
+      ? formatEventDateRange(event.startsAt!, event.endsAt!, locale, event.timeZone)
+      : formatEventDate(event.startsAt!, locale, event.timeZone);
 
   return (
     <Link
@@ -66,15 +67,13 @@ export async function EventCard({
 
         {/* Content: compact on mobile, spacious on desktop */}
         <div className="flex flex-1 flex-col justify-center gap-1 p-3 md:gap-3 md:p-5">
-          <div className="flex items-center gap-2">
-            <Badge className="px-2 py-px text-[10px] md:px-2.5 md:py-0.5 md:text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="bg-salsaRed-50 px-2 py-px text-[10px] text-salsaRed-700 md:px-2.5 md:py-0.5 md:text-xs">
               {t(`danceStyles.${event.danceStyle}`)}
             </Badge>
-            {isLongEvent ? (
-              <Badge className="border border-brand-200 bg-brand-50 px-2 py-px text-[10px] text-brand-700 md:px-2.5 md:py-0.5 md:text-xs">
-                {t("longEvent")}
-              </Badge>
-            ) : null}
+            <Badge className="border border-accentScale-100 bg-accentScale-50 px-2 py-px text-[10px] text-accentScale-700 md:px-2.5 md:py-0.5 md:text-xs">
+              {t(`eventKinds.${event.eventKind ?? "social"}`)}
+            </Badge>
             <span className="text-[11px] text-muted-foreground md:hidden">
               {dateText}
             </span>
@@ -88,10 +87,10 @@ export async function EventCard({
             <span className="flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
               <span className="line-clamp-1">
-                {event.venueName} · {event.city}
+                {event.venueName} · {formatLocation(event.city, event.countryCode, locale)}
               </span>
             </span>
-            <span className="shrink-0 font-semibold text-brand-600">
+            <span className="shrink-0 font-semibold text-salsaRed-600">
               {formatCardPrice(event.priceText, event.priceAmount, event.currency, locale)}
             </span>
           </div>

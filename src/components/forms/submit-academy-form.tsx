@@ -17,11 +17,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type Fields = {
   name: string;
   description: string;
   city: string;
+  countryCode: string;
   address: string;
   scheduleText: string;
   levels: string;
@@ -35,7 +38,7 @@ type Fields = {
 };
 
 const defaultFields: Fields = {
-  name: "", description: "", city: "", address: "",
+  name: "", description: "", city: "", countryCode: DEFAULT_COUNTRY_CODE, address: "",
   scheduleText: "", levels: "", trialClass: false,
   modality: "presencial", styles: "", contactName: "",
   whatsapp: "", instagram: "", website: ""
@@ -115,6 +118,7 @@ export function SubmitAcademyForm() {
         name:         d.name         || prev.name,
         description:  d.description  || prev.description,
         city:         d.city         || prev.city,
+        countryCode:  d.countryCode  || prev.countryCode,
         address:      d.address      || prev.address,
         scheduleText: d.scheduleText || prev.scheduleText,
         levels:       d.levels       || prev.levels,
@@ -139,6 +143,7 @@ export function SubmitAcademyForm() {
     const mappedErrors: Partial<Record<keyof Fields, string>> = {};
     if (nextErrors.name) mappedErrors.name = requiredMessage(f("name"));
     if (nextErrors.city) mappedErrors.city = requiredMessage(f("city"));
+    if (nextErrors.countryCode) mappedErrors.countryCode = requiredMessage(f("country"));
     if (nextErrors.imageUrl) setImageError(f("imageRequired"));
 
     if (Object.keys(mappedErrors).length > 0) {
@@ -155,6 +160,10 @@ export function SubmitAcademyForm() {
 
     if (!fields.city.trim()) {
       nextErrors.city = requiredMessage(f("city"));
+    }
+
+    if (!fields.countryCode) {
+      nextErrors.countryCode = requiredMessage(f("country"));
     }
 
     setFieldErrors(nextErrors);
@@ -357,7 +366,7 @@ export function SubmitAcademyForm() {
           </label>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <Field label={f("styles")}>
             <Input value={fields.styles} onChange={(e) => setField("styles", e.target.value)}
               placeholder={f("stylesPlaceholder")} />
@@ -365,6 +374,12 @@ export function SubmitAcademyForm() {
           <Field label={`${f("city")} *`} error={fieldErrors.city}>
             <Input required value={fields.city} onChange={(e) => setField("city", e.target.value)}
               placeholder={f("cityPlaceholder")} />
+          </Field>
+          <Field label={`${f("country")} *`} error={fieldErrors.countryCode}>
+            <CountrySelect
+              value={fields.countryCode}
+              onChange={(countryCode) => setField("countryCode", countryCode)}
+            />
           </Field>
         </div>
 

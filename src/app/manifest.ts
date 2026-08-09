@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ExploraGuate",
-    short_name: "ExploraGuate",
-    description: "Eventos, spots y academias de salsa y bachata en Guatemala.",
+    name: "SomosSalsa",
+    short_name: "SomosSalsa",
+    description: "Eventos, academias, maestros y lugares de salsa y bachata.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f6fafc",
-    theme_color: "#1497d4",
+    background_color: "#FFFFFF",
+    theme_color: "#0AA9D1",
     icons: [
       {
         src: "/icon.png",

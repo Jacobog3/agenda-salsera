@@ -29,8 +29,8 @@ export function SubmitDropdown() {
         className={cn(
           "hidden min-h-11 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all md:inline-flex",
           open
-            ? "bg-brand-700 text-white"
-            : "bg-brand-600 text-white hover:bg-brand-700"
+            ? "bg-salsaRed-700 text-white"
+            : "bg-salsaRed-500 text-white hover:bg-salsaRed-600"
         )}
         aria-expanded={open}
         aria-label={t("publish")}

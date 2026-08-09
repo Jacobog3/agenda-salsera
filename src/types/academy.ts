@@ -20,6 +20,7 @@ export type AcademyRecord = {
   coverImageUrl: string;
   bannerImageUrl?: string | null;
   city: string;
+  countryCode: string;
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];
@@ -45,6 +46,7 @@ export type LocalizedAcademy = {
   coverImageUrl: string;
   bannerImageUrl?: string | null;
   city: string;
+  countryCode: string;
   area?: string | null;
   address?: string | null;
   stylesTaught: DanceStyle[];

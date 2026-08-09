@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 
 const CONSENT_STORAGE_KEY = "cookie_consent";
-const CONSENT_EVENT = "exploraguate:cookie-consent";
+const CONSENT_EVENT = "somossalsa:cookie-consent";
 
 declare global {
   interface Window {

@@ -9,7 +9,7 @@ import {
 import { env } from "@/lib/utils/env";
 import { getGeminiGenerateContentUrl, logGeminiUsage } from "@/lib/ai/gemini";
 
-const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages, captions, and flyer images about dance events in Guatemala.
+const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages, captions, and flyer images about salsa, bachata, and Latin dance events worldwide.
 
 Extract the following fields and return ONLY a valid JSON object with these exact keys:
 - title: event name (string)
@@ -21,10 +21,22 @@ Extract the following fields and return ONLY a valid JSON object with these exac
 - area: zone, mall, neighborhood, district, or short area reference such as "Zona 10", "Cayala", "Arkadia", or "Novicentro" (string)
 - address: full address or location details (string)
 - city: canonical city name. If a zone number in the capital is mentioned, use "Ciudad de Guatemala" (string)
+- countryCode: ISO 3166-1 alpha-2 country code such as "GT", "CR", "MX", or "ES" (string)
+- timeZone: IANA time zone for the event location, such as "America/Guatemala", "America/Costa_Rica", "America/Mexico_City", or "Europe/Madrid" (string)
 - price: ALL price options in a compact readable string separated by " · " e.g. "Preventa Q50 · Puerta Q75" or "Full Pass Q1,160/$145 · 1 Taller Q260/$35 · Sociales Q160/$20" or "Gratis" (string)
 - organizerName: organizer or instructor name (string)
 - contactLink: phone number, WhatsApp link, or website URL for tickets (string)
 - danceStyle: one of "salsa", "bachata", "salsa_bachata", "other" based on event content (string)
+- eventKind: one of "social", "workshop", "class", "bootcamp", "competition", "show", "concert", "festival", "congress", "other" (string)
+- festivalName: permanent festival/congress brand name only when this activity belongs to one; otherwise empty string (string)
+- festivalEditionLabel: edition year or label such as "2026" only when explicitly supported; otherwise empty string (string)
+- people: every named dance professional visibly associated with the activity (array of objects). Each object must contain exactly:
+  - name: public/stage name as shown (string)
+  - roles: any supported roles from "teacher", "dancer", "performer", "dj", "judge", "choreographer", "organizer", "host", "musician", "other" (array of strings)
+  - affiliation: academy, company, dance partner, or team explicitly associated with the person (string)
+  - originCity: city they are described as coming from or based in, only when explicit (string)
+  - originCountryCode: ISO country code for that origin/base, only when explicit (string)
+  - evidence: short exact-context paraphrase explaining why the person is associated with the event (string)
 - description: informative 2-4 sentence description in Spanish using concrete details from the flyer/text (string)
 
 Rules:
@@ -32,23 +44,29 @@ Rules:
 - Combine information from both the text and the flyer image when both are provided
 - Prefer explicit information from the flyer image for venue names, times, and location details
 - Keep important concrete details in description when available: workshop names, levels, instructors, key price structure, venue reference, parking, or capacity notes
+- Include every clearly named instructor, performer, DJ, judge, host, musician, couple, or team in people. Do not invent surnames, nationalities, affiliations, or roles.
+- A foreign guest workshop remains eventKind "workshop" or "class"; the guest's origin does not make it a festival.
+- Use eventKind "festival" or "congress" only when the source itself presents a multi-activity festival/congress, not merely because several workshops are listed.
+- If no people are identifiable, return an empty array []
 - Do not over-summarize the description into a vague generic blurb
 - For danceStyle: use "other" for cumbia, merengue, kizomba, etc.
-- For city: if text mentions "zona [number]" in the capital without a city, use "Ciudad de Guatemala". Use "Antigua Guatemala", not "Antigua".
+- For city: if text mentions "zona [number]" in Guatemala's capital without a city, use "Ciudad de Guatemala". Use "Antigua Guatemala", not "Antigua". Otherwise preserve the correct city for the country shown.
+- Infer countryCode and timeZone only from reliable location evidence. When a Guatemala +502 phone number or Guatemalan quetzal price clearly confirms the country and there is no conflicting evidence, use "GT" and "America/Guatemala".
 - For venue vs area vs address:
   - venue = studio/place/business name
   - area = short zone or area reference
   - address = broader location details or full reference, excluding the venue name when possible
-- For contactLink: prefer website/ticket URLs over phone numbers; if only phone use "https://wa.me/502XXXXXXXX" format
+- For contactLink: prefer website/ticket URLs over phone numbers; if only a phone is available, convert it to "https://wa.me/[country calling code][number]" without spaces or punctuation
 - Remove emojis from all values
 - Return ONLY the JSON object, no markdown, no explanation`;
 
-const ACADEMY_PROMPT = `You are an assistant that extracts structured dance academy data from WhatsApp messages, Instagram posts, or flyer text in Guatemala.
+const ACADEMY_PROMPT = `You are an assistant that extracts structured dance academy data from WhatsApp messages, Instagram posts, or flyer text worldwide.
 
 Extract the following fields and return ONLY a valid JSON object with these exact keys:
 - name: academy or school name (string)
 - description: 1-2 sentence description in Spanish (string)
 - city: canonical city name. If a zone number in the capital is mentioned, use "Ciudad de Guatemala". Use "Antigua Guatemala", not "Antigua" (string)
+- countryCode: ISO 3166-1 alpha-2 country code such as "GT", "CR", "MX", or "ES" (string)
 - address: full address or location reference (string)
 - scheduleText: class schedule as readable text e.g. "Lunes y miércoles 6pm · Sábados 10am" (string)
 - levels: levels offered e.g. "Principiante, Intermedio, Avanzado" (string)

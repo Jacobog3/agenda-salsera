@@ -3,11 +3,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { isEventActive, isEventExpired, isHistoricalEventIndexable } from "@/lib/utils/event-status";
 import { localizeEvent } from "@/lib/utils/localize";
-import type { DanceStyle, EventRecord, LocalizedEvent } from "@/types/event";
+import { DEFAULT_COUNTRY_CODE, DEFAULT_TIME_ZONE, getLocationKey } from "@/lib/locations";
+import type { DanceStyle, EventKind, EventRecord, LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
 type EventFilters = {
   city?: string;
+  countryCode?: string;
   danceStyle?: DanceStyle | "all";
   dateRangeInDays?: string;
 };
@@ -25,7 +27,11 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     coverImageUrl: String(row.cover_image_url),
     galleryUrls: Array.isArray(row.gallery_urls) ? (row.gallery_urls as string[]) : [],
     danceStyle: row.dance_style as DanceStyle,
+    eventKind: String(row.event_kind ?? "social") as EventKind,
+    festivalEditionId: row.festival_edition_id ? String(row.festival_edition_id) : null,
     city: String(row.city),
+    countryCode: String(row.country_code ?? DEFAULT_COUNTRY_CODE),
+    timeZone: String(row.time_zone ?? DEFAULT_TIME_ZONE),
     area: row.area ? String(row.area) : null,
     venueName: String(row.venue_name),
     address: row.address ? String(row.address) : null,
@@ -63,6 +69,14 @@ export async function getEvents(
       if (!isEventActive(event)) return false;
 
       if (filters?.city && filters.city !== "all" && event.city !== filters.city) {
+        return false;
+      }
+
+      if (
+        filters?.countryCode &&
+        filters.countryCode !== "all" &&
+        event.countryCode !== filters.countryCode
+      ) {
         return false;
       }
 
@@ -144,7 +158,10 @@ export async function getRelatedUpcomingEvents(
         score += 40;
         if (recommendationType === "local") recommendationType = "venue";
       }
-      if (event.city === currentEvent.city) score += 10;
+      if (
+        getLocationKey(event.city, event.countryCode) ===
+        getLocationKey(currentEvent.city, currentEvent.countryCode)
+      ) score += 10;
       if (event.danceStyle === currentEvent.danceStyle) score += 5;
       return { event, score, recommendationType };
     })

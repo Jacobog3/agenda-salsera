@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     { sourceKey: "bio_es", targetKey: "bio_en", label: "Teacher bio" }
   ]);
 
-  if (!String(body.name ?? "").trim() || !String(body.city ?? "").trim()) {
+  if (!String(body.name ?? "").trim() || !String(body.city ?? "").trim() || !String(body.country_code ?? body.countryCode ?? "").trim()) {
     return NextResponse.json(
-      { error: "Nombre y ciudad son obligatorios." },
+      { error: "Nombre, ciudad y país son obligatorios." },
       { status: 400 }
     );
   }

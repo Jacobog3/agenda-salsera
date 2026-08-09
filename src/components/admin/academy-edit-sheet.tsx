@@ -10,6 +10,8 @@ import { EntityAiPanel } from "./academy-ai-panel";
 import { ScheduleEditor } from "./schedule-editor";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import type { ScheduleDay } from "@/types/academy";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type AcademyData = Record<string, unknown>;
 
@@ -29,6 +31,7 @@ const AI_FIELD_LABELS: Record<string, string> = {
   cover_image_url: "Logo / Imagen principal",
   name: "Nombre",
   city: "Ciudad",
+  country_code: "País",
   area: "Zona / Área",
   address: "Dirección",
   description_es: "Descripción",
@@ -48,7 +51,7 @@ const AI_FIELD_LABELS: Record<string, string> = {
 function buildInitialData(item: AcademyData | null): AcademyData {
   if (!item) {
     return {
-      name: "", city: "", area: "", address: "",
+      name: "", city: "", country_code: DEFAULT_COUNTRY_CODE, area: "", address: "",
       cover_image_url: "", banner_image_url: "",
       description_es: "", description_en: "",
       style_tags: "", schedule_text: "", schedule_data: null,
@@ -323,13 +326,20 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
                   className="h-9 text-sm"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="space-y-1">
                   <FieldLabel label="Ciudad" />
                   <Input
                     value={String(data.city ?? "")}
                     onChange={(e) => set("city", e.target.value)}
                     className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <FieldLabel label="País" />
+                  <CountrySelect
+                    value={String(data.country_code ?? DEFAULT_COUNTRY_CODE)}
+                    onChange={(countryCode) => set("country_code", countryCode)}
                   />
                 </div>
                 <div className="space-y-1">

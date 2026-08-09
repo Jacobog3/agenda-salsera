@@ -1,10 +1,10 @@
-# Exploraguate — Project Context
+# SomosSalsa — Project Context
 
 ## Project Overview
 
-Exploraguate is a web platform designed to help people discover local communities, events, and activities in Guatemala.
+SomosSalsa is a web platform designed to make salsa, bachata, and Latin dance information clear, accessible, and connected.
 
-The initial MVP will focus on the **salsa and bachata dance community**, where people currently rely heavily on WhatsApp groups to share information about:
+The first active location is **Guatemala**, where people currently rely heavily on WhatsApp groups and social posts to share information about:
 
 - social dance events
 - academies
@@ -17,27 +17,15 @@ WhatsApp works for communication but is **not good for organizing information**.
 
 Important information quickly gets buried in chat messages.
 
-Exploraguate will centralize this information in a **clean, searchable, mobile-friendly platform**.
+SomosSalsa centralizes this information in a **clean, searchable, mobile-friendly platform**.
 
 ---
 
 # Product Vision
 
-The long-term vision is to create a **local discovery hub for communities in Guatemala**.
+The long-term vision is to create the clearest directory and discovery layer for the **Latin dance community**, starting in Guatemala and expanding by city across Latin America and later other regions.
 
-Although the MVP focuses on salsa and bachata, the platform should eventually support other communities such as:
-
-- running clubs
-- yoga
-- crossfit
-- photography
-- language exchange
-- tech meetups
-- cultural events
-- workshops
-- fitness communities
-
-The architecture should allow adding new communities without major redesign.
+Guatemala is a location in the platform, not part of the brand identity or a permanent geographic boundary. Permanent profiles for academies, teachers, artists, organizers, festivals, venues, and event editions should preserve knowledge that currently disappears in flyers and chats.
 
 ---
 

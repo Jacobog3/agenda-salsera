@@ -97,7 +97,7 @@ at implementation time, this keeps 21 of 59 expired events indexable and marks 3
 
 Create one bilingual, low-maintenance page explaining:
 
-- who maintains ExploraGuate;
+- who maintains SomosSalsa;
 - what problem the site solves;
 - how information is collected from public flyers, organizers, and community submissions;
 - that information is reviewed before publication;

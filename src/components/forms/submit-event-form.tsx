@@ -23,6 +23,8 @@ import {
 } from "@/lib/validations/event-submission";
 import { cn } from "@/lib/utils/cn";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE, DEFAULT_TIME_ZONE, getDefaultTimeZone } from "@/lib/locations";
 
 const danceStyles: EventSubmissionValues["danceStyle"][] = [
   "salsa",
@@ -56,6 +58,8 @@ export function SubmitEventForm() {
       time: "",
       price: "",
       city: "",
+      countryCode: DEFAULT_COUNTRY_CODE,
+      timeZone: DEFAULT_TIME_ZONE,
       venue: "",
       address: "",
       organizerName: "",
@@ -84,6 +88,9 @@ export function SubmitEventForm() {
     }
     if (fieldErrors.city) {
       form.setError("city", { message: requiredMessage(t("fields.city")) });
+    }
+    if (fieldErrors.countryCode) {
+      form.setError("countryCode", { message: requiredMessage(f("country")) });
     }
     if (fieldErrors.venue) {
       form.setError("venue", { message: requiredMessage(t("fields.venue")) });
@@ -136,6 +143,10 @@ export function SubmitEventForm() {
       if (d.venue) form.setValue("venue", d.venue, { shouldValidate: true });
       if (d.address) form.setValue("address", d.address);
       if (d.city) form.setValue("city", d.city, { shouldValidate: true });
+      if (d.countryCode) {
+        form.setValue("countryCode", d.countryCode, { shouldValidate: true });
+        form.setValue("timeZone", d.timeZone || getDefaultTimeZone(d.countryCode));
+      }
       if (d.price) form.setValue("price", d.price);
       if (d.organizerName) form.setValue("organizerName", d.organizerName);
       if (d.contactLink) form.setValue("contactLink", d.contactLink);
@@ -285,7 +296,7 @@ export function SubmitEventForm() {
           {f("step3Review")}
         </p>
 
-        <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+        <div className="grid gap-4 md:grid-cols-3 md:gap-5">
           <Field
             label={t("fields.title")}
             error={form.formState.errors.title?.message}
@@ -324,6 +335,15 @@ export function SubmitEventForm() {
           </Field>
           <Field label={t("fields.city")} error={form.formState.errors.city?.message}>
             <Input placeholder={f("city")} {...form.register("city")} />
+          </Field>
+          <Field label={`${f("country")} *`} error={form.formState.errors.countryCode ? requiredMessage(f("country")) : undefined}>
+            <CountrySelect
+              value={form.watch("countryCode")}
+              onChange={(countryCode) => {
+                form.setValue("countryCode", countryCode, { shouldValidate: true });
+                form.setValue("timeZone", getDefaultTimeZone(countryCode));
+              }}
+            />
           </Field>
         </div>
 

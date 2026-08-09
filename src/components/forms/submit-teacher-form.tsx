@@ -15,12 +15,15 @@ import {
   X
 } from "lucide-react";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type Fields = {
   name: string;
   contactName: string;
   description: string;
   city: string;
+  countryCode: string;
   address: string;
   styles: string;
   levels: string;
@@ -39,6 +42,7 @@ const defaultFields: Fields = {
   contactName: "",
   description: "",
   city: "",
+  countryCode: DEFAULT_COUNTRY_CODE,
   address: "",
   styles: "",
   levels: "",
@@ -106,6 +110,7 @@ export function SubmitTeacherForm() {
     const mappedErrors: Partial<Record<keyof Fields, string>> = {};
     if (nextErrors.name) mappedErrors.name = requiredMessage(f("name"));
     if (nextErrors.city) mappedErrors.city = requiredMessage(f("city"));
+    if (nextErrors.countryCode) mappedErrors.countryCode = requiredMessage(f("country"));
     if (nextErrors.imageUrl) setImageError(f("imageRequired"));
 
     if (Object.keys(mappedErrors).length > 0) {
@@ -122,6 +127,10 @@ export function SubmitTeacherForm() {
 
     if (!fields.city.trim()) {
       nextErrors.city = requiredMessage(f("city"));
+    }
+
+    if (!fields.countryCode) {
+      nextErrors.countryCode = requiredMessage(f("country"));
     }
 
     setFieldErrors(nextErrors);
@@ -237,7 +246,7 @@ export function SubmitTeacherForm() {
         <div className="space-y-4">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("teacherSectionProfile")}</p>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <Field label={`${f("name")} *`} error={fieldErrors.name}>
             <Input required value={fields.name} onChange={(e) => setField("name", e.target.value)} />
             </Field>
@@ -325,6 +334,12 @@ export function SubmitTeacherForm() {
                 value={fields.city}
                 onChange={(e) => setField("city", e.target.value)}
                 placeholder={f("cityPlaceholder")}
+              />
+            </Field>
+            <Field label={`${f("country")} *`} error={fieldErrors.countryCode}>
+              <CountrySelect
+                value={fields.countryCode}
+                onChange={(countryCode) => setField("countryCode", countryCode)}
               />
             </Field>
             <Field label={f("address")}>

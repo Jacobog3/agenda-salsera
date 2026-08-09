@@ -7,6 +7,7 @@ export type OrganizerRecord = {
   logoImageUrl?: string | null;
   bannerImageUrl?: string | null;
   city?: string | null;
+  countryCode: string;
   area?: string | null;
   address?: string | null;
   whatsappUrl?: string | null;

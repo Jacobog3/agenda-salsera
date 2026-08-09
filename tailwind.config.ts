@@ -46,15 +46,55 @@ const config: Config = {
         brand: {
           50: "hsl(var(--brand-50))",
           100: "hsl(var(--brand-100))",
+          200: "hsl(var(--brand-200))",
+          300: "hsl(var(--brand-300))",
+          400: "hsl(var(--brand-400))",
           500: "hsl(var(--brand-500))",
           600: "hsl(var(--brand-600))",
-          700: "hsl(var(--brand-700))"
+          700: "hsl(var(--brand-700))",
+          800: "hsl(var(--brand-800))",
+          900: "hsl(var(--brand-900))"
+        },
+        salsaRed: {
+          50: "hsl(var(--red-50))",
+          100: "hsl(var(--red-100))",
+          200: "hsl(var(--red-200))",
+          300: "hsl(var(--red-300))",
+          400: "hsl(var(--red-400))",
+          500: "hsl(var(--red-500))",
+          600: "hsl(var(--red-600))",
+          700: "hsl(var(--red-700))",
+          800: "hsl(var(--red-800))",
+          900: "hsl(var(--red-900))"
+        },
+        salsaGreen: {
+          50: "hsl(var(--green-50))",
+          100: "hsl(var(--green-100))",
+          200: "hsl(var(--green-200))",
+          300: "hsl(var(--green-300))",
+          400: "hsl(var(--green-400))",
+          500: "hsl(var(--green-500))",
+          600: "hsl(var(--green-600))",
+          700: "hsl(var(--green-700))",
+          800: "hsl(var(--green-800))",
+          900: "hsl(var(--green-900))"
         },
         accentScale: {
           50: "hsl(var(--accent-50))",
           100: "hsl(var(--accent-100))",
           500: "hsl(var(--accent-500))",
           700: "hsl(var(--accent-700))"
+        },
+        salsaOrange: {
+          50: "hsl(var(--orange-50))",
+          100: "hsl(var(--orange-100))",
+          200: "hsl(var(--orange-200))",
+          300: "hsl(var(--orange-300))",
+          400: "hsl(var(--orange-400))",
+          500: "hsl(var(--orange-500))",
+          600: "hsl(var(--orange-600))",
+          700: "hsl(var(--orange-700))",
+          800: "hsl(var(--orange-800))"
         },
         warm: {
           50: "hsl(var(--warm-50))",

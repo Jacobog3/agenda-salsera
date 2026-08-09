@@ -15,11 +15,14 @@ import {
   X
 } from "lucide-react";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type Fields = {
   name: string;
   description: string;
   city: string;
+  countryCode: string;
   address: string;
   schedule: string;
   coverCharge: string;
@@ -32,6 +35,7 @@ const defaultFields: Fields = {
   name: "",
   description: "",
   city: "",
+  countryCode: DEFAULT_COUNTRY_CODE,
   address: "",
   schedule: "",
   coverCharge: "",
@@ -94,6 +98,7 @@ export function SubmitSpotForm() {
     const mappedErrors: Partial<Record<keyof Fields, string>> = {};
     if (nextErrors.name) mappedErrors.name = requiredMessage(f("spotName").replace(" *", ""));
     if (nextErrors.city) mappedErrors.city = requiredMessage(f("city"));
+    if (nextErrors.countryCode) mappedErrors.countryCode = requiredMessage(f("country"));
     if (nextErrors.imageUrl) setImageError(f("imageRequired"));
 
     if (Object.keys(mappedErrors).length > 0) {
@@ -110,6 +115,10 @@ export function SubmitSpotForm() {
 
     if (!fields.city.trim()) {
       nextErrors.city = requiredMessage(f("city"));
+    }
+
+    if (!fields.countryCode) {
+      nextErrors.countryCode = requiredMessage(f("country"));
     }
 
     setFieldErrors(nextErrors);
@@ -233,7 +242,7 @@ export function SubmitSpotForm() {
       <div className="space-y-4">
         <div className="space-y-4">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-700">{f("spotSectionBasics")}</p>
-          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
+          <div className="grid gap-4 md:grid-cols-3 md:gap-5">
             <Field label={f("spotName")} error={fieldErrors.name}>
               <Input value={fields.name} onChange={(e) => setField("name", e.target.value)} placeholder="Ej: Las Palmas, La Casbah" />
             </Field>
@@ -254,6 +263,12 @@ export function SubmitSpotForm() {
           <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             <Field label={`${f("city")} *`} error={fieldErrors.city}>
               <Input value={fields.city} onChange={(e) => setField("city", e.target.value)} placeholder={f("cityPlaceholder")} />
+            </Field>
+            <Field label={`${f("country")} *`} error={fieldErrors.countryCode}>
+              <CountrySelect
+                value={fields.countryCode}
+                onChange={(countryCode) => setField("countryCode", countryCode)}
+              />
             </Field>
             <Field label={f("address")}>
               <Input value={fields.address} onChange={(e) => setField("address", e.target.value)} placeholder={f("addressPlaceholder")} />

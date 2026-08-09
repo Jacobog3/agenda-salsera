@@ -6,9 +6,14 @@ const CANONICAL_CITY_NAMES = new Map([
   ["antigua guatemala", "Antigua Guatemala"]
 ]);
 
-export function normalizeGuatemalaCityName(value: unknown) {
+export function normalizeCityName(value: unknown, countryCode = "") {
   const city = String(value ?? "").trim();
   if (!city) return "";
 
+  if (countryCode.toUpperCase() !== "GT") return city;
   return CANONICAL_CITY_NAMES.get(city.toLocaleLowerCase("es")) ?? city;
+}
+
+export function normalizeGuatemalaCityName(value: unknown) {
+  return normalizeCityName(value, "GT");
 }

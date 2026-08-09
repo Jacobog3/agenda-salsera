@@ -24,6 +24,7 @@ import { Calendar, MapPin, User, Banknote, Globe, ExternalLink, History } from "
 import { env } from "@/lib/utils/env";
 import type { LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
+import { formatLocation } from "@/lib/locations";
 import type { OrganizerSummary } from "@/types/organizer";
 import type { LocalizedTeacher } from "@/types/teacher";
 
@@ -139,6 +140,7 @@ function EventJsonLd({
     venueName: string;
     address?: string | null;
     city: string;
+    countryCode: string;
     startsAt?: string | null;
     endsAt?: string | null;
     dateStatus: "confirmed" | "coming_soon";
@@ -180,8 +182,8 @@ function EventJsonLd({
         name: teacher.name,
         url:
           locale === "es"
-            ? `${siteUrl}/maestros/${teacher.slug}`
-            : `${siteUrl}/en/teachers/${teacher.slug}`
+            ? `${siteUrl}/artistas/${teacher.slug}`
+            : `${siteUrl}/en/artists/${teacher.slug}`
       }))
     : relatedAcademy
       ? {
@@ -216,7 +218,7 @@ function EventJsonLd({
         "@type": "PostalAddress",
         streetAddress: event.address ?? event.venueName,
         addressLocality: event.city,
-        addressCountry: "GT"
+        addressCountry: event.countryCode
       }
     },
     organizer: {
@@ -274,8 +276,8 @@ export default async function EventDetailPage({
   const dateText = event.dateStatus === "coming_soon" || !event.startsAt
     ? formatEventDateStatusLabel(event.dateLabel, currentLocale)
     : isLongEvent
-      ? formatEventDateRange(event.startsAt, event.endsAt!, currentLocale)
-      : formatEventDateTime(event.startsAt, currentLocale);
+      ? formatEventDateRange(event.startsAt, event.endsAt!, currentLocale, event.timeZone)
+      : formatEventDateTime(event.startsAt, currentLocale, event.timeZone);
   const hasDirectRecommendation = relatedUpcomingEvents.some(
     ({ recommendationType }) => recommendationType !== "local"
   );
@@ -316,7 +318,8 @@ export default async function EventDetailPage({
               ) : null}
               <div className="flex flex-wrap gap-2">
                 <Badge>{common(`danceStyles.${event.danceStyle}`)}</Badge>
-                {isLongEvent ? <Badge>{common("longEvent")}</Badge> : null}
+                <Badge>{common(`eventKinds.${event.eventKind ?? "social"}`)}</Badge>
+                {isLongEvent ? <Badge variant="outline">{common("multiDay")}</Badge> : null}
                 {expired ? <Badge variant="outline">{t("finishedBadge")}</Badge> : null}
               </div>
               <h1 className="font-display text-2xl font-bold tracking-tight md:text-4xl lg:text-5xl">
@@ -333,10 +336,10 @@ export default async function EventDetailPage({
                 {isLongEvent && event.startsAt ? (
                   <InfoRow icon={Calendar} label={common("duration")}>
                     <span className="block">
-                      <strong>{common("starts")}:</strong> {formatEventDateTime(event.startsAt, currentLocale)}
+                      <strong>{common("starts")}:</strong> {formatEventDateTime(event.startsAt, currentLocale, event.timeZone)}
                     </span>
                     <span className="mt-1 block">
-                      <strong>{common("ends")}:</strong> {formatEventDateTime(event.endsAt!, currentLocale)}
+                      <strong>{common("ends")}:</strong> {formatEventDateTime(event.endsAt!, currentLocale, event.timeZone)}
                     </span>
                   </InfoRow>
                 ) : null}
@@ -345,7 +348,9 @@ export default async function EventDetailPage({
                   {event.address ? (
                     <span className="block text-muted-foreground">{event.address}</span>
                   ) : null}
-                  <span className="block text-muted-foreground">{event.city}</span>
+                  <span className="block text-muted-foreground">
+                    {formatLocation(event.city, event.countryCode, currentLocale)}
+                  </span>
                 </InfoRow>
                 <InfoRow icon={Banknote} label={common("price")}>
                   {(() => {
@@ -384,7 +389,7 @@ export default async function EventDetailPage({
                       {relatedTeachers.map((teacher) => (
                         <Link
                           key={teacher.id}
-                          href={{ pathname: "/teachers/[slug]", params: { slug: teacher.slug } }}
+                          href={{ pathname: "/artists/[slug]", params: { slug: teacher.slug } }}
                           className="block font-medium text-brand-600 transition-colors hover:text-brand-700"
                         >
                           {teacher.name}

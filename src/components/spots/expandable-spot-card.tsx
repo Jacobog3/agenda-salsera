@@ -6,11 +6,15 @@ import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { MapPin, Clock, ChevronDown, Banknote } from "lucide-react";
 import type { LocalizedSpot } from "@/types/spot";
+import type { Locale } from "@/types/locale";
+import { formatLocation } from "@/lib/locations";
 
 export function ExpandableSpotCard({
-  spot
+  spot,
+  locale
 }: {
   spot: LocalizedSpot;
+  locale: Locale;
 }) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("common");
@@ -44,7 +48,7 @@ export function ExpandableSpotCard({
           <div className="flex flex-col gap-1 text-xs md:mt-auto md:text-sm">
             <span className="flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
-              {spot.city}
+              {formatLocation(spot.city, spot.countryCode, locale)}
             </span>
             {spot.schedule ? (
               <span className="flex items-center gap-1 text-muted-foreground">
@@ -71,7 +75,7 @@ export function ExpandableSpotCard({
             {spot.address ? (
               <div className="flex items-start gap-2 text-xs text-muted-foreground md:text-sm">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>{spot.address} · {spot.city}</span>
+                <span>{spot.address} · {formatLocation(spot.city, spot.countryCode, locale)}</span>
               </div>
             ) : null}
 

@@ -3,6 +3,7 @@ import { buildAcademyScheduleText, normalizeAcademyScheduleData } from "@/lib/ac
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeAcademy } from "@/lib/utils/localize";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 import type { AcademyRecord, LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
 
@@ -18,6 +19,7 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     coverImageUrl: String(row.cover_image_url ?? ""),
     bannerImageUrl: row.banner_image_url ? String(row.banner_image_url) : null,
     city: String(row.city),
+    countryCode: String(row.country_code ?? DEFAULT_COUNTRY_CODE),
     area: row.area ? String(row.area) : null,
     address: row.address ? String(row.address) : null,
     stylesTaught: Array.isArray(row.styles_taught)

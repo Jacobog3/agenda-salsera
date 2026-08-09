@@ -20,6 +20,7 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
   academy: [
     { key: "name", label: "Nombre", kind: "string" },
     { key: "city", label: "Ciudad", kind: "string" },
+    { key: "country_code", label: "País (código ISO de 2 letras)", kind: "string" },
     { key: "address", label: "Direccion", kind: "string" },
     { key: "description_es", label: "Descripcion", kind: "string" },
     { key: "style_tags", label: "Estilos y subestilos visibles", kind: "string_array" },
@@ -41,7 +42,23 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
   ],
   teacher: [
     { key: "name", label: "Nombre", kind: "string" },
+    {
+      key: "profile_kind",
+      label: "Tipo de perfil",
+      kind: "string",
+      allowedValues: ["person", "couple", "team"]
+    },
+    {
+      key: "professional_roles",
+      label: "Roles profesionales",
+      kind: "string_array",
+      allowedValues: ["teacher", "dancer", "performer", "dj", "judge", "choreographer", "organizer", "host", "musician", "other"]
+    },
     { key: "city", label: "Ciudad", kind: "string" },
+    { key: "country_code", label: "País (código ISO de 2 letras)", kind: "string" },
+    { key: "nationality_country_code", label: "País de origen o nacionalidad explícita", kind: "string" },
+    { key: "source_url", label: "URL de la fuente", kind: "string" },
+    { key: "source_label", label: "Referencia corta de la fuente", kind: "string" },
     { key: "area", label: "Zona o area", kind: "string" },
     { key: "address", label: "Direccion", kind: "string" },
     { key: "bio_es", label: "Bio", kind: "string" },
@@ -89,14 +106,11 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
     { key: "ends_at", label: "Fecha y hora de cierre (YYYY-MM-DDTHH:MM)", kind: "string" },
     { key: "venue_name", label: "Nombre del lugar", kind: "string" },
     { key: "city", label: "Ciudad", kind: "string" },
+    { key: "country_code", label: "País (código ISO de 2 letras)", kind: "string" },
+    { key: "time_zone", label: "Zona horaria IANA", kind: "string" },
     { key: "address", label: "Dirección", kind: "string" },
     { key: "price_text", label: "Precios", kind: "string" },
-    {
-      key: "currency",
-      label: "Moneda",
-      kind: "string",
-      allowedValues: ["GTQ", "USD", ""]
-    },
+    { key: "currency", label: "Moneda (código ISO)", kind: "string" },
     { key: "organizer_name", label: "Nombre del organizador", kind: "string" },
     { key: "contact_url", label: "Link de contacto", kind: "string" },
     { key: "description_es", label: "Descripción", kind: "string" }
@@ -104,6 +118,7 @@ const ENTITY_FIELDS: Record<AiUpdateEntity, FieldSpec[]> = {
   spot: [
     { key: "name", label: "Nombre del lugar", kind: "string" },
     { key: "city", label: "Ciudad", kind: "string" },
+    { key: "country_code", label: "País (código ISO de 2 letras)", kind: "string" },
     { key: "area", label: "Zona", kind: "string" },
     { key: "address", label: "Dirección", kind: "string" },
     { key: "description_es", label: "Descripción", kind: "string" },
@@ -237,7 +252,7 @@ IMPORTANT — for event date fields: if the material says "próximamente", "prox
 IMPORTANT — multiple images or posts may be provided. Each image may contain partial information (one post with Monday schedule, another with Friday schedule, another with prices, etc.). Your job is to MERGE and UNIFY all information found across all images into a single coherent result. Do not discard information from any image. If two images show different days, include all days in schedule_data.`;
 
   if (mode === "create") {
-    return `You are helping an admin create a new ${entityLabel} profile in Guatemala.
+    return `You are helping an admin create a new ${entityLabel} profile for an international Latin dance directory.
 
 This is a CREATE workflow.
 Your job is to draft only the fields that are clearly supported by the new material.
@@ -249,7 +264,9 @@ Rules:
 - Prefer operational details such as schedules, prices, levels, venues, links, and contact info.
 - Include name and summary text only when the material makes them clear.
 - Never invent missing information.
-- For city names, use canonical values: "Ciudad de Guatemala" instead of "Guatemala" or "Guatemala City", and "Antigua Guatemala" instead of "Antigua".
+- Always associate the record with a city and a two-letter ISO country_code when the material supports it. Use canonical local city names; for Guatemala use "Ciudad de Guatemala" and "Antigua Guatemala".
+- For events, provide an IANA time_zone that matches the event location. Do not confuse an invited artist's home city with the event city.
+- For teacher/professional profiles, use professional_roles to preserve every explicit role. Do not assume nationality from current location, phone number, or an event venue.
 - If the material shows schedules across multiple images, merge all days into a single schedule_data array.
 - If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, prices, or trial class mentions.
 - Preserve visible substyles as \`style_tags\` when they appear in the material, for example Mambo, Chachacha, Lady Style, Shines, Belly Dance, Hip-Hop, or Reggaeton.
@@ -267,7 +284,7 @@ ${JSON.stringify(currentSnapshot, null, 2)}
 You will receive new material from the admin after this prompt. Use it only to draft safe fields for the new record.`;
   }
 
-  return `You are helping an admin update an existing ${entityLabel} profile in Guatemala.
+  return `You are helping an admin update an existing ${entityLabel} profile in an international Latin dance directory.
 
 This is an UPDATE workflow, not a CREATE workflow.
 Your job is to preserve the current record and only suggest targeted improvements supported by the new material.
@@ -280,7 +297,9 @@ Rules:
 - Do not include fields that should stay as they are.
 - Prefer improving operational details such as schedules, prices, levels, venues, links, and contact info.
 - Never invent missing information.
-- For city names, use canonical values: "Ciudad de Guatemala" instead of "Guatemala" or "Guatemala City", and "Antigua Guatemala" instead of "Antigua".
+- Keep city and country_code together. Use canonical local city names; for Guatemala use "Ciudad de Guatemala" and "Antigua Guatemala".
+- For events, keep time_zone aligned with the event location. Do not replace it with an invited artist's home location.
+- For teacher/professional profiles, preserve multiple explicit professional_roles and keep nationality_country_code separate from the current base in city/country_code.
 - Do not replace a specific current value with a more generic one.
 - If the material shows schedules across multiple images, merge ALL days found into a single schedule_data — do not drop days that already exist in the current record unless the new material explicitly replaces them.
 - If the material is a weekly schedule poster, prioritize \`schedule_data\` first, then \`schedule_text\`, then any explicit levels, styles, prices, or trial class mentions.

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { env } from "@/lib/utils/env";
 import { eventSubmissionSchema } from "@/lib/validations/event-submission";
+import { normalizeCountryCode } from "@/lib/locations";
 
 export async function POST(request: Request) {
   const payload = await request.json();
@@ -38,6 +39,8 @@ export async function POST(request: Request) {
     time: parsed.data.time,
     price_text: parsed.data.price || null,
     city: parsed.data.city,
+    country_code: normalizeCountryCode(parsed.data.countryCode),
+    time_zone: parsed.data.timeZone,
     venue_name: parsed.data.venue,
     address: parsed.data.address || null,
     organizer_name: parsed.data.organizerName || null,
