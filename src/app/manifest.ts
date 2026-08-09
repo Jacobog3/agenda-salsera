@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "SomosSalsa",
     short_name: "SomosSalsa",
-    description: "Eventos, academias, maestros y lugares de salsa y bachata.",
+    description: "Encuentra eventos, festivales, academias, artistas y lugares para bailar.",
     start_url: "/",
     display: "standalone",
     background_color: "#FFFFFF",

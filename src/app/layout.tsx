@@ -16,11 +16,7 @@ const organizationJsonLd = {
   logo: `${SITE_URL}${brand.logoPath}`,
   email: brand.email,
   description:
-    "Eventos, academias, maestros y lugares de salsa, bachata y baile latino. Empezamos en Guatemala.",
-  areaServed: {
-    "@type": "Country",
-    name: "Guatemala"
-  }
+    "Encuentra eventos, festivales, academias, artistas y lugares de salsa, bachata y baile latino."
 };
 
 const websiteJsonLd = {
@@ -33,11 +29,11 @@ const websiteJsonLd = {
 export const metadata: Metadata = {
   applicationName: brand.name,
   title: {
-    default: "SomosSalsa — La comunidad baila aquí",
+    default: "SomosSalsa — Encuentra. Aprende. Baila.",
     template: `%s | ${brand.name}`
   },
   description:
-    "Encontrá eventos, academias, maestros y lugares de salsa y bachata. Empezamos en Guatemala.",
+    "Encuentra eventos, festivales, academias, artistas y lugares de salsa, bachata y baile latino organizados por ciudad y país.",
   metadataBase: new URL(SITE_URL),
   openGraph: {
     siteName: brand.name,

@@ -289,3 +289,18 @@ Both passed successfully.
 - Production rollout still requires configuring `NEXT_PUBLIC_SITE_URL=https://somossalsa.com`,
   activating and testing `info@somossalsa.com`, deploying the application, and validating
   canonical redirects and Search Console. The two SomosSalsa migrations are already applied.
+
+## Final Brand Copy and Policies (2026-08-09)
+
+- Approved brand line: `Encuentra. Aprende. Baila.` / `Find. Learn. Dance.`
+- The home copy hierarchy now separates the memorable brand line from the functional promise:
+  events, festivals, academies, artists, and dance venues organized by city.
+- Home, footer, About, metadata, manifest, and public form copy use a consistent Latin American
+  product voice. Guatemala remains the first active location without being the platform limit.
+- Privacy and terms pages are fully bilingual and match the current product flows, including:
+  Google Analytics consent, Google AdSense, Gemini-assisted extraction, Supabase, Vercel,
+  seven-day local form drafts, incident logs, public-source content, external ticket links,
+  human review, corrections, and removal requests.
+- TypeScript, ESLint, the production build, and browser QA passed after the copy and policy
+  update. Mobile QA covered the home and legal layouts; ES/EN legal metadata includes canonical
+  and language alternates on branch `codex/brand-copy-final-pass`.
