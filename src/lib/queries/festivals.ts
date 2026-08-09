@@ -390,6 +390,32 @@ export async function getFestivalBySlug(locale: Locale, slug: string): Promise<F
   return remote ?? sampleFestivalDetail(locale, slug);
 }
 
+export async function getFestivalSeriesSlugByEditionId(editionId: string): Promise<string | null> {
+  if (!isSupabaseConfigured) {
+    if (editionId === asbf2026.id || editionId === asbf2027.id) return asbfSeries.slug;
+    if (editionId === congress2026.id) return congressSeries.slug;
+    return null;
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data: edition, error: editionError } = await supabase
+    .from("festival_editions")
+    .select("festival_series_id")
+    .eq("id", editionId)
+    .maybeSingle();
+
+  if (editionError || !edition?.festival_series_id) return null;
+
+  const { data: series, error: seriesError } = await supabase
+    .from("festival_series")
+    .select("slug")
+    .eq("id", edition.festival_series_id)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  return seriesError || !series?.slug ? null : String(series.slug);
+}
+
 async function fetchFestivalDetail(locale: Locale, slug: string): Promise<FestivalDetail | null> {
   const supabase = await createSupabaseServerClient();
   const { data: seriesRow, error: seriesError } = await supabase

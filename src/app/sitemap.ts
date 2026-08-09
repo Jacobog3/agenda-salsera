@@ -32,7 +32,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const eventEntries =
     events.status === "fulfilled"
-      ? events.value.flatMap((e) => [
+      ? events.value
+        .filter((event) => event.eventKind !== "festival" && event.eventKind !== "congress")
+        .flatMap((e) => [
           url(`/eventos/${e.slug}`, 0.8, "weekly"),
           url(`/en/events/${e.slug}`, 0.6, "weekly")
         ])
@@ -40,7 +42,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const historicalEventEntries =
     historicalEvents.status === "fulfilled"
-      ? historicalEvents.value.flatMap((event) => [
+      ? historicalEvents.value
+        .filter((event) => event.eventKind !== "festival" && event.eventKind !== "congress")
+        .flatMap((event) => [
           url(`/eventos/${event.slug}`, 0.5, "monthly"),
           url(`/en/events/${event.slug}`, 0.4, "monthly")
         ])

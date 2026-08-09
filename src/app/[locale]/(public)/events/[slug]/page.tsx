@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { ReportForm } from "@/components/shared/report-form";
@@ -25,6 +25,7 @@ import { env } from "@/lib/utils/env";
 import type { LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
 import { formatLocation } from "@/lib/locations";
+import { getFestivalSeriesSlugByEditionId } from "@/lib/queries/festivals";
 import type { OrganizerSummary } from "@/types/organizer";
 import type { LocalizedTeacher } from "@/types/teacher";
 
@@ -260,6 +261,19 @@ export default async function EventDetailPage({
 
   if (!event) {
     notFound();
+  }
+
+  if (
+    event.festivalEditionId &&
+    (event.eventKind === "festival" || event.eventKind === "congress")
+  ) {
+    const festivalSlug = await getFestivalSeriesSlugByEditionId(event.festivalEditionId);
+    if (festivalSlug) {
+      redirect({
+        href: { pathname: "/festivals/[slug]", params: { slug: festivalSlug } },
+        locale: currentLocale
+      });
+    }
   }
 
   const expired = isEventExpired(event);

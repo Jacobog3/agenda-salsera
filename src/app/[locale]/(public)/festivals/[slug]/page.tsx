@@ -72,6 +72,7 @@ export default async function FestivalDetailPage({
         )
       : currentEdition?.dateLabel;
   const typeLabel = festival.seriesType === "congress" ? t("types.congress") : t("types.festival");
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <section className="page-section pb-24 md:pb-16">
@@ -219,10 +220,33 @@ export default async function FestivalDetailPage({
                       {pass.description ? <p className="mt-2 text-sm leading-6 text-gray-600">{pass.description}</p> : null}
                       {pass.priceTiers.length > 0 ? (
                         <div className="mt-4 space-y-2">
-                          {groupPriceTiers(pass.priceTiers).map((group) => (
-                            <div key={group.label} className="rounded-xl bg-gray-50 px-3 py-2.5">
+                          {groupPriceTiers(pass.priceTiers, today).map((group) => (
+                            <div
+                              key={group.label}
+                              className={`rounded-xl border px-3 py-2.5 ${
+                                group.phase === "active"
+                                  ? "border-salsaGreen-200 bg-salsaGreen-50"
+                                  : group.phase === "expired"
+                                    ? "border-gray-100 bg-gray-50 opacity-65"
+                                    : "border-accentScale-100 bg-accentScale-50"
+                              }`}
+                            >
                               <div className="flex items-center justify-between gap-3">
-                                <span className="text-xs font-semibold text-gray-600">{group.label}</span>
+                                <span className="flex items-center gap-2 text-xs font-semibold text-gray-600">
+                                  {group.label}
+                                  <Badge
+                                    variant="outline"
+                                    className={`px-1.5 py-0 text-[9px] ${
+                                      group.phase === "active"
+                                        ? "border-salsaGreen-300 text-salsaGreen-700"
+                                        : group.phase === "expired"
+                                          ? "border-gray-200 text-gray-400"
+                                          : "border-accentScale-200 text-accentScale-700"
+                                    }`}
+                                  >
+                                    {t(group.phase === "active" ? "tierActive" : group.phase === "expired" ? "tierExpired" : "tierUpcoming")}
+                                  </Badge>
+                                </span>
                                 <span className="text-sm font-bold text-brand-700">
                                   {group.tiers.map((tier) => formatCurrency(tier.priceAmount, tier.currency, currentLocale)).join(" · ")}
                                 </span>
@@ -279,14 +303,40 @@ function formatDateOnlyRange(start: string, end: string | null | undefined, loca
   return formatter.formatRange(startDate, new Date(`${end}T12:00:00Z`));
 }
 
-function groupPriceTiers(tiers: FestivalPassPriceTier[]) {
-  const groups = new Map<string, { label: string; endsOn?: string | null; tiers: FestivalPassPriceTier[] }>();
+type PriceTierPhase = "active" | "expired" | "upcoming";
+
+function groupPriceTiers(tiers: FestivalPassPriceTier[], today: string) {
+  const groups = new Map<string, {
+    label: string;
+    startsOn?: string | null;
+    endsOn?: string | null;
+    tiers: FestivalPassPriceTier[];
+  }>();
   for (const tier of tiers) {
-    const group = groups.get(tier.label) ?? { label: tier.label, endsOn: tier.endsOn, tiers: [] };
+    const group = groups.get(tier.label) ?? {
+      label: tier.label,
+      startsOn: tier.startsOn,
+      endsOn: tier.endsOn,
+      tiers: []
+    };
     group.tiers.push(tier);
     groups.set(tier.label, group);
   }
-  return [...groups.values()];
+  return [...groups.values()]
+    .map((group) => ({ ...group, phase: getPriceTierPhase(group.startsOn, group.endsOn, today) }))
+    .sort((a, b) => priceTierOrder(a.phase) - priceTierOrder(b.phase));
+}
+
+function getPriceTierPhase(startsOn: string | null | undefined, endsOn: string | null | undefined, today: string): PriceTierPhase {
+  if (endsOn && endsOn < today) return "expired";
+  if (startsOn && startsOn > today) return "upcoming";
+  return "active";
+}
+
+function priceTierOrder(phase: PriceTierPhase) {
+  if (phase === "active") return 0;
+  if (phase === "upcoming") return 1;
+  return 2;
 }
 
 function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
