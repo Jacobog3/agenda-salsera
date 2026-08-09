@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EntityAiPanel } from "./academy-ai-panel";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import { extractLowestPriceAmount } from "@/lib/utils/formatters";
-import { CountrySelect } from "@/components/forms/country-select";
+import { AdminCountrySelect } from "@/components/forms/country-select";
 import {
   DEFAULT_COUNTRY_CODE,
   DEFAULT_TIME_ZONE,
@@ -901,7 +901,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
               </div>
               <div className="space-y-1">
                 <FieldLabel label="País" />
-                <CountrySelect
+                <AdminCountrySelect
                   value={String(data.country_code ?? DEFAULT_COUNTRY_CODE)}
                   onChange={(countryCode) => {
                     set("country_code", countryCode);

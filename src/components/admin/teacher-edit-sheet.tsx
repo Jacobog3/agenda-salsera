@@ -10,7 +10,7 @@ import { EntityAiPanel } from "./academy-ai-panel";
 import { ScheduleEditor } from "./schedule-editor";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import type { ScheduleDay } from "@/types/academy";
-import { CountrySelect } from "@/components/forms/country-select";
+import { AdminCountrySelect } from "@/components/forms/country-select";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type TeacherData = Record<string, unknown>;
@@ -256,7 +256,7 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
               </div>
               <div className="space-y-1">
                 <FieldLabel label="País" />
-                <CountrySelect
+                <AdminCountrySelect
                   value={String(data.country_code ?? DEFAULT_COUNTRY_CODE)}
                   onChange={(countryCode) => set("country_code", countryCode)}
                 />
@@ -283,7 +283,7 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
               </div>
               <div className="space-y-1">
                 <FieldLabel label="País de origen" hint="opcional" />
-                <CountrySelect value={String(data.nationality_country_code ?? "")} onChange={(countryCode) => set("nationality_country_code", countryCode)} required={false} />
+                <AdminCountrySelect value={String(data.nationality_country_code ?? "")} onChange={(countryCode) => set("nationality_country_code", countryCode)} required={false} />
               </div>
             </div>
             <div className="space-y-1">

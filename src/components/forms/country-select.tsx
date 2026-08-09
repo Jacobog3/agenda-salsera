@@ -4,18 +4,20 @@ import { useLocale } from "next-intl";
 import { COUNTRY_OPTIONS, getCountryName } from "@/lib/locations";
 import type { Locale } from "@/types/locale";
 
-export function CountrySelect({
-  value,
-  onChange,
-  id,
-  required = true
-}: {
+type CountrySelectProps = {
   value: string;
   onChange: (countryCode: string) => void;
   id?: string;
   required?: boolean;
-}) {
-  const locale = useLocale() as Locale;
+};
+
+function CountrySelectField({
+  value,
+  onChange,
+  id,
+  required = true,
+  locale
+}: CountrySelectProps & { locale: Locale }) {
   const placeholder = locale === "es" ? "Selecciona un país" : "Select a country";
 
   return (
@@ -36,4 +38,13 @@ export function CountrySelect({
       ))}
     </select>
   );
+}
+
+export function CountrySelect(props: CountrySelectProps) {
+  const locale = useLocale() as Locale;
+  return <CountrySelectField {...props} locale={locale} />;
+}
+
+export function AdminCountrySelect(props: CountrySelectProps) {
+  return <CountrySelectField {...props} locale="es" />;
 }

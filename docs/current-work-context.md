@@ -1,5 +1,19 @@
 # Current Work Context
 
+## 2026-08-09 — Admin AI apply crash hotfix
+
+- The production stack was traced to `next-intl`'s `useLocale()` hook, not to
+  Gemini or event-date parsing. Applying AI suggestions switched to the event
+  form, where the shared country selector mounted outside the public intl
+  provider and crashed the admin route.
+- Admin forms now use an explicit Spanish country selector that has no intl
+  provider dependency; public forms keep their locale-aware selector.
+- Offset-free AI date-times are treated as local event wall-clock values, while
+  stored timestamps with an offset continue to be converted by time zone.
+- The full mobile flow was reproduced with the Celia Pergo text without saving:
+  12 suggestions applied, Guatemala selected, and 19:00–21:00 preserved with no
+  browser errors.
+
 ## 2026-08-09 — Visible admin error log
 
 - Unexpected client-side admin errors are captured automatically in the private

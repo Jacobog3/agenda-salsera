@@ -107,6 +107,20 @@ export function zonedDateTimeToIso(date: string, time: string, timeZone: string)
 export function isoToZonedDateTimeFields(isoString: string, timeZone: string) {
   if (!isoString) return { date: "", time: "" };
 
+  // Gemini returns event wall-clock times without an offset. Those values are
+  // already local to the suggested event time zone and must not be shifted as
+  // if they were UTC. Stored database timestamps include an offset and still
+  // follow the time-zone conversion below.
+  const localDateTime = isoString.trim().match(
+    /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(?::\d{2}(?:\.\d{1,3})?)?$/
+  );
+  if (localDateTime) {
+    return { date: localDateTime[1], time: localDateTime[2] };
+  }
+
+  const date = new Date(isoString);
+  if (!Number.isFinite(date.getTime())) return { date: "", time: "" };
+
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",
@@ -115,7 +129,7 @@ export function isoToZonedDateTimeFields(isoString: string, timeZone: string) {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23"
-  }).formatToParts(new Date(isoString));
+  }).formatToParts(date);
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
 
   return {
