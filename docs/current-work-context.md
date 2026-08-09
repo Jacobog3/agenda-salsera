@@ -164,12 +164,14 @@ Both passed successfully.
 
 - Selected brand: `SomosSalsa`.
 - Secured assets: `somossalsa.com` in AWS Route 53, `somossalsa.app` in GoDaddy, and Instagram handle `@somossalsa.app`.
-- Canonical product domain: `somossalsa.com`; the `.app` domain and previous Exploraguate hosts redirect to it.
+- Canonical product domain: `somossalsa.com`; `somossalsa.app` is the short acquisition and future
+  PWA-installation domain, and redirects to the canonical site instead of duplicating it.
+- Official public contact: `info@somossalsa.com`.
 - Positioning: clear, accessible, transparent, and neutral between academies.
 - Geographic model: Guatemala is the first active location, not the center or limit of the platform.
 - The local code migration on branch `codex/rebranding-strategy` now covers the visual identity,
   metadata, legal copy, PWA and social-sharing assets, entity countries, and per-event time zones.
 - Local verification passed with TypeScript, ESLint, and the production build.
 - Production rollout still requires configuring `NEXT_PUBLIC_SITE_URL=https://somossalsa.com`,
-  activating the public contact mailbox or forwarder, deploying the application, and validating
+  activating and testing `info@somossalsa.com`, deploying the application, and validating
   canonical redirects and Search Console. The two SomosSalsa migrations are already applied.

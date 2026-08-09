@@ -404,7 +404,7 @@ initial content-import target.
 - [x] Implement the local code rebrand and country/time-zone data model.
 - [x] Verify TypeScript, ESLint, and the production build locally.
 - [ ] Apply `supabase/migrations/20260809000000_add_entity_locations.sql` in production.
-- [ ] Configure `NEXT_PUBLIC_SITE_URL=https://somossalsa.com` and an active
-  `NEXT_PUBLIC_CONTACT_EMAIL` mailbox or forwarder.
+- [ ] Configure `NEXT_PUBLIC_SITE_URL=https://somossalsa.com` and
+  `NEXT_PUBLIC_CONTACT_EMAIL=info@somossalsa.com`, with the mailbox or forwarder active.
 - [ ] Deploy, test `.com`, and verify HTTPS redirects from `.app` and the former domains.
 - [ ] Submit the domain migration in Search Console and monitor indexing and redirects.

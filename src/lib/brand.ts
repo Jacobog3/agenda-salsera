@@ -1,7 +1,7 @@
 export const brand = {
   name: "SomosSalsa",
   domain: "somossalsa.com",
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hola@somossalsa.com",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "info@somossalsa.com",
   instagramHandle: "@somossalsa.app",
   instagramUrl: "https://www.instagram.com/somossalsa.app",
   logoPath: "/images/somossalsa-og.png",

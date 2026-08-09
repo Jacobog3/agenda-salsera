@@ -139,8 +139,12 @@ Required: L7 and ongoing editorial review.
 ## Operating rules
 
 - `somossalsa.com` is the canonical domain.
-- `somossalsa.app` and the previous Exploraguate domains redirect to the
-  equivalent canonical URL when possible.
+- `somossalsa.app` is the short acquisition and future PWA-installation domain;
+  it does not host a second indexable copy of the site.
+- During launch, `somossalsa.app` and the previous Exploraguate domains redirect
+  to the equivalent canonical `.com` URL while preserving paths and campaigns.
+- `info@somossalsa.com` is the official public contact address; email stays on
+  the `.com` identity.
 - Guatemala is the first populated location, never an implicit default.
 - Permanent entities and time-bound activity remain separate.
 - Flyers are source material and campaign assets, not the source of truth.
@@ -216,13 +220,18 @@ Owner: development, with domain/deployment access from the product owner
       continue in L5.
 - [ ] Set `NEXT_PUBLIC_SITE_URL=https://somossalsa.com` in production.
 - [ ] Deploy the rebrand and new public routes.
-- [ ] Redirect `somossalsa.app` to `somossalsa.com`.
+- [x] Configure path-preserving redirects from `somossalsa.app` and
+      `www.somossalsa.app` to `somossalsa.com` in the application.
+- [ ] Attach both `.app` hosts to production, verify HTTPS and confirm that paths
+      and campaign query parameters survive the redirect.
+- [ ] Add a canonical `/instalar` PWA guide before changing the bare `.app`
+      domain into an installation campaign landing point.
 - [ ] Redirect controlled Exploraguate hosts while preserving paths and query
       strings.
 - [ ] Verify canonical URLs, metadata, Open Graph images, robots, sitemap, legal
       pages, icons, and the PWA manifest.
 - [ ] Verify installation and primary flows on a real mobile device.
-- [ ] Activate a public SomosSalsa contact mailbox or forwarder.
+- [ ] Activate and test the `info@somossalsa.com` mailbox or forwarder.
 
 Exit criteria:
 
