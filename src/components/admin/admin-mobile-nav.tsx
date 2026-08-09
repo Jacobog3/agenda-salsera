@@ -13,6 +13,7 @@ import {
   UserRound,
   MapPinned,
   Flag,
+  Bug,
   LogOut,
   ArrowLeft
 } from "lucide-react";
@@ -25,7 +26,8 @@ const navLinks = [
   { href: "/admin/academies", label: "Academias", icon: GraduationCap },
   { href: "/admin/teachers", label: "Artistas", icon: UserRound },
   { href: "/admin/spots", label: "Bares", icon: MapPinned },
-  { href: "/admin/reports", label: "Reportes", icon: Flag }
+  { href: "/admin/reports", label: "Reportes", icon: Flag },
+  { href: "/admin/errors", label: "Errores", icon: Bug }
 ];
 
 function isActiveRoute(href: string, pathname: string): boolean {
