@@ -51,6 +51,7 @@ create table if not exists public.organizers (
   instagram_url text,
   facebook_url text,
   website_url text,
+  google_place_id text,
   is_featured boolean not null default false,
   is_published boolean not null default false,
   created_at timestamptz not null default now()

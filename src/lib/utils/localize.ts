@@ -68,6 +68,7 @@ export function localizeAcademy(
     instagramUrl: academy.instagramUrl,
     facebookUrl: academy.facebookUrl,
     websiteUrl: academy.websiteUrl,
+    googlePlaceId: academy.googlePlaceId,
     isFeatured: academy.isFeatured
   };
 }

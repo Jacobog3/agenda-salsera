@@ -305,6 +305,8 @@
     "hybrid": "Mixto (presencial + online)",
     "pricingTitle": "Precios y paquetes",
     "contactTitle": "Contacto",
+    "googleReviewCount": "{count, plural, one {# reseña en Google} other {# reseñas en Google}}",
+    "viewGoogleReviews": "Ver reseñas en Google Maps",
     "teachers": {
       "label": "Maestro",
       "teachesAtLabel": "Da clases en",

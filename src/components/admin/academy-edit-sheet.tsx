@@ -58,6 +58,7 @@ function buildInitialData(item: AcademyData | null): AcademyData {
       levels: "", price_text: "", modality: "presencial",
       trial_class: false,
       whatsapp_url: "", instagram_url: "", facebook_url: "", website_url: "",
+      google_place_id: "",
       is_published: true
     };
   }
@@ -440,7 +441,8 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
                   ["whatsapp_url", "WhatsApp URL"],
                   ["instagram_url", "Instagram URL"],
                   ["facebook_url", "Facebook URL"],
-                  ["website_url", "Sitio web"]
+                  ["website_url", "Sitio web"],
+                  ["google_place_id", "Google Place ID"]
                 ] as const
               ).map(([key, label]) => (
                 <div key={key} className="space-y-1">
