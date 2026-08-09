@@ -41,7 +41,10 @@ export async function HeroSection({
 
             {/* Left: copy */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-salsaRed-600 md:text-xs">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-salsaRed-600 md:hidden">
+                {t("brandTagline")}
+              </p>
+              <p className="hidden text-xs font-bold uppercase tracking-[0.25em] text-salsaRed-600 md:block">
                 {t("eyebrow")}
               </p>
               <h1 className="mt-3 font-display text-[2rem] font-extrabold leading-[1.08] tracking-tight text-gray-900 md:mt-4 md:text-[2.75rem] lg:text-[3.25rem]">

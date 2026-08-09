@@ -25,7 +25,7 @@ export async function SiteFooter() {
               </p>
               <a
                 href={`mailto:${brand.email}`}
-                aria-label={`Enviar correo a ${brand.name}`}
+                aria-label={t("emailAria")}
                 className="inline-flex min-h-11 items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-brand-600 md:text-sm"
               >
                 <Mail className="h-3 w-3 md:h-3.5 md:w-3.5" />
