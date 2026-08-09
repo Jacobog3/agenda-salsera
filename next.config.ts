@@ -51,39 +51,39 @@ const nextConfig: NextConfig = {
       // Keep the new brand on one canonical domain.
       {
         source: "/:path*",
-        has: [{ type: "host", value: "www.somossalsa.com" }],
-        destination: "https://somossalsa.com/:path*",
+        has: [{ type: "host", value: "somossalsa.com" }],
+        destination: "https://www.somossalsa.com/:path*",
         permanent: true
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "somossalsa.app" }],
-        destination: "https://somossalsa.com/:path*",
+        destination: "https://www.somossalsa.com/:path*",
         permanent: true
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.somossalsa.app" }],
-        destination: "https://somossalsa.com/:path*",
+        destination: "https://www.somossalsa.com/:path*",
         permanent: true
       },
       // Preserve links from every previous Exploraguate host.
       {
         source: "/:path*",
         has: [{ type: "host", value: "exploraguate.com" }],
-        destination: "https://somossalsa.com/:path*",
+        destination: "https://www.somossalsa.com/:path*",
         permanent: true
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.exploraguate.com" }],
-        destination: "https://somossalsa.com/:path*",
+        destination: "https://www.somossalsa.com/:path*",
         permanent: true
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "salsa.exploraguate.com" }],
-        destination: "https://somossalsa.com/:path*",
+        destination: "https://www.somossalsa.com/:path*",
         permanent: true
       }
     ];

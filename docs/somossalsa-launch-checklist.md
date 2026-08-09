@@ -218,10 +218,10 @@ Owner: development, with domain/deployment access from the product owner
 - [ ] Make festivals and congresses reachable in at most two taps on mobile
       without adding a sixth footer item; the full navigation redesign can
       continue in L5.
-- [ ] Set `NEXT_PUBLIC_SITE_URL=https://somossalsa.com` in production.
+- [ ] Set `NEXT_PUBLIC_SITE_URL=https://www.somossalsa.com` in production.
 - [ ] Deploy the rebrand and new public routes.
 - [x] Configure path-preserving redirects from `somossalsa.app` and
-      `www.somossalsa.app` to `somossalsa.com` in the application.
+      `www.somossalsa.app` to `www.somossalsa.com` in the application.
 - [ ] Attach both `.app` hosts to production, verify HTTPS and confirm that paths
       and campaign query parameters survive the redirect.
 - [ ] Add a canonical `/instalar` PWA guide before changing the bare `.app`
