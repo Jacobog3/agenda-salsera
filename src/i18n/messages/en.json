@@ -237,6 +237,18 @@
     "artistsEyebrow": "Lineup",
     "artistsTitle": "Artists and guests",
     "artistCandidate": "Identity to be completed",
+    "roles": {
+      "teacher": "Instructor",
+      "dancer": "Dancer",
+      "performer": "Performer",
+      "dj": "DJ",
+      "judge": "Judge",
+      "choreographer": "Choreographer",
+      "organizer": "Organizer",
+      "host": "Host",
+      "musician": "Musician",
+      "other": "Announced lineup"
+    },
     "scheduleEyebrow": "Program",
     "scheduleTitle": "Edition schedule",
     "timePending": "Time to be confirmed",

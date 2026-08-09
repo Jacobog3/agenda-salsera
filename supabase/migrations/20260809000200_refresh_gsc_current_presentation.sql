@@ -7,6 +7,5 @@ set
   gallery_urls = array[]::text[],
   price_amount = 955,
   price_text = '2da preventa vigente hasta el 30 de septiembre · Full Pass Q1,215 / USD 155 · Dancer Pass Q1,150 / USD 145 · Fan Pass Q955 / USD 120',
-  currency = 'GTQ',
-  updated_at = now()
+  currency = 'GTQ'
 where slug = 'guatemala-salsa-congress-2026';

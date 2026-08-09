@@ -10,13 +10,22 @@
 - New migration `20260809000100_rich_ecosystem_profiles.sql` adds professional roles, permanent festival profiles, editions, lineups, schedules, passes, generic media, and a video-capable storage bucket.
 - Public `/festivales` and rich festival profile routes are being introduced.
 - Festival profiles now distinguish `festival` from `congress`; annual editions remain separate records under one permanent profile.
-- Source-backed seeds are ready for ASBF 2027 (April 29–May 3, Bersy announced) and Guatemala Salsa Congress ALQUIMIA 2026 (November 4–8, passes, price stages, hotel, tickets, and rules).
+- ASBF 2027 now includes the nine people/couples announced by the official site,
+  their published roles and countries, nine lineup assets, and the official promo
+  video. The lineup flyers remain gallery evidence and are not used as artist
+  portraits.
+- Guatemala Salsa Congress ALQUIMIA 2026 now includes its current dates, passes,
+  price stages, competition route, hotel information, tickets, rules, and three
+  lineup candidates sourced from the organizer's official ticket provider.
+- The current festival content payload is captured in
+  `20260809000300_expand_initial_festival_content.sql` and has also been loaded
+  idempotently into production through the existing service-role connection.
 - Unknown lineup names are stored as artist candidates until an admin resolves them to a canonical professional profile.
 - `DEFAULT_COUNTRY_CODE` is intentionally empty and `DEFAULT_TIME_ZONE` is `UTC`; new records must explicitly select a country.
 - The production database now includes `20260809000000_add_entity_locations.sql`
   followed by `20260809000100_rich_ecosystem_profiles.sql`.
 
-Last updated: 2026-04-14
+Last updated: 2026-08-09
 
 ## What Was In Progress
 

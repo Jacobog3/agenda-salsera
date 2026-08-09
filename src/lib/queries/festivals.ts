@@ -32,7 +32,7 @@ const asbfSeries: FestivalSeriesRecord = {
   ticketUrl: "https://antiguasbf.com",
   instagramUrl: null,
   facebookUrl: null,
-  whatsappUrl: null,
+  whatsappUrl: "https://wa.me/50256676144",
   verificationStatus: "source_confirmed",
   isFeatured: true
 };
@@ -43,10 +43,10 @@ const asbf2027: FestivalEditionRecord = {
   slug: "antigua-salsa-bachata-festival-2027",
   name: "Antigua Salsa y Bachata Festival 2027",
   editionLabel: "2027",
-  summaryEs: "La próxima edición se realizará del 29 de abril al 3 de mayo de 2027 y ya comenzó a presentar artistas.",
-  summaryEn: "The next edition will run from April 29 to May 3, 2027 and has started announcing artists.",
-  descriptionEs: "Las sedes, pases y programa se completarán conforme sean publicados oficialmente.",
-  descriptionEn: "Venues, passes, and the schedule will be completed as they are officially announced.",
+  summaryEs: "La próxima edición será del 29 de abril al 3 de mayo de 2027 y ya está anunciando jueces y talleristas internacionales.",
+  summaryEn: "The next edition will run from April 29 to May 3, 2027 and is already announcing international judges and instructors.",
+  descriptionEs: "ASBF 2027 reunirá salsa y bachata en Antigua Guatemala. La organización ya publicó su primera ronda de jueces y talleristas; las sedes, pases y programa se completarán conforme sean anunciados oficialmente.",
+  descriptionEn: "ASBF 2027 will bring salsa and bachata together in Antigua Guatemala. The organizer has published its first round of judges and instructors; venues, passes, and the schedule will be completed as they are officially announced.",
   coverImageUrl: "https://antiguasbf.com/wp-content/uploads/2026/07/horizontal.jpeg",
   startsOn: "2027-04-29",
   endsOn: "2027-05-03",
@@ -133,8 +133,8 @@ const congress2026: FestivalEditionRecord = {
   editionLabel: "ALQUIMIA 2026",
   summaryEs: "Talleres, competencias, shows y cinco sociales del 4 al 8 de noviembre.",
   summaryEn: "Workshops, competitions, shows, and five socials from November 4 to 8.",
-  descriptionEs: "Una edición enfocada en salsa, comunidad, formación y competencia centroamericana.",
-  descriptionEn: "An edition focused on salsa, community, training, and Central American competition.",
+  descriptionEs: "ALQUIMIA reúne cinco días de talleres, competencias, shows y sociales en Ciudad Cayalá. Para competir se compra primero el Dancer Pass y la inscripción de categorías se completa por separado en Podium System cuando sea habilitado.",
+  descriptionEn: "ALQUIMIA brings together five days of workshops, competitions, shows, and socials in Ciudad Cayalá. Competitors first purchase a Dancer Pass and complete category registration separately in Podium System when it becomes available.",
   coverImageUrl: "https://www.guatesalsa.com/assets/alquimia-phoenix-portal.png",
   startsOn: "2026-11-04",
   endsOn: "2026-11-08",
@@ -148,8 +148,8 @@ const congress2026: FestivalEditionRecord = {
   area: "Ciudad Cayalá",
   primaryVenueName: "Ciudad Cayalá",
   address: "Ciudad Cayalá, Ciudad de Guatemala",
-  hotelInfoEs: "Hotel sede: AC Hotel Marriott. Habitaciones desde USD 122 por noche con impuestos; desayuno adicional.",
-  hotelInfoEn: "Official hotel: AC Hotel Marriott. Rooms from USD 122 per night including taxes; breakfast is extra.",
+  hotelInfoEs: "Hotel sede: AC Hotel Marriott. Habitaciones desde USD 122 por noche con impuestos. Desayuno: USD 10 adicionales por persona. Para obtener la tarifa del congreso, reservar con Vanessa Walter Veliz al +502 3992 6242 y mencionar Guatemala Salsa Congress.",
+  hotelInfoEn: "Official hotel: AC Hotel Marriott. Rooms from USD 122 per night including taxes. Breakfast is an additional USD 10 per person. For the congress rate, book with Vanessa Walter Veliz at +502 3992 6242 and mention Guatemala Salsa Congress.",
   ticketUrl: "https://salsatickets.com/entradas?evento=17",
   registrationUrl: "https://salsatickets.com/entradas?evento=17",
   rulesUrl: "https://acrobat.adobe.com/id/urn:aaid:sc:US:52ae0944-05bb-4025-abfc-7377b60f082f",
@@ -173,21 +173,99 @@ const asbfMedia: FestivalMedia[] = [
     mediaType: "image",
     role: "gallery",
     url: "https://antiguasbf.com/wp-content/uploads/2026/07/Bersy.jpeg",
-    title: "Bersy",
-    altText: "Bersy, artista confirmada para ASBF 2027",
+    title: "Bersy Cortez",
+    altText: "Bersy Cortez, juez y tallerista de ASBF 2027",
     sortOrder: 1
+  },
+  {
+    id: "sample-asbf-2027-video",
+    mediaType: "video",
+    role: "trailer",
+    url: "https://antiguasbf.com/wp-content/uploads/2026/07/IMG_0162.mp4",
+    title: "Video oficial ASBF 2027",
+    altText: "Video promocional oficial de ASBF 2027",
+    sortOrder: 2
+  },
+  ...[
+    ["jorge-martinez", "d15bcb8a-33e6-4907-b864-97e99b999ea7", "Jorge Martinez"],
+    ["hector-kathy", "16e3a36a-def6-44fb-bdc7-f53ff6f1d11b", "Héctor y Kathy"],
+    ["magda-liuzza", "e64b0b21-d620-44d6-acba-2218c1c2e68f", "Magda Liuzza"],
+    ["gioia-cingolani", "e2657c21-8ece-4ff9-b100-5a4e27a3e221", "Gioia Cingolani"],
+    ["marisol-blanco", "52fe5bdc-37e5-447d-905f-815590c3ce64", "Marisol Blanco"],
+    ["oswaldo-corzo", "a0a34838-ebb1-4e3c-8dd0-76ab6ac159c1", "Oswaldo Corzo"],
+    ["billy-fajardo", "417a5359-bbf3-4b19-8d1d-20119af7ab1e", "Billy Fajardo"],
+    ["evelyn-guasa", "b5bc5f94-1d41-4c73-93e2-8500dcaa7573", "Evelyn y Guasa"]
+  ].map(([id, fileName, name], index) => ({
+    id: `sample-asbf-2027-${id}`,
+    mediaType: "image" as const,
+    role: "gallery",
+    url: `https://antiguasbf.com/wp-content/uploads/2026/08/${fileName}-scaled.jpeg`,
+    title: name,
+    altText: `${name}, parte del lineup de ASBF 2027`,
+    sortOrder: index + 12
+  }))
+];
+
+const congressMedia: FestivalMedia[] = [
+  {
+    id: "sample-congress-2026-cover",
+    mediaType: "image",
+    role: "cover",
+    url: "https://www.guatesalsa.com/assets/alquimia-phoenix-portal.png",
+    title: "ALQUIMIA 2026",
+    altText: "Arte oficial de ALQUIMIA Guatemala Salsa Congress 2026",
+    sortOrder: 0
+  },
+  {
+    id: "sample-congress-2026-hotel",
+    mediaType: "image",
+    role: "venue",
+    url: "https://www.guatesalsa.com/assets/hotel-reference.png",
+    title: "Hotel sede AC Hotel Marriott",
+    altText: "Hospedaje oficial de ALQUIMIA 2026 en AC Hotel Marriott",
+    sortOrder: 10
   }
 ];
 
-const congressMedia: FestivalMedia[] = [{
-  id: "sample-congress-2026-cover",
-  mediaType: "image",
-  role: "cover",
-  url: "https://www.guatesalsa.com/assets/alquimia-phoenix-portal.png",
-  title: "ALQUIMIA 2026",
-  altText: "Arte oficial de ALQUIMIA Guatemala Salsa Congress 2026",
-  sortOrder: 0
-}];
+const asbfArtistDefinitions: Array<[string, string, string, string[]]> = [
+  ["bersy-cortez", "Bersy Cortez", "VE", ["judge", "teacher"]],
+  ["jorge-martinez", "Jorge Martinez", "MX", ["judge"]],
+  ["hector-kathy", "Héctor y Kathy", "GT", ["judge", "teacher"]],
+  ["magda-liuzza", "Magda Liuzza", "IT", ["judge", "teacher"]],
+  ["gioia-cingolani", "Gioia Cingolani", "IT", ["judge", "teacher"]],
+  ["marisol-blanco", "Marisol Blanco", "CU", ["judge", "teacher"]],
+  ["oswaldo-corzo", "Oswaldo Corzo", "MX", ["judge", "teacher"]],
+  ["billy-fajardo", "Billy Fajardo", "US", ["judge", "teacher"]],
+  ["evelyn-guasa", "Evelyn y Guasa", "CO", ["judge", "teacher"]]
+];
+
+const asbfArtists: FestivalArtist[] = asbfArtistDefinitions.map(([id, name, countryCode, roles]) => ({
+  id: `sample-candidate-${String(id)}`,
+  slug: null,
+  name: String(name),
+  profileImageUrl: null,
+  city: null,
+  countryCode: String(countryCode),
+  roles,
+  evidence: "Anunciado en un flyer oficial de ASBF 2027.",
+  isCandidate: true
+}));
+
+const congressArtists: FestivalArtist[] = [
+  "De'Jon Polanski & Clo Ferreira",
+  "Alex Toledo",
+  "Fadi Fusion"
+].map((name, index) => ({
+  id: `sample-congress-candidate-${index + 1}`,
+  slug: null,
+  name,
+  profileImageUrl: null,
+  city: null,
+  countryCode: null,
+  roles: ["other"],
+  evidence: "Presentado como parte del lineup de ALQUIMIA 2026 en SalsaTickets.",
+  isCandidate: true
+}));
 
 const salePeriods = [
   { es: "1ra preventa", en: "1st presale", startsOn: "2026-03-28", endsOn: "2026-06-30" },
@@ -332,17 +410,7 @@ function sampleFestivalDetail(locale: Locale, slug: string): FestivalDetail | nu
       media: asbfMedia,
       passes: [],
       schedule: [],
-      artists: [{
-        id: "sample-candidate-bersy",
-        slug: null,
-        name: "Bersy",
-        profileImageUrl: null,
-        city: null,
-        countryCode: null,
-        roles: [],
-        evidence: locale === "es" ? "Presentada como artista confirmada en el sitio oficial." : "Presented as a confirmed artist on the official site.",
-        isCandidate: true
-      }]
+      artists: asbfArtists
     };
   }
 
@@ -354,7 +422,7 @@ function sampleFestivalDetail(locale: Locale, slug: string): FestivalDetail | nu
       media: congressMedia,
       passes: sampleCongressPasses(locale),
       schedule: [],
-      artists: []
+      artists: congressArtists
     };
   }
 

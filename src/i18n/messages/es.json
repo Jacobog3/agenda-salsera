@@ -237,6 +237,18 @@
     "artistsEyebrow": "Lineup",
     "artistsTitle": "Artistas e invitados",
     "artistCandidate": "Identidad por completar",
+    "roles": {
+      "teacher": "Tallerista",
+      "dancer": "Bailarín",
+      "performer": "Artista de show",
+      "dj": "DJ",
+      "judge": "Juez",
+      "choreographer": "Coreógrafo",
+      "organizer": "Organizador",
+      "host": "Presentador",
+      "musician": "Músico",
+      "other": "Lineup anunciado"
+    },
     "scheduleEyebrow": "Programa",
     "scheduleTitle": "Agenda de la edición",
     "timePending": "Horario por confirmar",

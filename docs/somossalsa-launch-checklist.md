@@ -374,7 +374,9 @@ Exit criteria:
 
 Owner: editorial/data, supported by development
 
-- [ ] Complete ASBF 2027 and Guatemala Salsa Congress/ALQUIMIA 2026 profiles.
+- [x] Load the current official ASBF 2027 and Guatemala Salsa Congress/ALQUIMIA
+      2026 information as rich profiles. Keep enriching them as new annual
+      announcements are published.
 - [ ] Add profile-specific portraits for confirmed artists; never use an event
       flyer as the artist image.
 - [ ] Add Celia Pergo and connect her to the In Motion guest workshops, Madrid,

@@ -32,7 +32,7 @@ export async function generateMetadata({
   const detail = await getFestivalBySlug(locale as Locale, slug);
   if (!detail) return {};
   return {
-    title: `${detail.festival.name} | SomosSalsa`,
+    title: detail.festival.name,
     description: detail.festival.shortDescription
   };
 }
@@ -55,7 +55,7 @@ export default async function FestivalDetailPage({
   const imageMedia = media.filter((item) => item.mediaType === "image");
   const videoMedia = media.filter((item) => item.mediaType === "video" || item.mediaType === "embed");
   const cover = currentEdition?.coverImageUrl ?? festival.bannerImageUrl;
-  const gallery = imageMedia.map((item) => item.url);
+  const gallery = imageMedia.filter((item) => item.url !== cover).map((item) => item.url);
   const location = currentEdition?.city && currentEdition.countryCode
     ? formatLocation(currentEdition.city, currentEdition.countryCode, currentLocale)
     : festival.homeCity && festival.homeCountryCode
@@ -72,6 +72,18 @@ export default async function FestivalDetailPage({
         )
       : currentEdition?.dateLabel;
   const typeLabel = festival.seriesType === "congress" ? t("types.congress") : t("types.festival");
+  const artistRoleLabels: Record<string, string> = {
+    teacher: t("roles.teacher"),
+    dancer: t("roles.dancer"),
+    performer: t("roles.performer"),
+    dj: t("roles.dj"),
+    judge: t("roles.judge"),
+    choreographer: t("roles.choreographer"),
+    organizer: t("roles.organizer"),
+    host: t("roles.host"),
+    musician: t("roles.musician"),
+    other: t("roles.other")
+  };
   const today = new Date().toISOString().slice(0, 10);
 
   return (
@@ -182,11 +194,11 @@ export default async function FestivalDetailPage({
                   {artists.map((artist) => (
                     artist.slug ? (
                       <Link key={artist.id} href={{ pathname: "/artists/[slug]", params: { slug: artist.slug } }} className="rounded-2xl border border-gray-100 bg-white p-3 transition hover:border-salsaOrange-200 hover:shadow-sm">
-                        <ArtistCardContent artist={artist} candidateLabel={t("artistCandidate")} />
+                        <ArtistCardContent artist={artist} candidateLabel={t("artistCandidate")} locale={currentLocale} roleLabels={artistRoleLabels} />
                       </Link>
                     ) : (
                       <article key={artist.id} className="rounded-2xl border border-gray-100 bg-white p-3">
-                        <ArtistCardContent artist={artist} candidateLabel={t("artistCandidate")} />
+                        <ArtistCardContent artist={artist} candidateLabel={t("artistCandidate")} locale={currentLocale} roleLabels={artistRoleLabels} />
                       </article>
                     )
                   ))}
@@ -279,14 +291,29 @@ export default async function FestivalDetailPage({
   );
 }
 
-function ArtistCardContent({ artist, candidateLabel }: { artist: FestivalArtist; candidateLabel: string }) {
+function ArtistCardContent({
+  artist,
+  candidateLabel,
+  locale,
+  roleLabels
+}: {
+  artist: FestivalArtist;
+  candidateLabel: string;
+  locale: Locale;
+  roleLabels: Record<string, string>;
+}) {
+  const artistLocation = artist.countryCode
+    ? formatLocation(artist.city ?? "", artist.countryCode, locale)
+    : null;
+
   return (
     <>
       <div className="relative aspect-square overflow-hidden rounded-xl bg-salsaOrange-50">
         {artist.profileImageUrl ? <Image src={artist.profileImageUrl} alt={artist.name} fill className="object-cover" /> : <UsersRound className="absolute inset-0 m-auto h-8 w-8 text-salsaOrange-500" />}
       </div>
       <h3 className="mt-3 font-semibold text-gray-950">{artist.name}</h3>
-      {artist.roles.length > 0 ? <p className="mt-1 text-xs text-gray-500">{artist.roles.join(" · ")}</p> : null}
+      {artist.roles.length > 0 ? <p className="mt-1 text-xs text-gray-500">{artist.roles.map((role) => roleLabels[role] ?? role).join(" · ")}</p> : null}
+      {artistLocation ? <p className="mt-1 flex items-center gap-1 text-xs text-gray-500"><MapPin className="h-3 w-3" />{artistLocation}</p> : null}
       {artist.isCandidate ? <Badge variant="outline" className="mt-2 border-accentScale-300 text-[10px] text-accentScale-700">{candidateLabel}</Badge> : null}
     </>
   );
