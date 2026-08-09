@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import {
+  formatAdminErrorDiagnostic,
+  saveLocalAdminError,
+  type AdminClientErrorLog
+} from "@/lib/admin/client-error-log";
 
 export default function AdminError({
   error,
@@ -11,22 +16,39 @@ export default function AdminError({
   reset: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [logEntry, setLogEntry] = useState<AdminClientErrorLog | null>(null);
+  const loggedErrorRef = useRef<Error | null>(null);
 
   useEffect(() => {
+    if (loggedErrorRef.current === error) return;
+    loggedErrorRef.current = error;
+
+    const entry: AdminClientErrorLog = {
+      client_id: globalThis.crypto?.randomUUID?.()
+        ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      created_at: new Date().toISOString(),
+      route: window.location.href,
+      message: error.message || "Error de interfaz sin detalle disponible.",
+      stack: error.stack || null,
+      digest: error.digest || null,
+      source: "local"
+    };
+
     console.error("[admin-ui-error]", error);
+    setLogEntry(entry);
+    saveLocalAdminError(entry);
+    fetch("/api/admin/client-errors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entry),
+      keepalive: true
+    }).catch(() => undefined);
   }, [error]);
 
   async function copyDiagnostic() {
-    const diagnostic = [
-      `Mensaje: ${error.message || "Sin mensaje"}`,
-      `Referencia: ${error.digest || "Sin referencia"}`,
-      `Ruta: ${window.location.href}`,
-      `Fecha: ${new Date().toISOString()}`,
-      `Stack: ${error.stack || "Sin stack disponible"}`
-    ].join("\n");
-
+    if (!logEntry) return;
     try {
-      await navigator.clipboard.writeText(diagnostic);
+      await navigator.clipboard.writeText(formatAdminErrorDiagnostic(logEntry));
       setCopied(true);
     } catch {
       setCopied(false);
@@ -62,9 +84,16 @@ export default function AdminError({
           >
             Volver al panel
           </Link>
+          <Link
+            href="/admin/errors"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-gray-200 px-5 text-sm font-semibold text-gray-700"
+          >
+            Ver errores
+          </Link>
           <button
             type="button"
             onClick={copyDiagnostic}
+            disabled={!logEntry}
             className="min-h-11 rounded-full border border-gray-200 px-5 text-sm font-semibold text-gray-700"
           >
             {copied ? "Diagnóstico copiado" : "Copiar diagnóstico"}

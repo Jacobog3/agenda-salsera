@@ -1,5 +1,22 @@
 # Current Work Context
 
+## 2026-08-09 — Visible admin error log
+
+- Unexpected client-side admin errors are captured automatically in the private
+  `admin_client_error_logs` Supabase table.
+- `/admin/errors` provides a mobile-first log with the error message, route,
+  timestamp, deployed commit, optional stack, and a copyable diagnostic.
+- The latest 20 errors are also kept in local storage as a fallback when the
+  database or network is unavailable; the server list keeps the latest 50.
+- Logs intentionally exclude passwords, form values, and uploaded image or
+  video content.
+- The error log is reachable from the desktop admin header and the mobile admin
+  menu.
+- Migration `20260809000400_admin_client_error_logs.sql` is applied in
+  production. Migration history for the previously loaded `20260809000200` and
+  `20260809000300` festival payloads was repaired to match production state.
+- Responsive browser QA passed at 390×844 and 1280×800.
+
 ## 2026-08-09 — Admin media and mobile reliability
 
 - Branch: `codex/admin-mobile-source-ingestion`.

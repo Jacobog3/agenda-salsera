@@ -12,7 +12,8 @@ import {
   GraduationCap,
   UserRound,
   MapPinned,
-  Flag
+  Flag,
+  Bug
 } from "lucide-react";
 
 export const metadata = {
@@ -76,6 +77,14 @@ export default async function AdminProtectedLayout({
 
           <div className="flex items-center gap-2">
             <AdminMobileNav />
+            <Link
+              href="/admin/errors"
+              aria-label="Ver errores del administrador"
+              title="Errores"
+              className="hidden rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 md:inline-flex"
+            >
+              <Bug className="h-4 w-4" />
+            </Link>
             <Link
               href="/"
               className="hidden text-sm text-gray-400 transition-colors hover:text-gray-700 md:inline"
