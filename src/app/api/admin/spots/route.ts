@@ -6,6 +6,7 @@ import { normalizeCityName } from "@/lib/utils/normalize-city";
 import { normalizeCountryCode } from "@/lib/locations";
 import { normalizeReviewSignals } from "@/lib/submissions/analysis";
 import { persistAdminEntityMentions } from "@/lib/admin/entity-matching";
+import { resolveCandidateAfterCreate } from "@/lib/admin/candidate-resolution";
 
 function generateSlug(name: string) {
   return (
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   const rawBody = await request.json();
+  const candidateId = String(rawBody.candidate_id ?? "").trim();
+  delete rawBody.candidate_id;
   const hasReviewSignals = "review_signals" in rawBody;
   const reviewSignals = normalizeReviewSignals(rawBody.review_signals);
   const body = await autoTranslateSpanishFields(rawBody, [
@@ -104,5 +107,9 @@ export async function POST(request: NextRequest) {
     await persistAdminEntityMentions(supabase, "spot", data.id, reviewSignals);
   }
 
-  return NextResponse.json({ data });
+  const candidateLinked = candidateId
+    ? await resolveCandidateAfterCreate(supabase, candidateId, "spot", data.id)
+    : false;
+
+  return NextResponse.json({ data, candidateLinked });
 }

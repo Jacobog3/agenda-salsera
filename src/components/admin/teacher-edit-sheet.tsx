@@ -17,6 +17,7 @@ type TeacherData = Record<string, unknown>;
 
 type Props = {
   item: TeacherData | null;
+  initialData?: TeacherData;
   onClose: () => void;
   onSaved: () => void;
 };
@@ -58,7 +59,7 @@ const AI_FIELD_LABELS: Record<string, string> = {
   website_url: "Sitio web"
 };
 
-function buildInitialData(item: TeacherData | null): TeacherData {
+function buildInitialData(item: TeacherData | null, initialData: TeacherData = {}): TeacherData {
   if (!item) {
     return {
       name: "", city: "", country_code: DEFAULT_COUNTRY_CODE, area: "", address: "",
@@ -73,7 +74,8 @@ function buildInitialData(item: TeacherData | null): TeacherData {
       trial_class: false, price_text: "", booking_url: "",
       whatsapp_url: "", instagram_url: "", facebook_url: "", website_url: "",
       is_featured: false,
-      is_published: true
+      is_published: true,
+      ...initialData
     };
   }
   return {
@@ -152,11 +154,11 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   return <p className="pt-2 text-[10px] font-bold uppercase tracking-widest text-brand-600">{children}</p>;
 }
 
-export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
+export function TeacherEditSheet({ item, initialData = {}, onClose, onSaved }: Props) {
   const isCreating = item === null;
   const isDesktop = useIsDesktop();
-  const [tab, setTab] = useState<"ai" | "form">("ai");
-  const [data, setData] = useState<TeacherData>(() => buildInitialData(item));
+  const [tab, setTab] = useState<"ai" | "form">(initialData.candidate_id ? "form" : "ai");
+  const [data, setData] = useState<TeacherData>(() => buildInitialData(item, initialData));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -200,7 +202,7 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
   }
 
   const scheduleData = Array.isArray(data.schedule_data) ? (data.schedule_data as ScheduleDay[]) : null;
-  const currentDataForAi = Object.fromEntries(Object.entries(data).filter(([k]) => !["id", "created_at", "review_signals"].includes(k)));
+  const currentDataForAi = Object.fromEntries(Object.entries(data).filter(([k]) => !["id", "created_at", "review_signals", "candidate_id"].includes(k)));
 
   const panelContent = (
     <div className="mobile-drawer-form flex min-h-0 flex-1 flex-col">
@@ -240,6 +242,11 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
           </div>
         ) : (
           <div className="space-y-3 p-4">
+            {data.candidate_id ? (
+              <div className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5 text-xs leading-5 text-brand-800">
+                Estás creando este perfil desde una detección. Al guardar se vinculará automáticamente con el recurso de origen.
+              </div>
+            ) : null}
             <SectionHeading>Imágenes</SectionHeading>
             <ImageField label="Foto de perfil" value={String(data.profile_image_url ?? "")} onChange={(url) => set("profile_image_url", url)} />
             <ImageField label="Banner (opcional)" value={String(data.banner_image_url ?? "")} onChange={(url) => set("banner_image_url", url)} />

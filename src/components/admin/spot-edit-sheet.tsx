@@ -15,6 +15,7 @@ type SpotData = Record<string, unknown>;
 
 type Props = {
   item: SpotData | null;
+  initialData?: SpotData;
   onClose: () => void;
   onSaved: () => void;
 };
@@ -33,7 +34,7 @@ const AI_FIELD_LABELS: Record<string, string> = {
   instagram_url: "Instagram"
 };
 
-function buildInitialData(item: SpotData | null): SpotData {
+function buildInitialData(item: SpotData | null, initialData: SpotData = {}): SpotData {
   if (!item) {
     return {
       cover_image_url: "",
@@ -49,7 +50,8 @@ function buildInitialData(item: SpotData | null): SpotData {
       google_maps_url: "",
       description_es: "",
       is_featured: false,
-      is_published: true
+      is_published: true,
+      ...initialData
     };
   }
 
@@ -152,11 +154,11 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function SpotEditSheet({ item, onClose, onSaved }: Props) {
+export function SpotEditSheet({ item, initialData = {}, onClose, onSaved }: Props) {
   const isCreating = item === null;
   const isDesktop = useIsDesktop();
-  const [tab, setTab] = useState<"ai" | "form">("ai");
-  const [data, setData] = useState<SpotData>(() => buildInitialData(item));
+  const [tab, setTab] = useState<"ai" | "form">(initialData.candidate_id ? "form" : "ai");
+  const [data, setData] = useState<SpotData>(() => buildInitialData(item, initialData));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -209,7 +211,7 @@ export function SpotEditSheet({ item, onClose, onSaved }: Props) {
   }
 
   const currentDataForAi = Object.fromEntries(
-    Object.entries(data).filter(([key]) => !["id", "created_at", "review_signals"].includes(key))
+    Object.entries(data).filter(([key]) => !["id", "created_at", "review_signals", "candidate_id"].includes(key))
   );
 
   const panelContent = (
@@ -271,6 +273,11 @@ export function SpotEditSheet({ item, onClose, onSaved }: Props) {
           </div>
         ) : (
           <div className="space-y-3 p-4">
+            {data.candidate_id ? (
+              <div className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5 text-xs leading-5 text-brand-800">
+                Estás creando este lugar desde una detección. Al guardar se vinculará automáticamente con el recurso de origen.
+              </div>
+            ) : null}
             <SectionHeading>Imagen</SectionHeading>
             <ImageField
               label="Imagen principal"

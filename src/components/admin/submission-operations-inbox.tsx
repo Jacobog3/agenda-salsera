@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, Check, ExternalLink, Link2, Loader2, RefreshCw, UsersRound, X } from "lucide-react";
+import { AlertCircle, Check, Link2, Loader2, Plus, RefreshCw, UsersRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Candidate = {
@@ -12,6 +12,8 @@ type Candidate = {
   display_name: string;
   roles: string[] | null;
   affiliation: string | null;
+  origin_city: string | null;
+  origin_country_code: string | null;
   evidence: string | null;
   suggested_match_id: string | null;
   suggested_match_name: string | null;
@@ -30,13 +32,33 @@ type Incident = {
   created_at: string;
 };
 
-const ADMIN_ROUTES: Record<string, string> = {
-  professional: "/admin/teachers",
-  academy: "/admin/academies",
-  spot: "/admin/spots",
-  organizer: "/admin/events",
-  festival: "/admin/events"
+const CREATE_TARGETS: Record<string, { route: string; label: string }> = {
+  professional: { route: "/admin/teachers", label: "Crear artista y vincular" },
+  academy: { route: "/admin/academies", label: "Crear academia y vincular" },
+  spot: { route: "/admin/spots", label: "Crear spot y vincular" }
 };
+
+const PROFESSIONAL_ROLES = new Set([
+  "teacher", "dancer", "performer", "dj", "judge", "choreographer",
+  "organizer", "host", "musician", "other"
+]);
+
+function buildCreateHref(candidate: Candidate) {
+  const target = CREATE_TARGETS[candidate.entity_type];
+  if (!target) return "";
+  const params = new URLSearchParams({
+    create: "1",
+    candidate: candidate.id,
+    name: candidate.display_name
+  });
+  if (candidate.origin_city) params.set("city", candidate.origin_city);
+  if (candidate.origin_country_code) params.set("country", candidate.origin_country_code);
+  if (candidate.entity_type === "professional") {
+    const supportedRole = candidate.roles?.find((role) => PROFESSIONAL_ROLES.has(role));
+    params.set("role", supportedRole ?? "other");
+  }
+  return `${target.route}?${params.toString()}`;
+}
 
 export function SubmissionOperationsInbox() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -175,11 +197,19 @@ export function SubmissionOperationsInbox() {
                     Buscar de nuevo
                   </Button>
                 ) : null}
-                <Button asChild size="sm" variant="outline" className="h-8 text-xs">
-                  <a href={ADMIN_ROUTES[candidate.entity_type] ?? "/admin"}>
-                    <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Abrir catálogo
-                  </a>
-                </Button>
+                {!candidate.suggested_match_id && buildCreateHref(candidate) ? (
+                  <Button asChild size="sm" variant="outline" className="h-8 text-xs">
+                    <a href={buildCreateHref(candidate)}>
+                      <Plus className="mr-1.5 h-3.5 w-3.5" />
+                      {CREATE_TARGETS[candidate.entity_type].label}
+                    </a>
+                  </Button>
+                ) : null}
+                {!candidate.suggested_match_id && !CREATE_TARGETS[candidate.entity_type] ? (
+                  <span className="inline-flex h-8 items-center rounded-md bg-gray-50 px-2.5 text-xs text-gray-500">
+                    Aún no hay editor para este tipo
+                  </span>
+                ) : null}
                 <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground" disabled={workingId === candidate.id} onClick={() => updateCandidate(candidate, "ignored")}>
                   <X className="mr-1.5 h-3.5 w-3.5" /> Ignorar
                 </Button>
