@@ -166,6 +166,7 @@ export default async function AcademyDetailPage({
                   src={academy.bannerImageUrl!}
                   alt={`${academy.name} banner`}
                   fill
+                  sizes="(min-width: 1024px) 896px, 100vw"
                   className="object-cover"
                   priority
                 />

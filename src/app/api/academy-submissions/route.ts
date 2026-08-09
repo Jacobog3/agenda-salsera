@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { normalizeCountryCode } from "@/lib/locations";
+import {
+  buildSubmissionMetadata,
+  findExistingSubmission,
+  persistSubmissionMentions
+} from "@/lib/submissions/server";
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  const body = await request.json() as Record<string, unknown>;
   const fieldErrors: Record<string, string> = {};
 
   if (!String(body.name ?? "").trim()) {
@@ -35,7 +40,19 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const { error } = await supabase.from("academy_submissions").insert({
+  const metadata = buildSubmissionMetadata("academy", body, [
+    body.name,
+    body.city,
+    body.countryCode,
+    body.instagram,
+    body.address
+  ]);
+  const existing = await findExistingSubmission(supabase, "academy_submissions", metadata);
+  if (existing) {
+    return NextResponse.json({ ok: true, duplicate: true, submissionId: existing.id });
+  }
+
+  const { data: inserted, error } = await supabase.from("academy_submissions").insert({
     name: body.name,
     description: body.description || null,
     city: body.city,
@@ -52,8 +69,9 @@ export async function POST(request: Request) {
     instagram: body.instagram || null,
     website: body.website || null,
     contact_name: body.contactName || null,
-    status: "pending"
-  });
+    status: "pending",
+    ...metadata
+  }).select("id").single();
 
   if (error) {
     console.error("[academy-submissions] Failed to create submission", {
@@ -67,5 +85,9 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true });
+  if (inserted?.id) {
+    await persistSubmissionMentions(supabase, "academy", inserted.id, metadata.review_signals);
+  }
+
+  return NextResponse.json({ ok: true, submissionId: inserted?.id });
 }

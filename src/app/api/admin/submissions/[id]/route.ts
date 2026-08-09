@@ -10,6 +10,7 @@ import {
   normalizeCountryCode,
   zonedDateTimeToIso
 } from "@/lib/locations";
+import { applyResolvedSubmissionRelations } from "@/lib/submissions/server";
 
 export async function DELETE(
   request: Request,
@@ -88,7 +89,7 @@ export async function POST(
     contact_url: body.contact_url || null,
     is_featured: false,
     is_published: true
-  }).select("slug").single();
+  }).select("id,slug").single();
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
@@ -96,8 +97,12 @@ export async function POST(
 
   await supabase
     .from("event_submissions")
-    .update({ status: "approved" })
+    .update({ status: "approved", published_entity_id: inserted?.id ?? null })
     .eq("id", id);
+
+  if (inserted?.id) {
+    await applyResolvedSubmissionRelations(supabase, "event", id, inserted.id);
+  }
 
   await submitIndexNowEntity({ type: "event", slug: inserted?.slug ?? slug });
 

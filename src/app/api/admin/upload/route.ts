@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
       .from(bucket)
       .upload(fileName, file, {
         contentType: file.type,
+        cacheControl: "2678400",
         upsert: false
       });
 

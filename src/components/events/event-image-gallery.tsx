@@ -51,6 +51,7 @@ export function EventImageGallery({
             src={images[0]}
             alt={alt}
             fill
+            sizes="(min-width: 1024px) 896px, 100vw"
             className="object-contain"
             priority
           />
@@ -66,19 +67,15 @@ export function EventImageGallery({
       onTouchEnd={onTouchEnd}
     >
       <div className="relative aspect-[3/4] md:aspect-[4/3]">
-        {images.map((src, i) => (
-          <Image
-            key={`${src}-${i}`}
-            src={src}
-            alt={`${alt} (${i + 1}/${images.length})`}
-            fill
-            className={cn(
-              "object-contain transition-opacity duration-500",
-              i === current ? "opacity-100" : "opacity-0"
-            )}
-            priority={i === 0}
-          />
-        ))}
+        <Image
+          key={images[current]}
+          src={images[current]}
+          alt={`${alt} (${current + 1}/${images.length})`}
+          fill
+          sizes="(min-width: 1024px) 896px, 100vw"
+          className="object-contain"
+          priority={current === 0}
+        />
 
         {/* Navigation arrows */}
         <button

@@ -82,7 +82,7 @@ export default async function HomePage({
             >
               <div className="relative min-h-52 overflow-hidden bg-salsaRed-50 md:min-h-72">
                 {festivals[0].bannerImageUrl ? (
-                  <Image src={festivals[0].bannerImageUrl} alt={festivals[0].name} fill className="object-cover transition duration-500 group-hover:scale-[1.02]" />
+                  <Image src={festivals[0].bannerImageUrl} alt={festivals[0].name} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.02]" />
                 ) : (
                   <PartyPopper className="absolute inset-0 m-auto h-12 w-12 text-salsaRed-500" />
                 )}

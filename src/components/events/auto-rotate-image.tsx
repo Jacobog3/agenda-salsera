@@ -44,20 +44,14 @@ export function AutoRotateImage({
 
   return (
     <>
-      {images.map((src, i) => (
-        <Image
-          key={`${src}-${i}`}
-          src={src}
-          alt={`${alt} (${i + 1})`}
-          fill
-          sizes={sizes}
-          className={cn(
-            "object-cover transition-opacity duration-700",
-            i === current ? "opacity-100" : "opacity-0",
-            className
-          )}
-        />
-      ))}
+      <Image
+        key={images[current]}
+        src={images[current]}
+        alt={`${alt} (${current + 1})`}
+        fill
+        sizes={sizes}
+        className={cn("object-cover", className)}
+      />
       {/* Dots */}
       <div className="absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1">
         {images.map((_, i) => (

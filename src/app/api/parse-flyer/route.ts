@@ -7,7 +7,13 @@ import {
   isGeminiJsonTruncated
 } from "@/lib/utils/gemini-response";
 import { env } from "@/lib/utils/env";
-import { getGeminiGenerateContentUrl, logGeminiUsage } from "@/lib/ai/gemini";
+import { getGeminiGenerateContentUrl, getGeminiModel, logGeminiUsage } from "@/lib/ai/gemini";
+import { consumePublicAiQuota } from "@/lib/ai/public-rate-limit";
+import {
+  SUBMISSION_AI_VERSION,
+  normalizeReviewSignals,
+  type SubmissionType
+} from "@/lib/submissions/analysis";
 
 const EVENT_PROMPT = `You are an assistant that extracts structured event data from WhatsApp messages, captions, and flyer images about salsa, bachata, and Latin dance events worldwide.
 
@@ -83,9 +89,79 @@ Rules:
 - Remove emojis from all values
 - Return ONLY the JSON object, no markdown, no explanation`;
 
+const TEACHER_PROMPT = `You are an assistant that extracts structured public profile data for Latin dance professionals, couples, DJs, judges, and dance teams worldwide.
+
+Extract the following fields and return ONLY a valid JSON object:
+- name: public or stage name (string)
+- description: concise 1-2 sentence bio in Spanish supported by the source (string)
+- city: current base city only when supported (string)
+- countryCode: ISO 3166-1 alpha-2 code for the current base (string)
+- address: public teaching address or area (string)
+- styles: styles taught or performed, comma separated (string)
+- levels: levels offered (string)
+- modality: "presencial", "online", or "mixto" (string)
+- classFormats: private, group, workshops, choreography, or other formats (string)
+- teachingVenues: academies, companies, studios, or venues explicitly associated (string)
+- scheduleText: public class schedule (string)
+- contactName: booking/contact person when different from the profile name (string)
+- whatsapp: WhatsApp number or URL (string)
+- instagram: Instagram handle or URL (string)
+- website: website URL (string)
+- bookingUrl: booking URL (string)
+
+Do not invent biographies, nationalities, affiliations, schedules, or contact information.
+Use empty strings for fields that cannot be determined.
+Remove emojis from values and return JSON only.`;
+
+const SPOT_PROMPT = `You are an assistant that extracts structured information about venues and recurring Latin dance social spots worldwide.
+
+Extract the following fields and return ONLY a valid JSON object:
+- name: venue or public place name (string)
+- description: concise 1-2 sentence description in Spanish supported by the source (string)
+- city: canonical city name (string)
+- countryCode: ISO 3166-1 alpha-2 country code (string)
+- address: public address or location reference (string)
+- schedule: recurring dance nights or opening schedule (string)
+- coverCharge: entrance or cover options (string)
+- contactName: public contact or host (string)
+- whatsapp: WhatsApp number or URL (string)
+- instagram: Instagram handle or URL (string)
+
+Distinguish the physical venue from the academy or organizer hosting an activity there.
+Use empty strings for fields that cannot be determined.
+Remove emojis from values and return JSON only.`;
+
+const REVIEW_SIGNALS_PROMPT = `
+
+In the SAME JSON object, always include reviewSignals with this exact structure:
+"reviewSignals": {
+  "reasons": [],
+  "mentions": [
+    {
+      "entityType": "professional|academy|organizer|spot|festival",
+      "displayName": "",
+      "roles": [],
+      "affiliation": "",
+      "originCity": "",
+      "originCountryCode": "",
+      "evidence": ""
+    }
+  ],
+  "ambiguousFields": []
+}
+
+Review-signal rules:
+- List every explicitly named related professional, academy, organizer, venue, festival, congress, company, or team that may deserve a canonical relationship.
+- A physical venue is entityType "spot"; a dance school or studio as an institution is "academy".
+- Reasons may include: people_detected, academy_detected, organizer_detected, festival_detected, possible_duplicate, ambiguous_fields.
+- ambiguousFields contains field names that the source contradicts or leaves genuinely ambiguous.
+- Evidence must be a short paraphrase of source context, not an invented claim.
+- Do not create a mention for vague phrases such as "guest artist" without a name.
+- If nothing additional is detected, use empty arrays.`;
+
 type ParseFlyerRequest = {
   text?: string;
-  type?: "event" | "academy";
+  type?: SubmissionType;
   imageUrl?: string;
   imageDataUrl?: string;
 };
@@ -116,6 +192,17 @@ async function imageUrlToInlineData(imageUrl: string) {
 }
 
 export async function POST(request: Request) {
+  const quota = consumePublicAiQuota(request);
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: "Alcanzaste el límite temporal de análisis. Intenta de nuevo en unos minutos." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(quota.retryAfterSeconds) }
+      }
+    );
+  }
+
   const {
     text = "",
     type = "event",
@@ -126,6 +213,10 @@ export async function POST(request: Request) {
   const normalizedImageUrl = typeof imageUrl === "string" ? imageUrl.trim() : "";
   const normalizedImageDataUrl = typeof imageDataUrl === "string" ? imageDataUrl.trim() : "";
   const hasImage = Boolean(normalizedImageUrl || normalizedImageDataUrl);
+
+  if (!["event", "academy", "teacher", "spot"].includes(type)) {
+    return NextResponse.json({ error: "Unsupported resource type." }, { status: 400 });
+  }
 
   if (!hasImage && normalizedText.length < 10) {
     return NextResponse.json(
@@ -141,8 +232,20 @@ export async function POST(request: Request) {
     );
   }
 
-  const systemPrompt = type === "academy" ? ACADEMY_PROMPT : EVENT_PROMPT;
-  const label = type === "academy" ? "Academy text to parse" : "Event text to parse";
+  const prompts: Record<SubmissionType, string> = {
+    event: EVENT_PROMPT,
+    academy: ACADEMY_PROMPT,
+    teacher: TEACHER_PROMPT,
+    spot: SPOT_PROMPT
+  };
+  const labels: Record<SubmissionType, string> = {
+    event: "Event material to parse",
+    academy: "Academy material to parse",
+    teacher: "Professional profile material to parse",
+    spot: "Dance venue material to parse"
+  };
+  const systemPrompt = `${prompts[type]}${REVIEW_SIGNALS_PROMPT}`;
+  const label = labels[type];
   const parts: Array<Record<string, unknown>> = [{ text: systemPrompt }];
 
   if (normalizedText) {
@@ -229,8 +332,17 @@ export async function POST(request: Request) {
 
     try {
       const cleaned = cleanGeminiJsonResponse(rawText);
-      const parsed = JSON.parse(cleaned);
-      return NextResponse.json({ ok: true, data: parsed });
+      const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+      parsed.reviewSignals = normalizeReviewSignals(parsed.reviewSignals, parsed);
+      return NextResponse.json({
+        ok: true,
+        data: parsed,
+        ai: {
+          provider: "google",
+          model: getGeminiModel(),
+          version: SUBMISSION_AI_VERSION
+        }
+      });
     } catch (error) {
       parseError = error;
       const shouldRetry =

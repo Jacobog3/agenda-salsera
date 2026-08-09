@@ -99,7 +99,7 @@ export async function POST(
       is_featured: false,
       is_published: true
     })
-    .select("slug")
+    .select("id,slug")
     .single();
 
   if (insertError) {
@@ -108,7 +108,7 @@ export async function POST(
 
   await supabase
     .from("spot_submissions")
-    .update({ status: "approved" })
+    .update({ status: "approved", published_entity_id: inserted?.id ?? null })
     .eq("id", id);
 
   await submitIndexNowEntity({ type: "spot", slug: inserted?.slug ?? slug });

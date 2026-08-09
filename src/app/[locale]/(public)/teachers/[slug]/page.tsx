@@ -222,6 +222,7 @@ export default async function TeacherDetailPage({
                   src={teacher.bannerImageUrl}
                   alt={`${teacher.name} banner`}
                   fill
+                  sizes="(min-width: 1024px) 896px, 100vw"
                   unoptimized={teacher.bannerImageUrl.startsWith("/local-images/")}
                   className="object-cover"
                   priority

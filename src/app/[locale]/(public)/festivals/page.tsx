@@ -42,6 +42,7 @@ export default async function FestivalsPage({
                       src={festival.bannerImageUrl}
                       alt={festival.name}
                       fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
                       className="object-cover transition duration-500 group-hover:scale-[1.02]"
                     />
                   ) : (
