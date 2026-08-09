@@ -9,7 +9,7 @@ import {
   Clock, User, Tag, ExternalLink, ImageOff, RefreshCw, GraduationCap, UserRound
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { CountrySelect } from "@/components/forms/country-select";
+import { AdminCountrySelect } from "@/components/forms/country-select";
 import { DEFAULT_COUNTRY_CODE, getDefaultTimeZone } from "@/lib/locations";
 
 type EventSub = {
@@ -250,7 +250,7 @@ export function SubmissionsPanel() {
               <EditField label="Lugar"><Input value={editingEvent.venue_name ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, venue_name: e.target.value }))} /></EditField>
               <EditField label="Ciudad"><Input value={editingEvent.city ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, city: e.target.value }))} /></EditField>
               <EditField label="País">
-                <CountrySelect value={editingEvent.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingEvent((p) => ({ ...p, country_code: countryCode, time_zone: getDefaultTimeZone(countryCode) }))} />
+                <AdminCountrySelect value={editingEvent.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingEvent((p) => ({ ...p, country_code: countryCode, time_zone: getDefaultTimeZone(countryCode) }))} />
               </EditField>
             </div>
             <EditField label="Dirección"><Input value={editingEvent.address ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, address: e.target.value }))} /></EditField>
@@ -324,7 +324,7 @@ export function SubmissionsPanel() {
             <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Estilos"><Input value={editingAcademy.styles ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, styles: e.target.value }))} /></EditField>
               <EditField label="Ciudad"><Input value={editingAcademy.city ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, city: e.target.value }))} /></EditField>
-              <EditField label="País"><CountrySelect value={editingAcademy.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingAcademy((p) => ({ ...p, country_code: countryCode }))} /></EditField>
+              <EditField label="País"><AdminCountrySelect value={editingAcademy.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingAcademy((p) => ({ ...p, country_code: countryCode }))} /></EditField>
             </div>
             <EditField label="Dirección"><Input value={editingAcademy.address ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, address: e.target.value }))} /></EditField>
             <EditField label="Descripción"><Textarea rows={3} value={editingAcademy.description ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, description: e.target.value }))} /></EditField>
@@ -386,7 +386,7 @@ export function SubmissionsPanel() {
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Ciudad"><Input value={editingTeacher.city ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, city: e.target.value }))} /></EditField>
-              <EditField label="País"><CountrySelect value={editingTeacher.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingTeacher((p) => ({ ...p, country_code: countryCode }))} /></EditField>
+              <EditField label="País"><AdminCountrySelect value={editingTeacher.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingTeacher((p) => ({ ...p, country_code: countryCode }))} /></EditField>
               <EditField label="Dirección"><Input value={editingTeacher.address ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, address: e.target.value }))} /></EditField>
             </div>
             <EditField label="Link para agendar"><Input value={editingTeacher.booking_url ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, booking_url: e.target.value }))} /></EditField>
@@ -432,7 +432,7 @@ export function SubmissionsPanel() {
             <EditField label="Descripción"><Textarea rows={3} value={editingSpot.description ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, description: e.target.value }))} /></EditField>
             <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Ciudad"><Input value={editingSpot.city ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, city: e.target.value }))} /></EditField>
-              <EditField label="País"><CountrySelect value={editingSpot.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingSpot((p) => ({ ...p, country_code: countryCode }))} /></EditField>
+              <EditField label="País"><AdminCountrySelect value={editingSpot.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingSpot((p) => ({ ...p, country_code: countryCode }))} /></EditField>
               <EditField label="Dirección"><Input value={editingSpot.address ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, address: e.target.value }))} /></EditField>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
