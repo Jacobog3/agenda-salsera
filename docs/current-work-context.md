@@ -1,5 +1,14 @@
 # Current Work Context
 
+## 2026-08-09 — Browser and PWA icon cache refresh
+
+- The old ExploraGuate `public/favicon.ico` was still being served alongside the new
+  file-based SomosSalsa icons, allowing browsers with legacy favicon behavior to keep the
+  blue `E` icon.
+- The legacy ICO now contains the current SomosSalsa mark. A versioned shortcut icon and
+  versioned manifest icon URLs force browser and installed-PWA caches to request the new
+  brand asset.
+
 ## 2026-08-09 — GA4 internal route page views
 
 - GA4 production validation confirmed that consented full page loads reached the
