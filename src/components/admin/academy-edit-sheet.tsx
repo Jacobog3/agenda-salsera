@@ -17,6 +17,7 @@ type AcademyData = Record<string, unknown>;
 
 type Props = {
   item: AcademyData | null; // null = creating new
+  initialData?: AcademyData;
   onClose: () => void;
   onSaved: () => void;
 };
@@ -48,7 +49,7 @@ const AI_FIELD_LABELS: Record<string, string> = {
   website_url: "Sitio web"
 };
 
-function buildInitialData(item: AcademyData | null): AcademyData {
+function buildInitialData(item: AcademyData | null, initialData: AcademyData = {}): AcademyData {
   if (!item) {
     return {
       name: "", city: "", country_code: DEFAULT_COUNTRY_CODE, area: "", address: "",
@@ -59,7 +60,8 @@ function buildInitialData(item: AcademyData | null): AcademyData {
       trial_class: false,
       whatsapp_url: "", instagram_url: "", facebook_url: "", website_url: "",
       google_place_id: "",
-      is_published: true
+      is_published: true,
+      ...initialData
     };
   }
 
@@ -170,11 +172,13 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
+export function AcademyEditSheet({ item, initialData = {}, onClose, onSaved }: Props) {
   const isCreating = item === null;
   const isDesktop = useIsDesktop();
-  const [tab, setTab] = useState<"ai" | "form">("ai");
-  const [data, setData] = useState<AcademyData>(() => buildInitialData(item));
+  const [tab, setTab] = useState<"ai" | "form">(
+    initialData.candidate_id ? "form" : "ai"
+  );
+  const [data, setData] = useState<AcademyData>(() => buildInitialData(item, initialData));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -239,7 +243,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
     : null;
 
   const currentDataForAi = Object.fromEntries(
-    Object.entries(data).filter(([k]) => !["id", "created_at", "review_signals"].includes(k))
+    Object.entries(data).filter(([k]) => !["id", "created_at", "review_signals", "candidate_id"].includes(k))
   );
 
   const panelContent = (
@@ -305,6 +309,11 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
             </div>
           ) : (
             <div className="space-y-3 p-4">
+              {data.candidate_id ? (
+                <div className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5 text-xs leading-5 text-brand-800">
+                  Estás creando esta academia desde una detección. Al guardar se vinculará automáticamente con el recurso de origen.
+                </div>
+              ) : null}
               {/* Imágenes */}
               <SectionHeading>Imágenes</SectionHeading>
               <ImageField

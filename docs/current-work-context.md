@@ -1,5 +1,21 @@
 # Current Work Context
 
+## 2026-08-09 — Candidate create-and-link workflow
+
+- The review inbox no longer sends unmatched entity candidates to a generic
+  catalog list. Professionals, academies, and spots now have explicit
+  `Crear … y vincular` actions.
+- Candidate creation opens the corresponding mobile/desktop Admin form directly
+  in form mode, prefilling the detected name, city, country, and a conservative
+  professional role when available.
+- Saving the new canonical profile marks the candidate as matched and backfills
+  the relationship to the originating published event, academy, or professional.
+  Canceling returns to the base catalog without creating or resolving anything.
+- Unsupported organizer/festival candidate types now state that no editor exists
+  instead of presenting a misleading catalog action.
+- Browser QA verified the real Dance Studio Majao candidate at 390×844 without
+  saving it. Lint, TypeScript, and the production build pass.
+
 ## 2026-08-09 — Public/basic vs Admin/advanced AI separation
 
 - Public event, academy, artist, and spot forms now use AI only for minimal form
