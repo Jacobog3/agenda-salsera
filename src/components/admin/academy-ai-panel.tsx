@@ -1,12 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, Film, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
+import { Check, Film, ImagePlus, Link2, Loader2, Sparkles, X } from "lucide-react";
 import { compressImageFileForAi } from "@/lib/utils/image-data-url";
 import { extractVideoFramesForAi } from "@/lib/utils/video-frames";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { AiUpdateEntity, AiWorkflowMode } from "@/lib/admin/ai-update";
+import type { ReviewSignals, SubmissionMention } from "@/lib/submissions/analysis";
 
 type ImageEntry = {
   dataUrl: string;
@@ -22,12 +23,23 @@ type SuggestionEntry = {
   accepted: boolean;
 };
 
+type RelationshipMention = SubmissionMention & {
+  suggestedMatch: {
+    id: string;
+    name: string;
+    city: string;
+    countryCode: string;
+    confidence: number;
+  } | null;
+};
+
 type Props = {
   entity: AiUpdateEntity;
   mode: AiWorkflowMode;
   currentData: Record<string, unknown>;
   fieldLabels: Record<string, string>;
   onApply: (fields: Record<string, unknown>) => void | { warning?: string };
+  onReviewSignals?: (signals: ReviewSignals) => void;
 };
 
 const PRIMARY_IMAGE_FIELD_BY_ENTITY: Record<AiUpdateEntity, string> = {
@@ -113,7 +125,14 @@ async function uploadAdminImage(file: File): Promise<string> {
   return String(data.url ?? "").trim();
 }
 
-export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply }: Props) {
+export function EntityAiPanel({
+  entity,
+  mode,
+  currentData,
+  fieldLabels,
+  onApply,
+  onReviewSignals
+}: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [text, setText] = useState("");
@@ -122,6 +141,7 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestionEntry[] | null>(null);
+  const [relationships, setRelationships] = useState<RelationshipMention[]>([]);
   const primaryImageField = PRIMARY_IMAGE_FIELD_BY_ENTITY[entity];
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -211,6 +231,7 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
     setError("");
     setNotice("");
     setSuggestions(null);
+    setRelationships([]);
 
     try {
       const res = await fetch("/api/admin/ai-update", {
@@ -227,6 +248,15 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(String(data.error ?? "No se pudo analizar."));
+
+      const reviewSignals = data.reviewSignals && typeof data.reviewSignals === "object"
+        ? data.reviewSignals as ReviewSignals
+        : { reasons: [], mentions: [], ambiguousFields: [] };
+      const detectedRelationships = Array.isArray(data.mentions)
+        ? data.mentions as RelationshipMention[]
+        : [];
+      setRelationships(detectedRelationships);
+      onReviewSignals?.(reviewSignals);
 
       const suggestion =
         data.data && typeof data.data === "object"
@@ -258,7 +288,11 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
       ];
 
       if (nextSuggestions.length === 0) {
-        setNotice("La IA no encontró información nueva para agregar.");
+        setNotice(
+          detectedRelationships.length > 0
+            ? "No hay campos nuevos, pero sí relaciones para revisar. Se guardarán como candidatas."
+            : "La IA no encontró información nueva para agregar."
+        );
         return;
       }
 
@@ -289,7 +323,9 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
       setImages([]);
       setText("");
       setNotice(
-        result?.warning
+        relationships.length > 0
+          ? `Sugerencias aplicadas. ${relationships.length} relación${relationships.length === 1 ? "" : "es"} se guardará${relationships.length === 1 ? "" : "n"} para revisión.`
+          : result?.warning
           ? `Sugerencias aplicadas con una advertencia: ${result.warning}`
           : "Sugerencias aplicadas. Revisa los campos y guarda."
       );
@@ -403,6 +439,59 @@ export function EntityAiPanel({ entity, mode, currentData, fieldLabels, onApply 
 
       {error && <p className="text-xs font-medium text-red-600">{error}</p>}
       {notice && <p className="text-xs font-medium text-brand-700">{notice}</p>}
+
+      {relationships.length > 0 && (
+        <div className="space-y-2 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
+          <div className="flex items-center gap-2">
+            <Link2 className="h-4 w-4 text-blue-700" />
+            <p className="text-sm font-semibold text-gray-900">
+              {relationships.length === 1
+                ? "1 relación detectada"
+                : `${relationships.length} relaciones detectadas`}
+            </p>
+          </div>
+          <p className="text-xs leading-5 text-gray-600">
+            Se guardarán como candidatas. Nada se relaciona automáticamente sin tu revisión.
+          </p>
+          <div className="space-y-2">
+            {relationships.map((relationship, index) => (
+              <div
+                key={`${relationship.entityType}-${relationship.displayName}-${index}`}
+                className="rounded-xl border border-blue-100 bg-white p-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-gray-900">
+                      {relationship.displayName}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                      {relationship.entityType}
+                      {relationship.roles.length > 0 ? ` · ${relationship.roles.join(", ")}` : ""}
+                    </p>
+                  </div>
+                  {relationship.suggestedMatch ? (
+                    <span className="shrink-0 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700">
+                      Coincidencia {Math.round(relationship.suggestedMatch.confidence * 100)}%
+                    </span>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">
+                      Nuevo candidato
+                    </span>
+                  )}
+                </div>
+                {relationship.suggestedMatch ? (
+                  <p className="mt-1.5 text-xs text-gray-600">
+                    Posible perfil: {relationship.suggestedMatch.name}
+                  </p>
+                ) : null}
+                {relationship.evidence ? (
+                  <p className="mt-1.5 text-xs leading-5 text-gray-500">{relationship.evidence}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Per-field suggestion toggles */}
       {suggestions && suggestions.length > 0 && (

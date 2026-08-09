@@ -4,6 +4,8 @@ import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { normalizeAcademyPayload } from "@/lib/admin/academy-payload";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
+import { normalizeReviewSignals } from "@/lib/submissions/analysis";
+import { persistAdminEntityMentions } from "@/lib/admin/entity-matching";
 
 export async function PATCH(
   request: Request,
@@ -14,6 +16,9 @@ export async function PATCH(
 
   const { id } = await params;
   const rawBody = await request.json();
+  const hasReviewSignals = "review_signals" in rawBody;
+  const reviewSignals = normalizeReviewSignals(rawBody.review_signals);
+  delete rawBody.review_signals;
   const forceAutoTranslate = Boolean(rawBody.force_auto_translate);
   delete rawBody.force_auto_translate;
   const translatedBody = await autoTranslateSpanishFields(rawBody, [
@@ -36,6 +41,10 @@ export async function PATCH(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (hasReviewSignals) {
+    await persistAdminEntityMentions(supabase, "academy", id, reviewSignals);
+  }
 
   await submitIndexNowEntity({
     type: "academy",

@@ -16,6 +16,7 @@ type Candidate = {
   suggested_match_id: string | null;
   suggested_match_name: string | null;
   match_confidence: number | null;
+  detected_by: "basic_ai" | "advanced_ai" | "admin";
   created_at: string;
 };
 
@@ -168,12 +169,12 @@ export function SubmissionOperationsInbox() {
                   <Button size="sm" className="h-8 text-xs" disabled={workingId === candidate.id} onClick={() => updateCandidate(candidate, "matched")}>
                     <Link2 className="mr-1.5 h-3.5 w-3.5" /> Vincular
                   </Button>
-                ) : (
+                ) : candidate.detected_by !== "advanced_ai" ? (
                   <Button size="sm" variant="outline" className="h-8 text-xs" disabled={workingId === candidate.id} onClick={() => reanalyze(candidate)}>
                     {workingId === candidate.id ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="mr-1.5 h-3.5 w-3.5" />}
                     Buscar de nuevo
                   </Button>
-                )}
+                ) : null}
                 <Button asChild size="sm" variant="outline" className="h-8 text-xs">
                   <a href={ADMIN_ROUTES[candidate.entity_type] ?? "/admin"}>
                     <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Abrir catálogo

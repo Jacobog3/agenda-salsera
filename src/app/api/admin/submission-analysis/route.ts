@@ -15,12 +15,12 @@ import {
 import {
   SUBMISSION_AI_VERSION,
   getReviewPriority,
-  normalizeMentionName,
   normalizeReviewSignals,
-  type MentionEntityType,
   type SubmissionType
 } from "@/lib/submissions/analysis";
 import { persistSubmissionMentions } from "@/lib/submissions/server";
+import { findSuggestedEntityMatch } from "@/lib/admin/entity-matching";
+import type { MentionEntityType } from "@/lib/submissions/analysis";
 
 const TABLES = {
   event: "event_submissions",
@@ -28,14 +28,6 @@ const TABLES = {
   teacher: "teacher_submissions",
   spot: "spot_submissions"
 } as const;
-
-const MATCH_TABLES: Record<MentionEntityType, { table: string }> = {
-  professional: { table: "teachers" },
-  academy: { table: "academies" },
-  organizer: { table: "organizers" },
-  spot: { table: "spots" },
-  festival: { table: "festival_series" }
-};
 
 const ADVANCED_PROMPT = `You review material submitted to an international Latin dance directory.
 
@@ -74,43 +66,6 @@ async function imageUrlToInlineData(imageUrl: string) {
     mimeType: contentType,
     data: Buffer.from(await response.arrayBuffer()).toString("base64")
   };
-}
-
-function similarity(left: string, right: string) {
-  const a = normalizeMentionName(left);
-  const b = normalizeMentionName(right);
-  if (!a || !b) return 0;
-  if (a === b) return 1;
-  if (a.includes(b) || b.includes(a)) return 0.88;
-  const aTokens = new Set(a.split(" "));
-  const bTokens = new Set(b.split(" "));
-  const overlap = [...aTokens].filter((token) => bTokens.has(token)).length;
-  const union = new Set([...aTokens, ...bTokens]).size;
-  return union ? overlap / union : 0;
-}
-
-async function findSuggestedMatch(
-  supabase: ReturnType<typeof createSupabaseAdminClient>,
-  entityType: MentionEntityType,
-  displayName: string
-) {
-  const config = MATCH_TABLES[entityType];
-  const { data, error } = await supabase
-    .from(config.table)
-    .select("id,name,city,country_code")
-    .limit(250);
-  if (error) return null;
-
-  const candidates = (data ?? []).map((row) => ({
-    id: String(row.id),
-    name: String(row.name ?? ""),
-    city: String(row.city ?? ""),
-    countryCode: String(row.country_code ?? ""),
-    confidence: similarity(displayName, String(row.name ?? ""))
-  })).filter((candidate) => candidate.confidence >= 0.55)
-    .sort((a, b) => b.confidence - a.confidence);
-
-  return candidates[0] ?? null;
 }
 
 export async function POST(request: Request) {
@@ -233,7 +188,7 @@ export async function POST(request: Request) {
 
   const enrichedMentions = [];
   for (const mention of mentions ?? []) {
-    const match = await findSuggestedMatch(
+    const match = await findSuggestedEntityMatch(
       supabase,
       mention.entity_type as MentionEntityType,
       mention.display_name

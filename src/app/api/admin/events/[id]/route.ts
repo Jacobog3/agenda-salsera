@@ -6,6 +6,8 @@ import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 import { normalizeCityName } from "@/lib/utils/normalize-city";
 import { getDefaultTimeZone, normalizeCountryCode } from "@/lib/locations";
 import { inferEventRelations } from "@/lib/admin/event-relations";
+import { normalizeReviewSignals } from "@/lib/submissions/analysis";
+import { persistAdminEntityMentions } from "@/lib/admin/entity-matching";
 
 function normalizeNullableId(value: unknown) {
   const normalized = String(value ?? "").trim();
@@ -45,6 +47,9 @@ export async function PATCH(
 
   const { id } = await params;
   const rawBody = await request.json();
+  const hasReviewSignals = "review_signals" in rawBody;
+  const reviewSignals = normalizeReviewSignals(rawBody.review_signals);
+  delete rawBody.review_signals;
   const forceAutoTranslate = Boolean(rawBody.force_auto_translate);
   delete rawBody.force_auto_translate;
   const body = await autoTranslateSpanishFields(rawBody, [
@@ -160,6 +165,10 @@ export async function PATCH(
     if (insertTeacherLinksError) {
       return NextResponse.json({ error: insertTeacherLinksError.message }, { status: 500 });
     }
+  }
+
+  if (hasReviewSignals) {
+    await persistAdminEntityMentions(supabase, "event", id, reviewSignals);
   }
 
   await submitIndexNowEntity({

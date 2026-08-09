@@ -3,6 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { normalizeAcademyPayload } from "@/lib/admin/academy-payload";
+import { normalizeReviewSignals } from "@/lib/submissions/analysis";
+import { persistAdminEntityMentions } from "@/lib/admin/entity-matching";
 
 function generateSlug(name: string) {
   return (
@@ -47,6 +49,8 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   const rawBody = await request.json();
+  const hasReviewSignals = "review_signals" in rawBody;
+  const reviewSignals = normalizeReviewSignals(rawBody.review_signals);
   const body = await autoTranslateSpanishFields(rawBody, [
     { sourceKey: "description_es", targetKey: "description_en", label: "Academy description" }
   ]);
@@ -81,6 +85,10 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (hasReviewSignals) {
+    await persistAdminEntityMentions(supabase, "academy", data.id, reviewSignals);
   }
 
   return NextResponse.json({ data });

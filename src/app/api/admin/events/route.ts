@@ -7,6 +7,8 @@ import { submitIndexNowEntity } from "@/lib/seo/indexnow";
 import { normalizeCityName } from "@/lib/utils/normalize-city";
 import { getDefaultCurrency, getDefaultTimeZone, normalizeCountryCode } from "@/lib/locations";
 import { inferEventRelations } from "@/lib/admin/event-relations";
+import { normalizeReviewSignals } from "@/lib/submissions/analysis";
+import { persistAdminEntityMentions } from "@/lib/admin/entity-matching";
 
 function normalizeTeacherIds(value: unknown) {
   if (!Array.isArray(value)) return [];
@@ -77,6 +79,8 @@ export async function POST(request: NextRequest) {
   }
 
   const rawBody = await request.json();
+  const hasReviewSignals = "review_signals" in rawBody;
+  const reviewSignals = normalizeReviewSignals(rawBody.review_signals);
   const body = await autoTranslateSpanishFields(rawBody, [
     { sourceKey: "title_es", targetKey: "title_en", label: "Event title" },
     { sourceKey: "description_es", targetKey: "description_en", label: "Event description" }
@@ -170,6 +174,10 @@ export async function POST(request: NextRequest) {
       if (teacherLinkError) {
         return NextResponse.json({ error: teacherLinkError.message }, { status: 500 });
       }
+    }
+
+    if (hasReviewSignals) {
+      await persistAdminEntityMentions(supabase, "event", data.id, reviewSignals);
     }
 
     await submitIndexNowEntity({ type: "event", slug: data.slug });
