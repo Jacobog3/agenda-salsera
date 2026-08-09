@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function AdminError({
@@ -10,9 +10,28 @@ export default function AdminError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     console.error("[admin-ui-error]", error);
   }, [error]);
+
+  async function copyDiagnostic() {
+    const diagnostic = [
+      `Mensaje: ${error.message || "Sin mensaje"}`,
+      `Referencia: ${error.digest || "Sin referencia"}`,
+      `Ruta: ${window.location.href}`,
+      `Fecha: ${new Date().toISOString()}`,
+      `Stack: ${error.stack || "Sin stack disponible"}`
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(diagnostic);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -21,7 +40,10 @@ export default function AdminError({
           No se pudo completar esta acción
         </h1>
         <p className="mt-2 text-sm leading-6 text-gray-600">
-          Tus datos no se borraron intencionalmente. Intenta recuperar la pantalla o vuelve al panel.
+          La pantalla encontró un error antes de completar la acción. Intenta recuperarla o vuelve al panel.
+        </p>
+        <p className="mt-3 break-words rounded-xl bg-gray-50 px-3 py-2 text-left text-xs leading-5 text-gray-600">
+          Detalle: {error.message || "Error de interfaz sin detalle disponible."}
         </p>
         {error.digest ? (
           <p className="mt-2 text-xs text-gray-400">Referencia: {error.digest}</p>
@@ -40,6 +62,13 @@ export default function AdminError({
           >
             Volver al panel
           </Link>
+          <button
+            type="button"
+            onClick={copyDiagnostic}
+            className="min-h-11 rounded-full border border-gray-200 px-5 text-sm font-semibold text-gray-700"
+          >
+            {copied ? "Diagnóstico copiado" : "Copiar diagnóstico"}
+          </button>
         </div>
       </div>
     </main>
