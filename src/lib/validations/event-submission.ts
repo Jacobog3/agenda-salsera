@@ -9,6 +9,8 @@ export const eventSubmissionSchema = z.object({
   time: z.string().min(1),
   price: z.string().max(500).optional().or(z.literal("")),
   city: z.string().min(2).max(80),
+  countryCode: z.string().length(2),
+  timeZone: z.string().min(3).max(80),
   venue: z.string().min(2).max(120),
   address: z.string().max(200).optional().or(z.literal("")),
   organizerName: z.string().max(120).optional().or(z.literal("")),

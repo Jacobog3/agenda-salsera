@@ -1,22 +1,23 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Home, CalendarDays, MapPinned, GraduationCap } from "lucide-react";
+import { Home, CalendarDays, MapPinned, GraduationCap, PartyPopper } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
 import type { LucideIcon } from "lucide-react";
 
-type NavKey = "home" | "events" | "spots" | "academies";
+type NavKey = "home" | "events" | "festivals" | "spots" | "academies";
 
 type NavItem = {
   key: NavKey;
-  href: "/" | "/events" | "/spots" | "/academies";
+  href: "/" | "/events" | "/festivals" | "/spots" | "/academies";
   icon: LucideIcon;
 };
 
 const NAV_ITEMS: NavItem[] = [
   { key: "home",      href: "/",          icon: Home },
   { key: "events",    href: "/events",    icon: CalendarDays },
+  { key: "festivals", href: "/festivals", icon: PartyPopper },
   { key: "spots",     href: "/spots",     icon: MapPinned },
   { key: "academies", href: "/academies", icon: GraduationCap }
 ];
@@ -24,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
 const aliases: Record<string, string[]> = {
   "/":          ["/"],
   "/events":    ["/events",    "/eventos"],
+  "/festivals": ["/festivals", "/festivales"],
   "/spots":     ["/spots",     "/lugares"],
   "/academies": ["/academies", "/academias"]
 };

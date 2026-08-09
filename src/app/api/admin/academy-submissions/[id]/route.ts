@@ -3,7 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { normalizeCountryCode } from "@/lib/locations";
 
 export async function DELETE(
   request: Request,
@@ -46,6 +47,10 @@ export async function POST(
     .replace(/\s+/g, "-")
     .substring(0, 80)
     + `-${Date.now()}`;
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
+  if (!countryCode || !String(body.city ?? "").trim()) {
+    return NextResponse.json({ error: "Ciudad y país son obligatorios." }, { status: 400 });
+  }
 
   const { data: inserted, error: insertError } = await supabase.from("academies").insert({
     slug,
@@ -53,7 +58,8 @@ export async function POST(
     description_es: body.description || "",
     description_en: body.description_en || body.description || "",
     cover_image_url: body.image_url || "",
-    city: normalizeGuatemalaCityName(body.city || "Ciudad de Guatemala"),
+    city: normalizeCityName(body.city, countryCode),
+    country_code: countryCode,
     address: body.address || null,
     area: null,
     styles_taught: body.styles

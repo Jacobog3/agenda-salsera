@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 import type { OrganizerRecord, OrganizerSummary } from "@/types/organizer";
 
 function normalizeOrganizer(row: Record<string, unknown>): OrganizerRecord {
@@ -11,6 +12,7 @@ function normalizeOrganizer(row: Record<string, unknown>): OrganizerRecord {
     logoImageUrl: row.logo_image_url ? String(row.logo_image_url) : null,
     bannerImageUrl: row.banner_image_url ? String(row.banner_image_url) : null,
     city: row.city ? String(row.city) : null,
+    countryCode: String(row.country_code ?? DEFAULT_COUNTRY_CODE),
     area: row.area ? String(row.area) : null,
     address: row.address ? String(row.address) : null,
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,

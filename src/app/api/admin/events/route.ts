@@ -4,7 +4,8 @@ import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { getDefaultCurrency, getDefaultTimeZone, normalizeCountryCode } from "@/lib/locations";
 import { inferEventRelations } from "@/lib/admin/event-relations";
 
 function normalizeTeacherIds(value: unknown) {
@@ -104,6 +105,11 @@ export async function POST(request: NextRequest) {
 
   const slug = generateSlug(body.title_es);
   const teacherIds = normalizeTeacherIds(body.teacher_ids);
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
+  if (!countryCode) {
+    return NextResponse.json({ error: "Selecciona el país del evento." }, { status: 400 });
+  }
+  const timeZone = String(body.time_zone ?? getDefaultTimeZone(countryCode));
 
   try {
     const supabase = createSupabaseAdminClient();
@@ -120,7 +126,9 @@ export async function POST(request: NextRequest) {
         cover_image_url: body.cover_image_url || "",
         gallery_urls: Array.isArray(body.gallery_urls) ? body.gallery_urls : [],
         dance_style: body.dance_style || "salsa_bachata",
-        city: normalizeGuatemalaCityName(body.city),
+        city: normalizeCityName(body.city, countryCode),
+        country_code: countryCode,
+        time_zone: timeZone,
         area: body.area || null,
         venue_name: body.venue_name,
         address: body.address || null,
@@ -130,7 +138,7 @@ export async function POST(request: NextRequest) {
         date_label: dateLabel,
         price_amount: body.price_amount ?? null,
         price_text: body.price_text || null,
-        currency: body.currency || "GTQ",
+        currency: body.currency || getDefaultCurrency(countryCode),
         organizer_name: relations.organizer_name,
         organizer_id: relations.organizer_id,
         academy_id: relations.academy_id,

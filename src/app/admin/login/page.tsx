@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogoIcon } from "@/components/brand/logo-icon";
+import { BrandLockup } from "@/components/brand/brand-lockup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, Lock } from "lucide-react";
@@ -47,15 +47,9 @@ export default function AdminLoginPage() {
         {/* Brand */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="drop-shadow-md">
-            <LogoIcon size={56} />
+            <BrandLockup iconSize={56} compact className="text-xl" />
           </div>
           <div>
-            <p className="font-display text-lg font-bold tracking-normal">
-              <span className="text-brand-600">Salsa</span>
-              <span className="mx-1 text-gray-300">·</span>
-              <span className="text-gray-900">Explora</span>
-              <span className="text-brand-600">Guate</span>
-            </p>
             <p className="mt-0.5 text-sm text-gray-500">Panel de administración</p>
           </div>
         </div>
@@ -101,7 +95,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400">
-          Solo para uso interno de ExploraGuate
+          Solo para uso interno de SomosSalsa
         </p>
       </div>
     </div>

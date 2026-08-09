@@ -51,9 +51,9 @@ export async function POST(request: NextRequest) {
     { sourceKey: "description_es", targetKey: "description_en", label: "Academy description" }
   ]);
 
-  if (!String(body.name ?? "").trim() || !String(body.city ?? "").trim()) {
+  if (!String(body.name ?? "").trim() || !String(body.city ?? "").trim() || !String(body.country_code ?? body.countryCode ?? "").trim()) {
     return NextResponse.json(
-      { error: "Nombre y ciudad son obligatorios." },
+      { error: "Nombre, ciudad y país son obligatorios." },
       { status: 400 }
     );
   }

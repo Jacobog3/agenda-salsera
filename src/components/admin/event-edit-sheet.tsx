@@ -9,6 +9,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { EntityAiPanel } from "./academy-ai-panel";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import { extractLowestPriceAmount } from "@/lib/utils/formatters";
+import { CountrySelect } from "@/components/forms/country-select";
+import {
+  DEFAULT_COUNTRY_CODE,
+  DEFAULT_TIME_ZONE,
+  getDefaultCurrency,
+  getDefaultTimeZone,
+  isoToZonedDateTimeFields,
+  zonedDateTimeToIso
+} from "@/lib/locations";
 
 type EventData = Record<string, unknown>;
 
@@ -32,6 +41,10 @@ const DANCE_STYLE_OPTIONS = [
 
 const CURRENCY_OPTIONS = [
   { value: "GTQ", label: "GTQ (Quetzales)" },
+  { value: "CRC", label: "CRC (Colones)" },
+  { value: "MXN", label: "MXN (Pesos mexicanos)" },
+  { value: "EUR", label: "EUR (Euros)" },
+  { value: "COP", label: "COP (Pesos colombianos)" },
   { value: "USD", label: "USD (Dólares)" },
   { value: "", label: "No aplica / Gratis" }
 ];
@@ -52,6 +65,8 @@ const AI_FIELD_LABELS: Record<string, string> = {
   ends_at: "Fecha y hora de cierre",
   venue_name: "Lugar",
   city: "Ciudad",
+  country_code: "País",
+  time_zone: "Zona horaria",
   address: "Dirección",
   price_text: "Precios",
   currency: "Moneda",
@@ -59,15 +74,6 @@ const AI_FIELD_LABELS: Record<string, string> = {
   contact_url: "Link de contacto",
   description_es: "Descripción"
 };
-
-function parseDateTimeLocal(isoString: string): { date: string; time: string } {
-  if (!isoString) return { date: "", time: "" };
-  const date = new Date(isoString);
-  return {
-    date: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
-    time: `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`
-  };
-}
 
 function buildInitialData(item: EventData | null): EventData {
   if (!item) {
@@ -85,11 +91,13 @@ function buildInitialData(item: EventData | null): EventData {
       ends_at_time: "",
       venue_name: "",
       city: "",
+      country_code: DEFAULT_COUNTRY_CODE,
+      time_zone: DEFAULT_TIME_ZONE,
       area: "",
       address: "",
       price_text: "",
       price_amount: "",
-      currency: "GTQ",
+      currency: "",
       organizer_name: "",
       organizer_id: "",
       academy_id: "",
@@ -100,8 +108,9 @@ function buildInitialData(item: EventData | null): EventData {
     };
   }
 
-  const startsAt = parseDateTimeLocal(String(item.starts_at ?? ""));
-  const endsAt = parseDateTimeLocal(String(item.ends_at ?? ""));
+  const timeZone = String(item.time_zone ?? DEFAULT_TIME_ZONE);
+  const startsAt = isoToZonedDateTimeFields(String(item.starts_at ?? ""), timeZone);
+  const endsAt = isoToZonedDateTimeFields(String(item.ends_at ?? ""), timeZone);
 
   return {
     ...item,
@@ -524,9 +533,10 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
   function applyAiSuggestions(fields: Record<string, unknown>) {
     const normalized = { ...fields };
+    const suggestionTimeZone = String(normalized.time_zone ?? data.time_zone ?? DEFAULT_TIME_ZONE);
 
     if (normalized.starts_at) {
-      const startsAt = parseDateTimeLocal(String(normalized.starts_at));
+      const startsAt = isoToZonedDateTimeFields(String(normalized.starts_at), suggestionTimeZone);
       normalized.starts_at_date = startsAt.date;
       normalized.starts_at_time = startsAt.time;
       normalized.date_status = "confirmed";
@@ -534,7 +544,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     }
 
     if (normalized.ends_at) {
-      const endsAt = parseDateTimeLocal(String(normalized.ends_at));
+      const endsAt = isoToZonedDateTimeFields(String(normalized.ends_at), suggestionTimeZone);
       normalized.ends_at_date = endsAt.date;
       normalized.ends_at_time = endsAt.time;
     }
@@ -563,6 +573,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
       const endsAtDate = String(data.ends_at_date ?? "").trim();
       const endsAtTime = String(data.ends_at_time ?? "").trim();
+      const timeZone = String(data.time_zone ?? DEFAULT_TIME_ZONE);
       if (dateStatus === "confirmed" && endsAtDate && new Date(endsAtDate) < new Date(startsAtDate)) {
         throw new Error("La fecha final no puede ser anterior a la fecha inicial.");
       }
@@ -573,11 +584,13 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         date_label: dateStatus === "coming_soon"
           ? String(data.date_label ?? "Próximamente").trim() || "Próximamente"
           : null,
-        starts_at: dateStatus === "coming_soon" ? null : `${startsAtDate}T${startsAtTime || "20:00"}:00-06:00`,
+        starts_at: dateStatus === "coming_soon"
+          ? null
+          : zonedDateTimeToIso(startsAtDate, startsAtTime || "20:00", timeZone),
         ends_at: dateStatus === "coming_soon" || !endsAtDate
           ? null
           : endsAtDate
-          ? `${endsAtDate}T${endsAtTime || startsAtTime || "20:00"}:00-06:00`
+          ? zonedDateTimeToIso(endsAtDate, endsAtTime || startsAtTime || "20:00", timeZone)
           : null,
         gallery_urls: Array.isArray(data.gallery_urls)
           ? [...new Set(
@@ -829,13 +842,24 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                 className="h-9 text-sm"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="space-y-1">
                 <FieldLabel label="Ciudad" />
                 <Input
                   value={String(data.city ?? "")}
                   onChange={(e) => set("city", e.target.value)}
                   className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <FieldLabel label="País" />
+                <CountrySelect
+                  value={String(data.country_code ?? DEFAULT_COUNTRY_CODE)}
+                  onChange={(countryCode) => {
+                    set("country_code", countryCode);
+                    set("time_zone", getDefaultTimeZone(countryCode));
+                    set("currency", getDefaultCurrency(countryCode));
+                  }}
                 />
               </div>
               <div className="space-y-1">
@@ -846,6 +870,14 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                   className="h-9 text-sm"
                 />
               </div>
+            </div>
+            <div className="space-y-1">
+              <FieldLabel label="Zona horaria" hint="se usa para mostrar la hora local correcta" />
+              <Input
+                value={String(data.time_zone ?? DEFAULT_TIME_ZONE)}
+                onChange={(e) => set("time_zone", e.target.value)}
+                className="h-9 text-sm"
+              />
             </div>
             <div className="space-y-1">
               <FieldLabel label="Dirección" />

@@ -9,18 +9,20 @@ import {
   Clock, User, Tag, ExternalLink, ImageOff, RefreshCw, GraduationCap, UserRound
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE, getDefaultTimeZone } from "@/lib/locations";
 
 type EventSub = {
   id: string; title: string; description: string | null;
   image_url: string | null; dance_style: string; date: string; time: string;
-  price_text: string | null; city: string; venue_name: string;
+  price_text: string | null; city: string; country_code: string; time_zone: string; venue_name: string;
   address: string | null; organizer_name: string | null;
   contact_url: string | null; created_at: string;
 };
 
 type AcademySub = {
   id: string; name: string; description: string | null;
-  image_url: string | null; city: string; address: string | null;
+  image_url: string | null; city: string; country_code: string; address: string | null;
   schedule_text: string | null; levels: string | null;
   trial_class: boolean; modality: string; styles: string | null;
   whatsapp: string | null; instagram: string | null; website: string | null;
@@ -29,7 +31,7 @@ type AcademySub = {
 
 type TeacherSub = {
   id: string; name: string; description: string | null;
-  image_url: string | null; city: string; address: string | null;
+  image_url: string | null; city: string; country_code: string; address: string | null;
   styles: string | null; levels: string | null; modality: string;
   class_formats: string | null; teaching_venues: string | null;
   schedule_text: string | null; whatsapp: string | null;
@@ -40,7 +42,7 @@ type TeacherSub = {
 
 type SpotSub = {
   id: string; name: string; description: string | null;
-  image_url: string | null; city: string; address: string | null;
+  image_url: string | null; city: string; country_code: string; address: string | null;
   schedule: string | null; cover_charge: string | null;
   whatsapp: string | null; instagram: string | null;
   contact_name: string | null; created_at: string;
@@ -244,9 +246,12 @@ export function SubmissionsPanel() {
               <EditField label="Hora"><Input type="time" value={editingEvent.time ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, time: e.target.value }))} /></EditField>
               <EditField label="Precio"><Input value={editingEvent.price_text ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, price_text: e.target.value }))} /></EditField>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Lugar"><Input value={editingEvent.venue_name ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, venue_name: e.target.value }))} /></EditField>
               <EditField label="Ciudad"><Input value={editingEvent.city ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, city: e.target.value }))} /></EditField>
+              <EditField label="País">
+                <CountrySelect value={editingEvent.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingEvent((p) => ({ ...p, country_code: countryCode, time_zone: getDefaultTimeZone(countryCode) }))} />
+              </EditField>
             </div>
             <EditField label="Dirección"><Input value={editingEvent.address ?? ""} onChange={(e) => setEditingEvent((p) => ({ ...p, address: e.target.value }))} /></EditField>
             <div className="grid gap-4 md:grid-cols-2">
@@ -316,9 +321,10 @@ export function SubmissionsPanel() {
                 <span className="text-sm">Clase de prueba gratuita</span>
               </label>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Estilos"><Input value={editingAcademy.styles ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, styles: e.target.value }))} /></EditField>
               <EditField label="Ciudad"><Input value={editingAcademy.city ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, city: e.target.value }))} /></EditField>
+              <EditField label="País"><CountrySelect value={editingAcademy.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingAcademy((p) => ({ ...p, country_code: countryCode }))} /></EditField>
             </div>
             <EditField label="Dirección"><Input value={editingAcademy.address ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, address: e.target.value }))} /></EditField>
             <EditField label="Descripción"><Textarea rows={3} value={editingAcademy.description ?? ""} onChange={(e) => setEditingAcademy((p) => ({ ...p, description: e.target.value }))} /></EditField>
@@ -378,8 +384,9 @@ export function SubmissionsPanel() {
                 </select>
               </EditField>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Ciudad"><Input value={editingTeacher.city ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, city: e.target.value }))} /></EditField>
+              <EditField label="País"><CountrySelect value={editingTeacher.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingTeacher((p) => ({ ...p, country_code: countryCode }))} /></EditField>
               <EditField label="Dirección"><Input value={editingTeacher.address ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, address: e.target.value }))} /></EditField>
             </div>
             <EditField label="Link para agendar"><Input value={editingTeacher.booking_url ?? ""} onChange={(e) => setEditingTeacher((p) => ({ ...p, booking_url: e.target.value }))} /></EditField>
@@ -423,8 +430,9 @@ export function SubmissionsPanel() {
               <EditField label="Contacto"><Input value={editingSpot.contact_name ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, contact_name: e.target.value }))} /></EditField>
             </div>
             <EditField label="Descripción"><Textarea rows={3} value={editingSpot.description ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, description: e.target.value }))} /></EditField>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <EditField label="Ciudad"><Input value={editingSpot.city ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, city: e.target.value }))} /></EditField>
+              <EditField label="País"><CountrySelect value={editingSpot.country_code ?? DEFAULT_COUNTRY_CODE} onChange={(countryCode) => setEditingSpot((p) => ({ ...p, country_code: countryCode }))} /></EditField>
               <EditField label="Dirección"><Input value={editingSpot.address ?? ""} onChange={(e) => setEditingSpot((p) => ({ ...p, address: e.target.value }))} /></EditField>
             </div>
             <div className="grid gap-4 md:grid-cols-2">

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { LogoIcon } from "@/components/brand/logo-icon";
+import { BrandLockup } from "@/components/brand/brand-lockup";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { SubmitDropdown } from "@/components/layout/submit-dropdown";
 import { DesktopNav } from "@/components/layout/desktop-nav";
@@ -13,6 +13,7 @@ export async function SiteHeader() {
   const labels = {
     home:      t("home"),
     events:    t("events"),
+    festivals: t("festivals"),
     spots:     t("spots"),
     academies: t("academies")
   };
@@ -23,14 +24,8 @@ export async function SiteHeader() {
         <div className="flex h-14 items-center justify-between gap-4 md:h-16">
 
           {/* Logo */}
-          <Link href="/" aria-label="ExploraGuate" className="flex shrink-0 items-center gap-2">
-            <LogoIcon size={36} />
-            <span className="font-display text-[15px] font-bold leading-none tracking-normal">
-              <span className="text-brand-600">Salsa</span>
-              <span className="mx-1 text-gray-300">·</span>
-              <span className="text-gray-900">Explora</span>
-              <span className="text-brand-600">Guate</span>
-            </span>
+          <Link href="/" aria-label="SomosSalsa" className="flex shrink-0 items-center">
+            <BrandLockup iconSize={36} compact className="text-[17px] md:text-[19px]" />
           </Link>
 
           {/* Nav — desktop only with active state, mobile uses bottom nav */}

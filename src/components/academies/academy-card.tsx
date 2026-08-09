@@ -1,15 +1,18 @@
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import type { LocalizedAcademy } from "@/types/academy";
 import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
+import { formatLocation } from "@/lib/locations";
+import type { Locale } from "@/types/locale";
 import { AcademyCardRating } from "@/components/academies/academy-card-rating";
 
 export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
   const t = await getTranslations("common");
+  const locale = await getLocale() as Locale;
   const displayStyles = academy.styleTags && academy.styleTags.length > 0
     ? academy.styleTags
     : academy.stylesTaught.map((style) => t(`danceStyles.${style}`));
@@ -37,8 +40,8 @@ export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
 
           <div className="flex flex-col gap-1 text-xs md:mt-auto md:text-sm">
             <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
-              {academy.city}
+              <MapPin className="h-3 w-3 shrink-0 text-accentScale-700 md:h-3.5 md:w-3.5" />
+              {formatLocation(academy.city, academy.countryCode, locale)}
             </span>
             {academy.googlePlaceId ? (
               <AcademyCardRating academyId={academy.id} />

@@ -32,8 +32,10 @@ function buildEntityUrls(type: EntityType, slug: string): string[] {
       ];
     case "teacher":
       return [
-        `${env.siteUrl}/maestros/${slug}`,
-        `${env.siteUrl}/en/teachers/${slug}`
+        `${env.siteUrl}/artistas/${slug}`,
+        `${env.siteUrl}/en/artists/${slug}`,
+        `${env.siteUrl}/artistas`,
+        `${env.siteUrl}/en/artists`
       ];
     case "spot":
       return [

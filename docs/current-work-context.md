@@ -1,6 +1,31 @@
 # Current Work Context
 
-Last updated: 2026-04-14
+## 2026-08-09 — SomosSalsa ecosystem expansion
+
+- The official multicolor palette and logo assets are implemented.
+- The active execution plan is `docs/ecosystem-expansion-execution-plan.md`.
+- The production launch source of truth is `docs/somossalsa-launch-checklist.md`.
+- Launch scope is the responsive website and installable PWA; a native app is
+  explicitly deferred.
+- New migration `20260809000100_rich_ecosystem_profiles.sql` adds professional roles, permanent festival profiles, editions, lineups, schedules, passes, generic media, and a video-capable storage bucket.
+- Public `/festivales` and rich festival profile routes are being introduced.
+- Festival profiles now distinguish `festival` from `congress`; annual editions remain separate records under one permanent profile.
+- ASBF 2027 now includes the nine people/couples announced by the official site,
+  their published roles and countries, nine lineup assets, and the official promo
+  video. The lineup flyers remain gallery evidence and are not used as artist
+  portraits.
+- Guatemala Salsa Congress ALQUIMIA 2026 now includes its current dates, passes,
+  price stages, competition route, hotel information, tickets, rules, and three
+  lineup candidates sourced from the organizer's official ticket provider.
+- The current festival content payload is captured in
+  `20260809000300_expand_initial_festival_content.sql` and has also been loaded
+  idempotently into production through the existing service-role connection.
+- Unknown lineup names are stored as artist candidates until an admin resolves them to a canonical professional profile.
+- `DEFAULT_COUNTRY_CODE` is intentionally empty and `DEFAULT_TIME_ZONE` is `UTC`; new records must explicitly select a country.
+- The production database now includes `20260809000000_add_entity_locations.sql`
+  followed by `20260809000100_rich_ecosystem_profiles.sql`.
+
+Last updated: 2026-08-09
 
 ## What Was In Progress
 
@@ -143,3 +168,19 @@ Both passed successfully.
 - Full priorities and constraints remain in `docs/adsense-content-reuse-plan.md`.
 - Branch `codex/adsense-next-phase-plan` now implements the bilingual trust/editorial-method page
   and removes misleading request-time `lastModified` values from every sitemap entry.
+
+## SomosSalsa Rebrand (2026-08-09)
+
+- Selected brand: `SomosSalsa`.
+- Secured assets: `somossalsa.com` in AWS Route 53, `somossalsa.app` in GoDaddy, and Instagram handle `@somossalsa.app`.
+- Canonical product domain: `somossalsa.com`; `somossalsa.app` is the short acquisition and future
+  PWA-installation domain, and redirects to the canonical site instead of duplicating it.
+- Official public contact: `info@somossalsa.com`.
+- Positioning: clear, accessible, transparent, and neutral between academies.
+- Geographic model: Guatemala is the first active location, not the center or limit of the platform.
+- The local code migration on branch `codex/rebranding-strategy` now covers the visual identity,
+  metadata, legal copy, PWA and social-sharing assets, entity countries, and per-event time zones.
+- Local verification passed with TypeScript, ESLint, and the production build.
+- Production rollout still requires configuring `NEXT_PUBLIC_SITE_URL=https://somossalsa.com`,
+  activating and testing `info@somossalsa.com`, deploying the application, and validating
+  canonical redirects and Search Console. The two SomosSalsa migrations are already applied.

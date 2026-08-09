@@ -131,7 +131,7 @@ export function BottomNav() {
                 type="button"
                 onClick={() => setOpenSubmitMenu(true)}
                 aria-label={t(item.labelKey)}
-                className="relative -mt-4 flex h-16 w-16 flex-col items-center justify-center rounded-full bg-brand-600 shadow-lg shadow-brand-600/30 transition-all active:scale-90"
+                className="relative -mt-4 flex h-16 w-16 flex-col items-center justify-center rounded-full bg-salsaRed-500 shadow-lg shadow-salsaRed-500/30 transition-all active:scale-90"
               >
                 <Icon className="h-6 w-6 text-white" strokeWidth={2.5} />
                 <span className="sr-only">{t(item.labelKey)}</span>

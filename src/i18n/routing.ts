@@ -15,6 +15,14 @@ export const routing = defineRouting({
       es: "/eventos/[slug]",
       en: "/events/[slug]"
     },
+    "/festivals": {
+      es: "/festivales",
+      en: "/festivals"
+    },
+    "/festivals/[slug]": {
+      es: "/festivales/[slug]",
+      en: "/festivals/[slug]"
+    },
     "/spots": {
       es: "/lugares",
       en: "/spots"
@@ -42,6 +50,14 @@ export const routing = defineRouting({
     "/teachers/[slug]": {
       es: "/maestros/[slug]",
       en: "/teachers/[slug]"
+    },
+    "/artists": {
+      es: "/artistas",
+      en: "/artists"
+    },
+    "/artists/[slug]": {
+      es: "/artistas/[slug]",
+      en: "/artists/[slug]"
     },
     "/submit-event": {
       es: "/enviar-evento",

@@ -1,22 +1,20 @@
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { BrandLockup } from "@/components/brand/brand-lockup";
 import { Container } from "@/components/shared/container";
 import type { LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
-function BrandCard() {
+function BrandCard({ tagline, description }: { tagline: string; description: string }) {
   return (
     <div className="relative flex h-full min-h-[260px] flex-col items-center justify-center overflow-hidden rounded-2xl bg-white px-4 py-6 text-center shadow-lg ring-1 ring-black/[0.06]">
-      <Image
-        src="/images/exploraguate-logo.png"
-        alt="ExploraGuate"
-        width={1376}
-        height={768}
-        sizes="(min-width: 1024px) 340px, 300px"
-        className="h-auto w-full max-w-[320px]"
-        priority
-      />
+      <div className="absolute -right-14 -top-14 h-44 w-44 rounded-full bg-brand-100/70 blur-2xl" />
+      <div className="absolute -bottom-12 -left-10 h-36 w-36 rounded-full bg-accent-100/70 blur-2xl" />
+      <div className="absolute right-10 top-10 h-20 w-20 rounded-full bg-salsaGreen-100/60 blur-2xl" />
+      <BrandLockup iconSize={72} tagline={tagline} className="relative text-3xl" />
+      <p className="relative mt-6 max-w-[250px] text-sm leading-6 text-gray-500">
+        {description}
+      </p>
     </div>
   );
 }
@@ -33,17 +31,17 @@ export async function HeroSection({
   return (
     <section className="page-section pt-2 md:pt-6">
       <Container>
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-white to-sky-50 px-4 py-8 sm:px-6 sm:py-10 md:rounded-3xl md:px-14 md:py-16">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-white to-salsaGreen-50 px-4 py-8 sm:px-6 sm:py-10 md:rounded-3xl md:px-14 md:py-16">
           {/* Glow blobs */}
           <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-100/50 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-brand-50 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-salsaRed-50 blur-2xl" />
 
           {/* 2-column on desktop */}
           <div className="relative grid grid-cols-1 gap-10 md:grid-cols-[1fr_300px] md:items-center lg:grid-cols-[1fr_340px]">
 
             {/* Left: copy */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-brand-600 md:text-xs">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-salsaRed-600 md:text-xs">
                 {t("eyebrow")}
               </p>
               <h1 className="mt-3 font-display text-[2rem] font-extrabold leading-[1.08] tracking-tight text-gray-900 md:mt-4 md:text-[2.75rem] lg:text-[3.25rem]">
@@ -72,7 +70,10 @@ export async function HeroSection({
 
             {/* Right: brand card — desktop only */}
             <div className="hidden md:block">
-              <BrandCard />
+              <BrandCard
+                tagline={t("brandTagline")}
+                description={t("brandCardDescription")}
+              />
             </div>
 
           </div>

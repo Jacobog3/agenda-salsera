@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EntityAiPanel } from "./academy-ai-panel";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type SpotData = Record<string, unknown>;
 
@@ -21,6 +23,7 @@ const AI_FIELD_LABELS: Record<string, string> = {
   cover_image_url: "Imagen principal",
   name: "Nombre",
   city: "Ciudad",
+  country_code: "País",
   area: "Zona",
   address: "Dirección",
   description_es: "Descripción",
@@ -36,6 +39,7 @@ function buildInitialData(item: SpotData | null): SpotData {
       cover_image_url: "",
       name: "",
       city: "",
+      country_code: DEFAULT_COUNTRY_CODE,
       area: "",
       address: "",
       schedule_es: "",
@@ -282,13 +286,20 @@ export function SpotEditSheet({ item, onClose, onSaved }: Props) {
                 className="h-9 text-sm"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="space-y-1">
                 <FieldLabel label="Ciudad" />
                 <Input
                   value={String(data.city ?? "")}
                   onChange={(e) => set("city", e.target.value)}
                   className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <FieldLabel label="País" />
+                <CountrySelect
+                  value={String(data.country_code ?? DEFAULT_COUNTRY_CODE)}
+                  onChange={(countryCode) => set("country_code", countryCode)}
                 />
               </div>
               <div className="space-y-1">

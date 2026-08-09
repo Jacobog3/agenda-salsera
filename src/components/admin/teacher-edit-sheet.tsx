@@ -10,6 +10,8 @@ import { EntityAiPanel } from "./academy-ai-panel";
 import { ScheduleEditor } from "./schedule-editor";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import type { ScheduleDay } from "@/types/academy";
+import { CountrySelect } from "@/components/forms/country-select";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 
 type TeacherData = Record<string, unknown>;
 
@@ -29,6 +31,13 @@ const AI_FIELD_LABELS: Record<string, string> = {
   profile_image_url: "Foto de perfil",
   name: "Nombre",
   city: "Ciudad",
+  country_code: "País",
+  profile_kind: "Tipo de perfil",
+  professional_roles: "Roles profesionales",
+  nationality_country_code: "Nacionalidad / origen",
+  source_url: "Fuente",
+  source_label: "Referencia de la fuente",
+  verification_status: "Verificación",
   area: "Zona / Área",
   address: "Dirección",
   bio_es: "Bio",
@@ -52,7 +61,10 @@ const AI_FIELD_LABELS: Record<string, string> = {
 function buildInitialData(item: TeacherData | null): TeacherData {
   if (!item) {
     return {
-      name: "", city: "", area: "", address: "",
+      name: "", city: "", country_code: DEFAULT_COUNTRY_CODE, area: "", address: "",
+      profile_kind: "person", professional_roles: "teacher",
+      nationality_country_code: "", source_url: "", source_label: "",
+      verification_status: "unverified", last_verified_at: "",
       profile_image_url: "", banner_image_url: "",
       bio_es: "", bio_en: "",
       style_tags: "", levels: "", modality: "presencial",
@@ -66,6 +78,9 @@ function buildInitialData(item: TeacherData | null): TeacherData {
   }
   return {
     ...item,
+    professional_roles: Array.isArray(item.professional_roles)
+      ? (item.professional_roles as string[]).join("\n")
+      : String(item.professional_roles ?? "teacher"),
     style_tags: Array.isArray(item.style_tags)
       ? (item.style_tags as string[]).join("\n")
       : String(item.style_tags ?? ""),
@@ -158,7 +173,7 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
 
   function applyAiSuggestions(fields: Record<string, unknown>) {
     const normalized = { ...fields };
-    for (const key of ["style_tags", "class_formats", "teaching_venues", "teaching_zones"] as const) {
+    for (const key of ["professional_roles", "style_tags", "class_formats", "teaching_venues", "teaching_zones"] as const) {
       if (Array.isArray(normalized[key])) {
         normalized[key] = (normalized[key] as string[]).join("\n");
       }
@@ -234,10 +249,17 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
               <FieldLabel label="Nombre" />
               <Input value={String(data.name ?? "")} onChange={(e) => set("name", e.target.value)} className="h-9 text-sm" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="space-y-1">
                 <FieldLabel label="Ciudad" />
                 <Input value={String(data.city ?? "")} onChange={(e) => set("city", e.target.value)} className="h-9 text-sm" />
+              </div>
+              <div className="space-y-1">
+                <FieldLabel label="País" />
+                <CountrySelect
+                  value={String(data.country_code ?? DEFAULT_COUNTRY_CODE)}
+                  onChange={(countryCode) => set("country_code", countryCode)}
+                />
               </div>
               <div className="space-y-1">
                 <FieldLabel label="Zona / Área" />
@@ -247,6 +269,48 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
             <div className="space-y-1">
               <FieldLabel label="Dirección" />
               <Input value={String(data.address ?? "")} onChange={(e) => set("address", e.target.value)} className="h-9 text-sm" />
+            </div>
+
+            <SectionHeading>Perfil profesional</SectionHeading>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <FieldLabel label="Tipo de perfil" />
+                <select value={String(data.profile_kind ?? "person")} onChange={(e) => set("profile_kind", e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="person">Persona</option>
+                  <option value="couple">Pareja</option>
+                  <option value="team">Equipo / compañía</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <FieldLabel label="País de origen" hint="opcional" />
+                <CountrySelect value={String(data.nationality_country_code ?? "")} onChange={(countryCode) => set("nationality_country_code", countryCode)} required={false} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <FieldLabel label="Roles" hint="uno por línea: teacher, dancer, performer, dj, judge..." />
+              <Textarea rows={3} value={String(data.professional_roles ?? "")} onChange={(e) => set("professional_roles", e.target.value)} className="text-sm" />
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <FieldLabel label="Estado de verificación" />
+                <select value={String(data.verification_status ?? "unverified")} onChange={(e) => set("verification_status", e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="unverified">Sin verificar</option>
+                  <option value="source_confirmed">Fuente pública confirmada</option>
+                  <option value="owner_confirmed">Confirmado por responsable</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <FieldLabel label="Fecha de revisión" />
+                <Input type="datetime-local" value={String(data.last_verified_at ?? "").slice(0, 16)} onChange={(e) => set("last_verified_at", e.target.value ? new Date(e.target.value).toISOString() : "")} className="h-9 text-sm" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <FieldLabel label="URL de la fuente" />
+              <Input value={String(data.source_url ?? "")} onChange={(e) => set("source_url", e.target.value)} placeholder="Publicación, sitio oficial o perfil" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1">
+              <FieldLabel label="Referencia de la fuente" />
+              <Input value={String(data.source_label ?? "")} onChange={(e) => set("source_label", e.target.value)} placeholder="Ej. Flyer oficial enviado por In Motion" className="h-9 text-sm" />
             </div>
 
             <SectionHeading>Clases</SectionHeading>

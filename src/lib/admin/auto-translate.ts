@@ -47,7 +47,7 @@ export async function autoTranslateSpanishFields<T extends Record<string, unknow
     pending.map((mapping) => [String(mapping.sourceKey), String(input[mapping.sourceKey] ?? "").trim()])
   );
 
-  const prompt = `Translate the following Spanish content into natural English for a public website about dance events in Guatemala.
+  const prompt = `Translate the following Spanish content into natural English for an international public website about salsa, bachata, and Latin dance.
 
 Rules:
 - Return ONLY a valid JSON object.

@@ -1,6 +1,6 @@
-# Exploraguate
+# SomosSalsa
 
-Exploraguate is a bilingual event and community discovery platform for Guatemala.
+SomosSalsa is a bilingual discovery platform for the salsa, bachata, and Latin dance community. It starts in Guatemala and is designed to grow city by city.
 
 ## Stack
 
@@ -19,11 +19,12 @@ Exploraguate is a bilingual event and community discovery platform for Guatemala
 - All user-facing strings come from the translation layer.
 - The architecture stays lightweight and compatible with the Vercel free tier.
 
-## Initial Scope
+## Current Scope
 
 - Home page
 - Events listing and detail pages
 - Academies listing and detail pages
+- Teachers and dance spots
 - Submit event page
 
 ## Local Development

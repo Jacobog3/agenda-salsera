@@ -1,39 +1,43 @@
 import type { Locale } from "@/types/locale";
+import { DEFAULT_TIME_ZONE } from "@/lib/locations";
 
-const GT_TIMEZONE = "America/Guatemala";
-
-export function formatEventDate(date: string, locale: Locale) {
+export function formatEventDate(date: string, locale: Locale, timeZone = DEFAULT_TIME_ZONE) {
   return new Intl.DateTimeFormat(locale === "es" ? "es-GT" : "en-US", {
     weekday: "short",
     day: "numeric",
     month: "short",
-    timeZone: GT_TIMEZONE
+    timeZone
   }).format(new Date(date));
 }
 
-export function formatEventDateTime(date: string, locale: Locale) {
+export function formatEventDateTime(date: string, locale: Locale, timeZone = DEFAULT_TIME_ZONE) {
   return new Intl.DateTimeFormat(locale === "es" ? "es-GT" : "en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
     hour: "numeric",
     minute: "2-digit",
-    timeZone: GT_TIMEZONE
+    timeZone
   }).format(new Date(date));
 }
 
-export function formatEventDateRange(startsAt: string, endsAt: string, locale: Locale) {
+export function formatEventDateRange(
+  startsAt: string,
+  endsAt: string,
+  locale: Locale,
+  timeZone = DEFAULT_TIME_ZONE
+) {
   const fmt = new Intl.DateTimeFormat(locale === "es" ? "es-GT" : "en-US", {
     day: "numeric",
     month: "short",
-    timeZone: GT_TIMEZONE
+    timeZone
   });
   const start = fmt.format(new Date(startsAt));
   const end = new Intl.DateTimeFormat(locale === "es" ? "es-GT" : "en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
-    timeZone: GT_TIMEZONE
+    timeZone
   }).format(new Date(endsAt));
   return `${start} – ${end}`;
 }

@@ -7,6 +7,7 @@ import { AcademyEditSheet } from "@/components/admin/academy-edit-sheet";
 const ACADEMY_COLUMNS = [
   { key: "name", label: "Nombre" },
   { key: "city", label: "Ciudad" },
+  { key: "country_code", label: "País" },
   { key: "is_published", label: "Estado", format: (v: unknown) => (v ? "✓" : "✗") }
 ];
 

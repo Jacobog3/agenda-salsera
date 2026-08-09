@@ -2,6 +2,7 @@ import { sampleSpots } from "@/content/sample-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeSpot } from "@/lib/utils/localize";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
 import type { SpotRecord, LocalizedSpot } from "@/types/spot";
 import type { Locale } from "@/types/locale";
 
@@ -14,6 +15,7 @@ function normalizeSpot(row: Record<string, unknown>): SpotRecord {
     descriptionEn: String(row.description_en),
     coverImageUrl: String(row.cover_image_url),
     city: String(row.city),
+    countryCode: String(row.country_code ?? DEFAULT_COUNTRY_CODE),
     area: row.area ? String(row.area) : null,
     address: row.address ? String(row.address) : null,
     scheduleEs: String(row.schedule_es),

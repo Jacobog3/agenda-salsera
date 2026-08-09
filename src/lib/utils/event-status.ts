@@ -1,16 +1,10 @@
-const GUATEMALA_TIME_ZONE = "America/Guatemala";
-
-const guatemalaDateFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: GUATEMALA_TIME_ZONE,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit"
-});
+import { DEFAULT_TIME_ZONE } from "@/lib/locations";
 
 type EventTiming = {
   startsAt?: string | null;
   endsAt?: string | null;
   dateStatus?: "confirmed" | "coming_soon";
+  timeZone?: string | null;
 };
 
 type HistoricalEventQuality = EventTiming & {
@@ -28,8 +22,22 @@ function isValidDate(value: Date) {
   return !Number.isNaN(value.getTime());
 }
 
-function getDateKeyInGuatemala(date: Date) {
-  return guatemalaDateFormatter.format(date);
+function getDateKey(date: Date, timeZone = DEFAULT_TIME_ZONE) {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(date);
+  } catch {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: DEFAULT_TIME_ZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(date);
+  }
 }
 
 export function hasMeaningfulEventEnd({ startsAt, endsAt }: EventTiming) {
@@ -45,7 +53,7 @@ export function hasMeaningfulEventEnd({ startsAt, endsAt }: EventTiming) {
   return endDate.getTime() > startDate.getTime();
 }
 
-export function isEventActive({ startsAt, endsAt, dateStatus }: EventTiming, now = new Date()) {
+export function isEventActive({ startsAt, endsAt, dateStatus, timeZone }: EventTiming, now = new Date()) {
   if (dateStatus === "coming_soon") return true;
   if (!startsAt) return false;
 
@@ -56,7 +64,7 @@ export function isEventActive({ startsAt, endsAt, dateStatus }: EventTiming, now
     return now.getTime() <= new Date(endsAt!).getTime();
   }
 
-  return getDateKeyInGuatemala(now) <= getDateKeyInGuatemala(startDate);
+  return getDateKey(now, timeZone ?? DEFAULT_TIME_ZONE) <= getDateKey(startDate, timeZone ?? DEFAULT_TIME_ZONE);
 }
 
 export function isEventExpired(event: EventTiming, now = new Date()) {

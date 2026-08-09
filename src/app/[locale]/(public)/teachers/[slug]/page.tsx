@@ -26,6 +26,7 @@ import {
 import { getTeacherBySlug } from "@/lib/queries/teachers";
 import { env } from "@/lib/utils/env";
 import type { Locale } from "@/types/locale";
+import { formatLocation } from "@/lib/locations";
 
 const MODALITY_MAP: Record<string, "inPerson" | "online" | "hybrid"> = {
   presencial: "inPerson",
@@ -53,7 +54,7 @@ function buildTeacherDescription({
   if (locale === "es") {
     const parts = [
       styles ? `Clases de ${styles}` : "Clases de baile",
-      teacher.city ? `en ${teacher.city}` : null,
+      teacher.city ? `en ${formatLocation(teacher.city, teacher.countryCode, locale)}` : null,
       formats ? `con formato de ${formats}` : null,
       levels ? `para nivel ${levels}` : null
     ].filter(Boolean);
@@ -63,7 +64,7 @@ function buildTeacherDescription({
 
   const parts = [
     styles ? `${styles} classes` : "Dance classes",
-    teacher.city ? `in ${teacher.city}` : null,
+    teacher.city ? `in ${formatLocation(teacher.city, teacher.countryCode, locale)}` : null,
     formats ? `with ${formats} formats` : null,
     levels ? `for ${levels} level students` : null
   ].filter(Boolean);
@@ -93,16 +94,16 @@ export async function generateMetadata({
   });
 
   const title = locale === "es"
-    ? `${teacher.name} | Maestro de baile en ${teacher.city}`
-    : `${teacher.name} | Dance teacher in ${teacher.city}`;
+    ? `${teacher.name} | Artista y profesional de baile en ${formatLocation(teacher.city, teacher.countryCode, currentLocale)}`
+    : `${teacher.name} | Dance artist and professional in ${formatLocation(teacher.city, teacher.countryCode, currentLocale)}`;
 
   return buildDetailMetadata({
     locale: currentLocale,
     title,
     description,
-    image: teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png",
-    esPath: `/maestros/${teacher.slug}`,
-    enPath: `/en/teachers/${teacher.slug}`,
+    image: teacher.profileImageUrl || teacher.bannerImageUrl || "/images/somossalsa-og.png",
+    esPath: `/artistas/${teacher.slug}`,
+    enPath: `/en/artists/${teacher.slug}`,
     type: "article"
   });
 }
@@ -120,9 +121,9 @@ function TeacherJsonLd({
 
   const siteUrl = env.siteUrl;
   const pageUrl = locale === "es"
-    ? `${siteUrl}/maestros/${teacher.slug}`
-    : `${siteUrl}/en/teachers/${teacher.slug}`;
-  const image = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png";
+    ? `${siteUrl}/artistas/${teacher.slug}`
+    : `${siteUrl}/en/artists/${teacher.slug}`;
+  const image = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/somossalsa-og.png";
   const imageUrl = image.startsWith("http") ? image : `${siteUrl}${image}`;
   const sameAs = [
     teacher.instagramUrl,
@@ -143,10 +144,13 @@ function TeacherJsonLd({
           "@type": "PostalAddress",
           streetAddress: teacher.address,
           addressLocality: teacher.city,
-          addressCountry: "GT"
+          addressCountry: teacher.countryCode
         }
       : undefined,
-    homeLocation: teacher.city,
+    homeLocation: {
+      "@type": "Place",
+      name: formatLocation(teacher.city, teacher.countryCode, locale)
+    },
     knowsAbout: teacher.styleTags && teacher.styleTags.length > 0
       ? teacher.styleTags
       : teacher.stylesTaught,
@@ -198,7 +202,7 @@ export default async function TeacherDetailPage({
     ? teacher.styleTags
     : teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
 
-  const heroImage = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/exploraguate-logo.png";
+  const heroImage = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/somossalsa-og.png";
   const useUnoptimizedImage = heroImage.startsWith("/local-images/");
 
   return (
@@ -245,7 +249,7 @@ export default async function TeacherDetailPage({
               <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" />
-                  {teacher.city}
+                  {formatLocation(teacher.city, teacher.countryCode, currentLocale)}
                 </span>
                 {teacher.area ? (
                   <span className="flex items-center gap-1">

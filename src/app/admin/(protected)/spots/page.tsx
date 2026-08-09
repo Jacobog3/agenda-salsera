@@ -7,6 +7,7 @@ import { SpotEditSheet } from "@/components/admin/spot-edit-sheet";
 const SPOT_COLUMNS = [
   { key: "name", label: "Nombre" },
   { key: "city", label: "Ciudad" },
+  { key: "country_code", label: "País" },
   { key: "is_published", label: "Estado", format: (v: unknown) => v ? "✓" : "✗" }
 ];
 

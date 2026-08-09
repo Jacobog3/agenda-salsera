@@ -48,17 +48,42 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Redirect root domain traffic to salsa subdomain
+      // Keep the new brand on one canonical domain.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.somossalsa.com" }],
+        destination: "https://somossalsa.com/:path*",
+        permanent: true
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "somossalsa.app" }],
+        destination: "https://somossalsa.com/:path*",
+        permanent: true
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.somossalsa.app" }],
+        destination: "https://somossalsa.com/:path*",
+        permanent: true
+      },
+      // Preserve links from every previous Exploraguate host.
       {
         source: "/:path*",
         has: [{ type: "host", value: "exploraguate.com" }],
-        destination: "https://salsa.exploraguate.com/:path*",
+        destination: "https://somossalsa.com/:path*",
         permanent: true
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.exploraguate.com" }],
-        destination: "https://salsa.exploraguate.com/:path*",
+        destination: "https://somossalsa.com/:path*",
+        permanent: true
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "salsa.exploraguate.com" }],
+        destination: "https://somossalsa.com/:path*",
         permanent: true
       }
     ];

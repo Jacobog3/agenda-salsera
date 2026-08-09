@@ -3,7 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
 import { submitIndexNowEntity } from "@/lib/seo/indexnow";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { normalizeCountryCode } from "@/lib/locations";
 
 function splitCommaList(value: string | null | undefined) {
   return value
@@ -52,6 +53,10 @@ export async function POST(
     .replace(/\s+/g, "-")
     .substring(0, 80)
     + `-${Date.now()}`;
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
+  if (!countryCode || !String(body.city ?? "").trim()) {
+    return NextResponse.json({ error: "Ciudad y país son obligatorios." }, { status: 400 });
+  }
 
   const styles = splitCommaList(body.styles).map((style) => style.toLowerCase());
   const normalizedStyles = styles.filter((style) =>
@@ -65,7 +70,8 @@ export async function POST(
     bio_en: body.bio_en || body.description || "",
     profile_image_url: body.image_url || null,
     banner_image_url: null,
-    city: normalizeGuatemalaCityName(body.city || "Ciudad de Guatemala"),
+    city: normalizeCityName(body.city, countryCode),
+    country_code: countryCode,
     area: null,
     address: body.address || null,
     styles_taught: normalizedStyles,

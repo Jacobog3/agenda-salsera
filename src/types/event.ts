@@ -1,5 +1,16 @@
 export type DanceStyle = "salsa" | "bachata" | "salsa_bachata" | "other";
 export type EventDateStatus = "confirmed" | "coming_soon";
+export type EventKind =
+  | "social"
+  | "workshop"
+  | "class"
+  | "bootcamp"
+  | "competition"
+  | "show"
+  | "concert"
+  | "festival"
+  | "congress"
+  | "other";
 
 export type EventRecord = {
   id: string;
@@ -11,7 +22,11 @@ export type EventRecord = {
   coverImageUrl: string;
   galleryUrls: string[];
   danceStyle: DanceStyle;
+  eventKind?: EventKind;
+  festivalEditionId?: string | null;
   city: string;
+  countryCode: string;
+  timeZone: string;
   area?: string | null;
   venueName: string;
   address?: string | null;
@@ -39,7 +54,11 @@ export type LocalizedEvent = {
   coverImageUrl: string;
   galleryUrls: string[];
   danceStyle: DanceStyle;
+  eventKind?: EventKind;
+  festivalEditionId?: string | null;
   city: string;
+  countryCode: string;
+  timeZone: string;
   area?: string | null;
   venueName: string;
   address?: string | null;

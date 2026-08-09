@@ -4,6 +4,7 @@ import { getEvents, getIndexableHistoricalEvents } from "@/lib/queries/events";
 import { getSpots } from "@/lib/queries/spots";
 import { getAcademies } from "@/lib/queries/academies";
 import { getTeachers } from "@/lib/queries/teachers";
+import { getFestivals } from "@/lib/queries/festivals";
 
 const BASE = env.siteUrl;
 
@@ -20,17 +21,20 @@ function url(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [events, historicalEvents, spots, academies, teachers] = await Promise.allSettled([
+  const [events, historicalEvents, spots, academies, teachers, festivals] = await Promise.allSettled([
     getEvents("es"),
     getIndexableHistoricalEvents("es"),
     getSpots("es"),
     getAcademies("es"),
-    getTeachers("es")
+    getTeachers("es"),
+    getFestivals("es")
   ]);
 
   const eventEntries =
     events.status === "fulfilled"
-      ? events.value.flatMap((e) => [
+      ? events.value
+        .filter((event) => event.eventKind !== "festival" && event.eventKind !== "congress")
+        .flatMap((e) => [
           url(`/eventos/${e.slug}`, 0.8, "weekly"),
           url(`/en/events/${e.slug}`, 0.6, "weekly")
         ])
@@ -38,7 +42,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const historicalEventEntries =
     historicalEvents.status === "fulfilled"
-      ? historicalEvents.value.flatMap((event) => [
+      ? historicalEvents.value
+        .filter((event) => event.eventKind !== "festival" && event.eventKind !== "congress")
+        .flatMap((event) => [
           url(`/eventos/${event.slug}`, 0.5, "monthly"),
           url(`/en/events/${event.slug}`, 0.4, "monthly")
         ])
@@ -63,8 +69,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const teacherEntries =
     teachers.status === "fulfilled"
       ? teachers.value.flatMap((teacher) => [
-          url(`/maestros/${teacher.slug}`, 0.6, "monthly"),
-          url(`/en/teachers/${teacher.slug}`, 0.5, "monthly")
+          url(`/artistas/${teacher.slug}`, 0.6, "monthly"),
+          url(`/en/artists/${teacher.slug}`, 0.5, "monthly")
+        ])
+      : [];
+
+  const festivalEntries =
+    festivals.status === "fulfilled"
+      ? festivals.value.flatMap((festival) => [
+          url(`/festivales/${festival.slug}`, 0.8, "weekly"),
+          url(`/en/festivals/${festival.slug}`, 0.7, "weekly")
         ])
       : [];
 
@@ -72,14 +86,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url("/", 1.0, "daily"),
     url("/en", 0.9, "daily"),
     url("/eventos", 0.9, "daily"),
+    url("/festivales", 0.8, "weekly"),
     url("/lugares", 0.8, "weekly"),
     url("/academias", 0.8, "weekly"),
+    url("/artistas", 0.7, "weekly"),
     url("/acerca-de", 0.5, "yearly"),
     url("/legal/terminos", 0.3, "yearly"),
     url("/legal/privacidad", 0.3, "yearly"),
     url("/en/events", 0.7, "daily"),
+    url("/en/festivals", 0.7, "weekly"),
     url("/en/spots", 0.6, "weekly"),
     url("/en/academies", 0.6, "weekly"),
+    url("/en/artists", 0.6, "weekly"),
     url("/en/about", 0.4, "yearly"),
     url("/en/legal/terms", 0.3, "yearly"),
     url("/en/legal/privacy", 0.3, "yearly"),
@@ -87,6 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...historicalEventEntries,
     ...spotEntries,
     ...academyEntries,
-    ...teacherEntries
+    ...teacherEntries,
+    ...festivalEntries
   ];
 }

@@ -11,6 +11,13 @@ const ICONS: Record<SearchResultType, typeof Search> = {
   teacher: UserRound
 };
 
+const TYPE_COLORS: Record<SearchResultType, { background: string; foreground: string }> = {
+  event: { background: "bg-salsaRed-50", foreground: "text-salsaRed-600" },
+  spot: { background: "bg-salsaGreen-50", foreground: "text-salsaGreen-600" },
+  academy: { background: "bg-accentScale-50", foreground: "text-accentScale-700" },
+  teacher: { background: "bg-salsaOrange-50", foreground: "text-salsaOrange-600" }
+};
+
 function getInitials(title: string) {
   return title
     .split(" ")
@@ -30,12 +37,13 @@ export function SearchResultCard({
   localizedBadges: string[];
 }) {
   const Icon = ICONS[result.type];
+  const colors = TYPE_COLORS[result.type];
   const useImage = Boolean(result.imageUrl);
 
   return (
     <a href={result.href} className="block">
       <Card className="group flex flex-row overflow-hidden bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98]">
-        <div className="relative flex w-[88px] shrink-0 self-stretch items-center justify-center overflow-hidden bg-surface-soft md:w-[104px]">
+        <div className={`relative flex w-[88px] shrink-0 self-stretch items-center justify-center overflow-hidden ${colors.background} md:w-[104px]`}>
           {useImage ? (
             <Image
               src={result.imageUrl!}
@@ -46,11 +54,11 @@ export function SearchResultCard({
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : result.type === "teacher" ? (
-            <div className="flex h-full w-full items-center justify-center bg-brand-600 font-display text-xl font-bold text-white">
+            <div className="flex h-full w-full items-center justify-center bg-salsaOrange-500 font-display text-xl font-bold text-white">
               {getInitials(result.title)}
             </div>
           ) : (
-            <Icon className="h-6 w-6 text-brand-500" />
+            <Icon className={`h-6 w-6 ${colors.foreground}`} />
           )}
         </div>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { env } from "@/lib/utils/env";
+import { brand } from "@/lib/brand";
 import type { Locale } from "@/types/locale";
 
 type MetadataKey =
@@ -24,10 +25,10 @@ type MetadataKey =
   | "submitSpotDescription";
 
 function sanitizeTitle(title: string): string {
-  return title.replace(/\s*\|\s*exploraguate\s*$/i, "").trim();
+  return title.replace(/\s*\|\s*(?:exploraguate|somossalsa)\s*$/i, "").trim();
 }
 
-const DEFAULT_OG_IMAGE = "/images/exploraguate-logo.png";
+const DEFAULT_OG_IMAGE = brand.logoPath;
 
 // Mirrors routing.pathnames but as a plain object to avoid importing next-intl/routing
 // in server utilities (causes RSC module-manifest issues).
@@ -181,7 +182,7 @@ export function buildDetailMetadata(options: {
     openGraph: {
       title,
       description,
-      siteName: "ExploraGuate",
+      siteName: brand.name,
       locale: options.locale,
       type: options.type ?? "article",
       url: canonical,

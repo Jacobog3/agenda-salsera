@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin/auth";
 import { autoTranslateSpanishFields } from "@/lib/admin/auto-translate";
-import { normalizeGuatemalaCityName } from "@/lib/utils/normalize-city";
+import { normalizeCityName } from "@/lib/utils/normalize-city";
+import { normalizeCountryCode } from "@/lib/locations";
 
 function generateSlug(name: string) {
   return (
@@ -46,9 +47,9 @@ export async function POST(request: NextRequest) {
     { sourceKey: "cover_charge_es", targetKey: "cover_charge_en", label: "Spot cover charge" }
   ]);
 
-  if (!String(body.name ?? "").trim() || !String(body.city ?? "").trim()) {
+  if (!String(body.name ?? "").trim() || !String(body.city ?? "").trim() || !String(body.country_code ?? body.countryCode ?? "").trim()) {
     return NextResponse.json(
-      { error: "Nombre y ciudad son obligatorios." },
+      { error: "Nombre, ciudad y país son obligatorios." },
       { status: 400 }
     );
   }
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createSupabaseAdminClient();
   const slug = generateSlug(String(body.name));
+  const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
 
   const payload = {
     slug,
@@ -69,7 +71,8 @@ export async function POST(request: NextRequest) {
     description_es: String(body.description_es ?? "").trim(),
     description_en: String(body.description_en ?? body.description_es ?? "").trim(),
     cover_image_url: String(body.cover_image_url).trim(),
-    city: normalizeGuatemalaCityName(body.city),
+    city: normalizeCityName(body.city, countryCode),
+    country_code: countryCode,
     area: emptyToNull(body.area),
     address: emptyToNull(body.address),
     schedule_es: String(body.schedule_es ?? "").trim(),

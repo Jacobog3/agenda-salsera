@@ -23,7 +23,7 @@ const navLinks = [
   { href: "/admin/submissions", label: "Revisiones", icon: ClipboardList },
   { href: "/admin/events", label: "Eventos", icon: CalendarDays },
   { href: "/admin/academies", label: "Academias", icon: GraduationCap },
-  { href: "/admin/teachers", label: "Maestros", icon: UserRound },
+  { href: "/admin/teachers", label: "Artistas", icon: UserRound },
   { href: "/admin/spots", label: "Bares", icon: MapPinned },
   { href: "/admin/reports", label: "Reportes", icon: Flag }
 ];

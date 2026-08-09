@@ -3,16 +3,21 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Clock } from "lucide-react";
 import { ExpandableSpotCard } from "@/components/spots/expandable-spot-card";
 import type { LocalizedSpot } from "@/types/spot";
+import { getLocale } from "next-intl/server";
+import { formatLocation } from "@/lib/locations";
+import type { Locale } from "@/types/locale";
 
-export function SpotCard({
+export async function SpotCard({
   spot,
   expandable = false
 }: {
   spot: LocalizedSpot;
   expandable?: boolean;
 }) {
+  const locale = await getLocale() as Locale;
+
   if (expandable) {
-    return <ExpandableSpotCard spot={spot} />;
+    return <ExpandableSpotCard spot={spot} locale={locale} />;
   }
 
   return (
@@ -34,12 +39,12 @@ export function SpotCard({
 
         <div className="flex flex-col gap-1 text-xs md:mt-auto md:text-sm">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
-            {spot.city}
+            <MapPin className="h-3 w-3 shrink-0 text-salsaGreen-600 md:h-3.5 md:w-3.5" />
+            {formatLocation(spot.city, spot.countryCode, locale)}
           </span>
           {spot.schedule ? (
             <span className="flex items-center gap-1 text-muted-foreground">
-              <Clock className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
+              <Clock className="h-3 w-3 shrink-0 text-salsaGreen-600 md:h-3.5 md:w-3.5" />
               <span className="line-clamp-1">{spot.schedule}</span>
             </span>
           ) : null}

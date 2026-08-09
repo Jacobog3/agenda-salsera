@@ -1,20 +1,13 @@
-import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 import { MapPin } from "lucide-react";
 import type { LocalizedTeacher } from "@/types/teacher";
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
+import { formatLocation } from "@/lib/locations";
+import type { Locale } from "@/types/locale";
+import { TeacherPortrait } from "@/components/teachers/teacher-portrait";
 
 export async function TeacherCard({
   teacher
@@ -22,6 +15,7 @@ export async function TeacherCard({
   teacher: LocalizedTeacher;
 }) {
   const common = await getTranslations("common");
+  const locale = await getLocale() as Locale;
   const displayStyles = teacher.styleTags && teacher.styleTags.length > 0
     ? teacher.styleTags
     : teacher.stylesTaught.map((style) => common(`danceStyles.${style}`));
@@ -32,25 +26,12 @@ export async function TeacherCard({
 
   return (
     <Link
-      href={{ pathname: "/teachers/[slug]", params: { slug: teacher.slug } }}
+      href={{ pathname: "/artists/[slug]", params: { slug: teacher.slug } }}
       className="block"
     >
       <Card className="group flex flex-row overflow-hidden bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card active:scale-[0.98] md:flex-col">
         <div className="relative w-[104px] shrink-0 self-stretch overflow-hidden bg-surface-soft md:w-full md:aspect-[4/3]">
-          {teacher.profileImageUrl ? (
-            <Image
-              src={teacher.profileImageUrl}
-              alt={teacher.name}
-              fill
-              sizes="(min-width: 768px) 50vw, 104px"
-              unoptimized={teacher.profileImageUrl.startsWith("/local-images/")}
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-brand-600 font-display text-2xl font-bold text-white">
-              {getInitials(teacher.name)}
-            </div>
-          )}
+          <TeacherPortrait name={teacher.name} imageUrl={teacher.profileImageUrl} />
         </div>
 
         <div className="flex flex-1 flex-col justify-center gap-1 p-3 md:gap-3 md:p-5">
@@ -60,8 +41,8 @@ export async function TeacherCard({
 
           <div className="flex flex-col gap-1 text-xs md:mt-auto md:text-sm">
             <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-3 w-3 shrink-0 md:h-3.5 md:w-3.5" />
-              {teacher.city}
+              <MapPin className="h-3 w-3 shrink-0 text-salsaOrange-600 md:h-3.5 md:w-3.5" />
+              {formatLocation(teacher.city, teacher.countryCode, locale)}
               {teacher.area ? ` · ${teacher.area}` : ""}
             </span>
             {teacherMeta ? (

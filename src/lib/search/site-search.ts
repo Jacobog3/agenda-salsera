@@ -3,6 +3,7 @@ import { getEvents } from "@/lib/queries/events";
 import { getSpots } from "@/lib/queries/spots";
 import { getTeachers } from "@/lib/queries/teachers";
 import { formatEventDate, formatEventDateRange, formatEventDateStatusLabel } from "@/lib/utils/formatters";
+import { formatLocation, getCountryName } from "@/lib/locations";
 import type { Locale } from "@/types/locale";
 
 export type SearchResultType = "event" | "spot" | "academy" | "teacher";
@@ -59,7 +60,7 @@ function localizedHref(locale: Locale, type: SearchResultType, slug: string) {
     case "academy":
       return `${prefix}${locale === "es" ? "/academias" : "/academies"}/${slug}`;
     case "teacher":
-      return `${prefix}${locale === "es" ? "/maestros" : "/teachers"}/${slug}`;
+      return `${prefix}${locale === "es" ? "/artistas" : "/artists"}/${slug}`;
   }
 }
 
@@ -139,7 +140,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
         const score = scoreCandidate(
           tokens,
           normalizedQuery,
-          [event.title, event.venueName, event.city],
+          [event.title, event.venueName, event.city, getCountryName(event.countryCode, locale)],
           [event.description, event.area ?? "", event.address ?? "", event.organizerName, event.danceStyle]
         );
 
@@ -151,8 +152,8 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           new Date(event.endsAt).toDateString() !== new Date(event.startsAt).toDateString();
         const meta = event.startsAt
           ? isRange
-            ? formatEventDateRange(event.startsAt, event.endsAt!, locale)
-            : formatEventDate(event.startsAt, locale)
+            ? formatEventDateRange(event.startsAt, event.endsAt!, locale, event.timeZone)
+            : formatEventDate(event.startsAt, locale, event.timeZone)
           : formatEventDateStatusLabel(event.dateLabel, locale);
 
         return {
@@ -160,7 +161,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           type: "event" as const,
           title: event.title,
           href: localizedHref(locale, "event", event.slug),
-          subtitle: `${event.venueName} · ${event.city}`,
+          subtitle: `${event.venueName} · ${formatLocation(event.city, event.countryCode, locale)}`,
           description: event.description,
           imageUrl: event.coverImageUrl,
           badges: [event.danceStyle],
@@ -176,7 +177,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
         const score = scoreCandidate(
           tokens,
           normalizedQuery,
-          [spot.name, spot.city],
+          [spot.name, spot.city, getCountryName(spot.countryCode, locale)],
           [spot.description, spot.area ?? "", spot.address ?? "", spot.schedule]
         );
 
@@ -187,7 +188,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           type: "spot" as const,
           title: spot.name,
           href: localizedHref(locale, "spot", spot.slug),
-          subtitle: spot.city,
+          subtitle: formatLocation(spot.city, spot.countryCode, locale),
           description: spot.description,
           imageUrl: spot.coverImageUrl,
           badges: [],
@@ -203,7 +204,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
         const score = scoreCandidate(
           tokens,
           normalizedQuery,
-          [academy.name, academy.city],
+          [academy.name, academy.city, getCountryName(academy.countryCode, locale)],
           [
             academy.description,
             academy.area ?? "",
@@ -222,7 +223,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           type: "academy" as const,
           title: academy.name,
           href: localizedHref(locale, "academy", academy.slug),
-          subtitle: academy.city,
+          subtitle: formatLocation(academy.city, academy.countryCode, locale),
           description: academy.description,
           imageUrl: academy.coverImageUrl,
           badges: academy.styleTags && academy.styleTags.length > 0
@@ -240,7 +241,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
         const score = scoreCandidate(
           tokens,
           normalizedQuery,
-          [teacher.name, teacher.city],
+          [teacher.name, teacher.city, getCountryName(teacher.countryCode, locale)],
           [
             teacher.bio,
             teacher.area ?? "",
@@ -267,7 +268,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           type: "teacher" as const,
           title: teacher.name,
           href: localizedHref(locale, "teacher", teacher.slug),
-          subtitle: teacher.city,
+          subtitle: formatLocation(teacher.city, teacher.countryCode, locale),
           description: teacher.bio,
           imageUrl: teacher.profileImageUrl ?? null,
           badges: teacher.styleTags && teacher.styleTags.length > 0

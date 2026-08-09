@@ -7,6 +7,7 @@ import { getSpotBySlug } from "@/lib/queries/spots";
 import { env } from "@/lib/utils/env";
 import { MapPin, Clock, Banknote } from "lucide-react";
 import type { Locale } from "@/types/locale";
+import { formatLocation } from "@/lib/locations";
 
 export async function generateMetadata({
   params
@@ -14,13 +15,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const spot = await getSpotBySlug(locale as Locale, slug);
+  const currentLocale = locale as Locale;
+  const spot = await getSpotBySlug(currentLocale, slug);
 
   if (!spot) return {};
 
   const title = locale === "es"
-    ? `${spot.name} | Lugar para bailar en ${spot.city}`
-    : `${spot.name} | Dance spot in ${spot.city}`;
+    ? `${spot.name} | Lugar para bailar en ${formatLocation(spot.city, spot.countryCode, currentLocale)}`
+    : `${spot.name} | Dance spot in ${formatLocation(spot.city, spot.countryCode, currentLocale)}`;
 
   return buildDetailMetadata({
     locale: locale as Locale,
@@ -43,6 +45,7 @@ function SpotJsonLd({
     coverImageUrl: string;
     slug: string;
     city: string;
+    countryCode: string;
     address?: string | null;
     schedule: string;
     coverCharge?: string | null;
@@ -74,7 +77,7 @@ function SpotJsonLd({
       "@type": "PostalAddress",
       streetAddress: spot.address ?? spot.city,
       addressLocality: spot.city,
-      addressCountry: "GT"
+      addressCountry: spot.countryCode
     },
     ...(spot.coverCharge ? { priceRange: spot.coverCharge } : {}),
     ...(sameAs.length > 0 ? { sameAs } : {})
@@ -139,7 +142,7 @@ export default async function SpotDetailPage({
                 </InfoRow>
                 <InfoRow icon={MapPin} label={common("location")}>
                   {spot.address ? <p>{spot.address}</p> : null}
-                  <p>{spot.city}</p>
+                  <p>{formatLocation(spot.city, spot.countryCode, currentLocale)}</p>
                 </InfoRow>
                 {spot.coverCharge && (
                   <InfoRow icon={Banknote} label={common("coverCharge")}>

@@ -6,6 +6,7 @@ export type SpotRecord = {
   descriptionEn: string;
   coverImageUrl: string;
   city: string;
+  countryCode: string;
   area?: string | null;
   address?: string | null;
   scheduleEs: string;
@@ -25,6 +26,7 @@ export type LocalizedSpot = {
   description: string;
   coverImageUrl: string;
   city: string;
+  countryCode: string;
   area?: string | null;
   address?: string | null;
   schedule: string;
