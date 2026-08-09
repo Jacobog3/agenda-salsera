@@ -16,6 +16,7 @@ import {
   getDefaultCurrency,
   getDefaultTimeZone,
   isoToZonedDateTimeFields,
+  normalizeCountryCode,
   zonedDateTimeToIso
 } from "@/lib/locations";
 
@@ -53,6 +54,51 @@ const DATE_STATUS_OPTIONS = [
   { value: "confirmed", label: "Fecha confirmada" },
   { value: "coming_soon", label: "Próximamente" }
 ];
+
+function isValidTimeZone(value: string) {
+  try {
+    new Intl.DateTimeFormat("es", { timeZone: value }).format();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function parseAiDateTimeFields(value: unknown, timeZone: string) {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+
+  const localMatch = text.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::\d{2})?$/
+  );
+  if (localMatch) {
+    const [, year, month, day, hour, minute] = localMatch;
+    const yearNumber = Number(year);
+    const monthNumber = Number(month);
+    const dayNumber = Number(day);
+    const hourNumber = Number(hour);
+    const minuteNumber = Number(minute);
+    const calendarDate = new Date(Date.UTC(yearNumber, monthNumber - 1, dayNumber));
+    const validCalendarDate =
+      calendarDate.getUTCFullYear() === yearNumber &&
+      calendarDate.getUTCMonth() === monthNumber - 1 &&
+      calendarDate.getUTCDate() === dayNumber;
+
+    if (validCalendarDate && hourNumber <= 23 && minuteNumber <= 59) {
+      return { date: `${year}-${month}-${day}`, time: `${hour}:${minute}` };
+    }
+    return null;
+  }
+
+  const parsedDate = new Date(text);
+  if (!Number.isFinite(parsedDate.getTime())) return null;
+
+  try {
+    return isoToZonedDateTimeFields(parsedDate.toISOString(), timeZone);
+  } catch {
+    return null;
+  }
+}
 
 const AI_FIELD_LABELS: Record<string, string> = {
   cover_image_url: "Flyer principal",
@@ -137,9 +183,19 @@ async function uploadAdminImage(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
   const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-  const data = await res.json();
-  if (!res.ok) throw new Error(String(data.error ?? "Upload failed"));
-  return String(data.url);
+  const responseText = await res.text();
+  let data: Record<string, unknown> = {};
+  if (responseText) {
+    try {
+      data = JSON.parse(responseText) as Record<string, unknown>;
+    } catch {
+      data = {};
+    }
+  }
+  if (!res.ok) {
+    throw new Error(String(data.error ?? `No se pudo subir la imagen (HTTP ${res.status}).`));
+  }
+  return String(data.url ?? "");
 }
 
 function FieldLabel({ label, hint }: { label: string; hint?: string }) {
@@ -533,20 +589,65 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
   function applyAiSuggestions(fields: Record<string, unknown>) {
     const normalized = { ...fields };
-    const suggestionTimeZone = String(normalized.time_zone ?? data.time_zone ?? DEFAULT_TIME_ZONE);
+    const warnings: string[] = [];
+    const currentCountryCode = normalizeCountryCode(data.country_code);
+    const suggestionCountryCode = normalizeCountryCode(normalized.country_code, currentCountryCode);
+    if ("country_code" in normalized) {
+      if (suggestionCountryCode) {
+        normalized.country_code = suggestionCountryCode;
+      } else {
+        delete normalized.country_code;
+        warnings.push("el país detectado no era válido");
+      }
+    }
+
+    const hasSuggestedTimeZone = typeof normalized.time_zone === "string" && normalized.time_zone.trim().length > 0;
+    const requestedTimeZone = String(normalized.time_zone ?? data.time_zone ?? "").trim();
+    const fallbackTimeZone = getDefaultTimeZone(suggestionCountryCode || currentCountryCode);
+    const countryChanged = Boolean(suggestionCountryCode && suggestionCountryCode !== currentCountryCode);
+    const suggestionTimeZone = countryChanged && !hasSuggestedTimeZone
+      ? fallbackTimeZone
+      : isValidTimeZone(requestedTimeZone)
+      ? requestedTimeZone
+      : fallbackTimeZone;
+    if ("time_zone" in normalized || requestedTimeZone !== suggestionTimeZone) {
+      normalized.time_zone = suggestionTimeZone;
+      if (requestedTimeZone && requestedTimeZone !== suggestionTimeZone) {
+        warnings.push("la zona horaria detectada se corrigió automáticamente");
+      }
+    }
+
+    if (normalized.date_status === "coming_soon") {
+      normalized.starts_at_date = "";
+      normalized.starts_at_time = "";
+      normalized.ends_at_date = "";
+      normalized.ends_at_time = "";
+      delete normalized.starts_at;
+      delete normalized.ends_at;
+    }
 
     if (normalized.starts_at) {
-      const startsAt = isoToZonedDateTimeFields(String(normalized.starts_at), suggestionTimeZone);
-      normalized.starts_at_date = startsAt.date;
-      normalized.starts_at_time = startsAt.time;
-      normalized.date_status = "confirmed";
-      normalized.date_label = "";
+      const startsAt = parseAiDateTimeFields(normalized.starts_at, suggestionTimeZone);
+      if (startsAt) {
+        normalized.starts_at_date = startsAt.date;
+        normalized.starts_at_time = startsAt.time;
+        normalized.date_status = "confirmed";
+        normalized.date_label = "";
+      } else {
+        warnings.push("la fecha de inicio no se aplicó porque tenía un formato inválido");
+      }
+      delete normalized.starts_at;
     }
 
     if (normalized.ends_at) {
-      const endsAt = isoToZonedDateTimeFields(String(normalized.ends_at), suggestionTimeZone);
-      normalized.ends_at_date = endsAt.date;
-      normalized.ends_at_time = endsAt.time;
+      const endsAt = parseAiDateTimeFields(normalized.ends_at, suggestionTimeZone);
+      if (endsAt) {
+        normalized.ends_at_date = endsAt.date;
+        normalized.ends_at_time = endsAt.time;
+      } else {
+        warnings.push("la fecha final no se aplicó porque tenía un formato inválido");
+      }
+      delete normalized.ends_at;
     }
 
     const nextCurrency = String(normalized.currency ?? data.currency ?? "GTQ");
@@ -558,12 +659,24 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     setData((prev) => ({ ...prev, ...normalized }));
     setAiAppliedNotice(true);
     setTab("form");
+    return warnings.length > 0 ? { warning: warnings.join("; ") } : undefined;
   }
 
   async function save(forceTranslate = false) {
     setSaving(true);
     setSaveError("");
     try {
+      const title = String(data.title_es ?? "").trim();
+      const coverImageUrl = String(data.cover_image_url ?? "").trim();
+      const venueName = String(data.venue_name ?? "").trim();
+      const city = String(data.city ?? "").trim();
+      const countryCode = String(data.country_code ?? "").trim();
+      if (!coverImageUrl) throw new Error("El flyer principal es obligatorio.");
+      if (!title) throw new Error("El título es obligatorio.");
+      if (!venueName) throw new Error("El lugar es obligatorio.");
+      if (!city) throw new Error("La ciudad es obligatoria.");
+      if (!countryCode) throw new Error("Selecciona el país del evento.");
+
       const dateStatus = data.date_status === "coming_soon" ? "coming_soon" : "confirmed";
       const startsAtDate = String(data.starts_at_date ?? "").trim();
       const startsAtTime = String(data.starts_at_time ?? "").trim();
@@ -574,12 +687,29 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
       const endsAtDate = String(data.ends_at_date ?? "").trim();
       const endsAtTime = String(data.ends_at_time ?? "").trim();
       const timeZone = String(data.time_zone ?? DEFAULT_TIME_ZONE);
+      try {
+        new Intl.DateTimeFormat("es", { timeZone }).format();
+      } catch {
+        throw new Error("La zona horaria no es válida.");
+      }
       if (dateStatus === "confirmed" && endsAtDate && new Date(endsAtDate) < new Date(startsAtDate)) {
         throw new Error("La fecha final no puede ser anterior a la fecha inicial.");
       }
 
+      const parsedPriceAmount = data.price_amount === "" || data.price_amount === null
+        ? null
+        : Number(data.price_amount);
+      if (parsedPriceAmount !== null && !Number.isFinite(parsedPriceAmount)) {
+        throw new Error("El precio mínimo no es válido.");
+      }
+
       const payload: EventData = {
         ...data,
+        title_es: title,
+        cover_image_url: coverImageUrl,
+        venue_name: venueName,
+        city,
+        country_code: countryCode,
         date_status: dateStatus,
         date_label: dateStatus === "coming_soon"
           ? String(data.date_label ?? "Próximamente").trim() || "Próximamente"
@@ -602,7 +732,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         teacher_ids: Array.isArray(data.teacher_ids)
           ? [...new Set(data.teacher_ids.map((entry) => String(entry ?? "").trim()).filter(Boolean))]
           : [],
-        price_amount: data.price_amount === "" ? null : Number(data.price_amount)
+        price_amount: parsedPriceAmount
       };
 
       delete payload.id;
@@ -623,14 +753,24 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         body: JSON.stringify(payload)
       });
 
+      const responseText = await res.text();
+      let responseData: Record<string, unknown> = {};
+      if (responseText) {
+        try {
+          responseData = JSON.parse(responseText) as Record<string, unknown>;
+        } catch {
+          responseData = {};
+        }
+      }
+
       if (res.ok) {
-        onSaved();
         onClose();
+        onSaved();
       } else {
-        const json = await res.json().catch(() => ({}));
-        setSaveError(String(json.error ?? "No se pudo guardar."));
+        throw new Error(String(responseData.error ?? `No se pudo guardar (HTTP ${res.status}).`));
       }
     } catch (err) {
+      console.error("[admin-event-save]", err);
       setSaveError(err instanceof Error ? err.message : "No se pudo guardar.");
     } finally {
       setSaving(false);
@@ -1013,11 +1153,12 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
       <div className="shrink-0 space-y-2 border-t border-gray-100 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_20px_-18px_rgba(15,23,42,0.45)]">
         {saveError ? <p className="text-xs font-medium text-red-600">{saveError}</p> : null}
         <div className="flex gap-2">
-          <Button onClick={() => save(false)} disabled={saving} className="min-h-11 flex-1 gap-1.5">
+          <Button type="button" onClick={() => save(false)} disabled={saving} className="min-h-11 flex-1 gap-1.5">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Guardar
           </Button>
           <Button
+            type="button"
             variant="outline"
             onClick={() => save(true)}
             disabled={saving}

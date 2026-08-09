@@ -10,12 +10,10 @@ const allowedFolders = new Set([
   "festival-editions"
 ]);
 const imageLimit = 15 * 1024 * 1024;
-const videoLimit = 200 * 1024 * 1024;
 const documentLimit = 25 * 1024 * 1024;
 
 function getMediaType(file: File) {
   if (file.type.startsWith("image/")) return "image" as const;
-  if (["video/mp4", "video/webm", "video/quicktime"].includes(file.type)) return "video" as const;
   if (file.type === "application/pdf") return "document" as const;
   return null;
 }
@@ -36,21 +34,24 @@ export async function POST(request: NextRequest) {
 
   const mediaType = getMediaType(file);
   if (!mediaType) {
-    return NextResponse.json({ error: "Unsupported media type" }, { status: 400 });
+    const message = file.type.startsWith("video/")
+      ? "Los videos se analizan temporalmente en el dispositivo y no se almacenan."
+      : "Formato de archivo no compatible.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   const folder = allowedFolders.has(requestedFolder) ? requestedFolder : "events";
-  const maxSize = mediaType === "video" ? videoLimit : mediaType === "document" ? documentLimit : imageLimit;
+  const maxSize = mediaType === "document" ? documentLimit : imageLimit;
   if (file.size > maxSize) {
     return NextResponse.json(
-      { error: mediaType === "video" ? "Video exceeds the 200MB limit" : "File is too large" },
+      { error: "El archivo es demasiado grande." },
       { status: 400 }
     );
   }
 
   try {
     const supabase = createSupabaseAdminClient();
-    const ext = file.name.split(".").pop()?.toLowerCase() || (mediaType === "video" ? "mp4" : "jpg");
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const fileName = `${folder}/${mediaType}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const bucket = mediaType === "image" ? "event-flyers" : "dance-media";
 

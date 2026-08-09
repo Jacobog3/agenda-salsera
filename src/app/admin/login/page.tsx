@@ -31,7 +31,10 @@ export default function AdminLoginPage() {
         return;
       }
 
-      router.push("/admin");
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      router.replace("/admin");
       router.refresh();
     } catch {
       setError("Error de conexión");
@@ -72,8 +75,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoFocus
-              className="h-11"
+              className="h-11 text-base md:text-sm"
             />
 
             {error && (

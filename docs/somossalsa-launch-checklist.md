@@ -104,8 +104,10 @@ Required: L7 and ongoing editorial review.
   and logistics assets have different roles.
 - Promotional media carries validity dates and can become scheduled, active,
   expired, or archived without destroying history.
-- Admin uploads may support MP4, WebM, and QuickTime with progress, poster frame,
-  caption, source, role, order, and entity association.
+- Admin may select MP4, WebM, or QuickTime only for temporary in-browser frame
+  extraction. SomosSalsa does not upload or store the source video binary.
+- Permanent video/reel media is stored as sourced external metadata: URL,
+  poster, caption, role, order, validity, and entity association.
 - Public media submissions remain image-only until moderation controls exist.
 - Gemini 3.1 Flash-Lite is the selected extraction model. It proposes names,
   roles, dates, places, prices, passes, affiliations, media validity, and likely
@@ -313,7 +315,7 @@ Owner: development
       `Promoción finalizada` when context is useful.
 - [ ] Ask Gemini 3.1 Flash-Lite to propose embedded dates and expiration, with
       mandatory human confirmation.
-- [ ] Extract representative video frames for Gemini rather than treating the
+- [x] Extract representative video frames for Gemini rather than treating the
       full video as an unstructured opaque upload.
 - [ ] Render approved video/reel media on the related event, edition, or profile
       with a poster image, caption, mobile-friendly loading, and accessible
@@ -360,7 +362,7 @@ Owner: development
 - [ ] Add inline relationship search for academies, artists, organizers, venues,
       festival editions, and locations.
 - [ ] Show save state, validation errors, unsaved changes, and update history.
-- [ ] Let AI draft changes from text, image, or video while showing a field-level
+- [x] Let AI draft event changes from text, image, or temporary video frames while showing a field-level
       diff before approval.
 
 Exit criteria:

@@ -1,5 +1,32 @@
 # Current Work Context
 
+## 2026-08-09 — Admin media and mobile reliability
+
+- Branch: `codex/admin-mobile-source-ingestion`.
+- Video binaries are not uploaded or stored by SomosSalsa. The admin may select
+  a local MP4/WebM/QuickTime file only to extract four temporary JPEG frames in
+  the browser for Gemini analysis; the video and frames are discarded after the
+  draft is applied or the screen is closed.
+- Permanent Instagram/Reel or organizer-hosted video remains represented as an
+  external sourced media URL in `media_assets`.
+- Admin image posts are compressed before upload and before Gemini analysis to
+  stay below the Vercel request-body limit.
+- Event save now validates required fields on the client, handles non-JSON HTTP
+  failures safely, and exposes the actual error instead of collapsing into a
+  generic client-side exception. An admin route error boundary provides recovery
+  for unexpected render failures.
+- Applying AI suggestions no longer trusts raw date/time-zone strings. Local
+  event date-times are parsed without browser-time-zone shifts, invalid dates
+  are skipped with an actionable warning, country codes are normalized, and an
+  invalid or missing time zone is recovered from the event country. Unexpected
+  apply errors stay inside the AI panel and preserve the suggestions for review.
+- Logout redirects relative to the current request host instead of the old
+  localhost fallback.
+- Mobile form controls use a 16px font and login no longer autofocuses, avoiding
+  the automatic iOS input zoom in the installed PWA.
+- Verification completed: `npm run lint`, `npm run typecheck`, and
+  `npm run build`.
+
 ## 2026-08-09 — SomosSalsa ecosystem expansion
 
 - The official multicolor palette and logo assets are implemented.
