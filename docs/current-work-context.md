@@ -1,5 +1,15 @@
 # Current Work Context
 
+## 2026-08-09 — GA4 internal route page views
+
+- GA4 production validation confirmed that consented full page loads reached the
+  `somossalsa.com` property, but Next.js client-side route changes did not emit a new
+  `page_view`.
+- `GoogleAnalytics` now tracks pathname changes after the initial GA configuration while
+  avoiding a duplicate first page view when consent is accepted.
+- The page view includes the current location, path, and updated document title.
+- Verification completed: `npm run typecheck`, `npm run lint`, and `npm run build`.
+
 ## 2026-08-09 — Image cost and AI submission workflow
 
 - Active branch: `codex/image-ai-submission-workflow`.
