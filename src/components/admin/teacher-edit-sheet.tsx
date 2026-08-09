@@ -200,7 +200,7 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
   }
 
   const scheduleData = Array.isArray(data.schedule_data) ? (data.schedule_data as ScheduleDay[]) : null;
-  const currentDataForAi = Object.fromEntries(Object.entries(data).filter(([k]) => k !== "id" && k !== "created_at"));
+  const currentDataForAi = Object.fromEntries(Object.entries(data).filter(([k]) => !["id", "created_at", "review_signals"].includes(k)));
 
   const panelContent = (
     <div className="mobile-drawer-form flex min-h-0 flex-1 flex-col">
@@ -236,7 +236,7 @@ export function TeacherEditSheet({ item, onClose, onSaved }: Props) {
             <p className="mb-4 text-xs leading-5 text-gray-500">
               Sube posts de Instagram, fotos de flyers o WhatsApp. La IA extrae horarios, precios, estilos y contacto del maestro.
             </p>
-            <EntityAiPanel entity="teacher" mode={isCreating ? "create" : "update"} currentData={currentDataForAi} fieldLabels={AI_FIELD_LABELS} onApply={applyAiSuggestions} />
+            <EntityAiPanel entity="teacher" mode={isCreating ? "create" : "update"} currentData={currentDataForAi} fieldLabels={AI_FIELD_LABELS} onApply={applyAiSuggestions} onReviewSignals={(reviewSignals) => set("review_signals", reviewSignals)} />
           </div>
         ) : (
           <div className="space-y-3 p-4">

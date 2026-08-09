@@ -251,15 +251,35 @@ IMPORTANT — for event date fields: if the material says "próximamente", "prox
   const multiImageNote = `
 IMPORTANT — multiple images or posts may be provided. Each image may contain partial information (one post with Monday schedule, another with Friday schedule, another with prices, etc.). Your job is to MERGE and UNIFY all information found across all images into a single coherent result. Do not discard information from any image. If two images show different days, include all days in schedule_data.`;
 
+  const adminRelationshipNote = `
+IMPORTANT — this is the ADVANCED ADMIN workflow. In addition to the supported profile fields, always include a \`reviewSignals\` object with this exact structure:
+{
+  "reasons": [],
+  "mentions": [{
+    "entityType": "professional|academy|organizer|spot|festival",
+    "displayName": "",
+    "roles": [],
+    "affiliation": "",
+    "originCity": "",
+    "originCountryCode": "",
+    "evidence": ""
+  }],
+  "eventKind": "",
+  "festivalName": "",
+  "festivalEditionLabel": "",
+  "ambiguousFields": []
+}
+Identify every explicitly named RELATED professional, couple, team, academy, organizer, venue, festival, or congress. Preserve explicit roles such as teacher, performer, DJ, judge, host, organizer, or dancer. Distinguish the physical venue from the academy or organizer. A named dance academy or studio stays entityType "academy" even when it promotes or organizes the event; add "organizer" to its roles instead of changing it to entityType "organizer". For an event, explicitly audit all four relationship groups before responding: (1) professionals, (2) promoting academy/studio or organizer, (3) physical venue, and (4) festival/congress parent. The event itself is the primary record, so its academy, organizer, venue, and guests are secondary relations and MUST be included when named. Do not repeat the primary profile being created or edited as its own relation. Do not invent identity, origin, affiliation, or relationships. A foreign guest workshop is not automatically a festival. If no secondary relation exists, use empty arrays.`;
+
   if (mode === "create") {
     return `You are helping an admin create a new ${entityLabel} profile for an international Latin dance directory.
 
 This is a CREATE workflow.
 Your job is to draft only the fields that are clearly supported by the new material.
-${eventDateNote}${multiImageNote}
+${eventDateNote}${multiImageNote}${adminRelationshipNote}
 
 Rules:
-- Return ONLY a valid JSON object.
+- Return ONLY a valid JSON object containing supported profile fields plus the required reviewSignals object.
 - Be conservative. If the new material does not clearly support a field, omit it.
 - Prefer operational details such as schedules, prices, levels, venues, links, and contact info.
 - Include name and summary text only when the material makes them clear.
@@ -273,9 +293,9 @@ Rules:
 - \`schedule_text\` should be a concise weekly summary, while \`schedule_data\` should contain the detailed classes needed to render a full schedule.
 - For \`price_text\`: capture all price options in a compact readable string, e.g. "Q200/mes · Q50 clase suelta · Q30 clase de prueba".
 - For booleans like trial_class, only include the field when the new material explicitly confirms it.
-- If nothing useful can be drafted, return {}.
+- If no profile field can be drafted, still return the required reviewSignals object.
 
-Allowed output keys for this draft:
+Allowed profile-field keys for this draft (reviewSignals is additionally required):
 ${buildFieldInstructions(entity)}
 
 Current partial draft JSON:
@@ -288,10 +308,10 @@ You will receive new material from the admin after this prompt. Use it only to d
 
 This is an UPDATE workflow, not a CREATE workflow.
 Your job is to preserve the current record and only suggest targeted improvements supported by the new material.
-${eventDateNote}${multiImageNote}
+${eventDateNote}${multiImageNote}${adminRelationshipNote}
 
 Rules:
-- Return ONLY a valid JSON object.
+- Return ONLY a valid JSON object containing supported profile fields plus the required reviewSignals object.
 - Be conservative. If the new material does not clearly support a change, omit that field.
 - Do not rewrite the profile from scratch.
 - Do not include fields that should stay as they are.
@@ -307,9 +327,9 @@ Rules:
 - \`schedule_text\` should be a concise weekly summary, while \`schedule_data\` should contain the detailed classes needed to render a full schedule.
 - For \`price_text\`: capture all price options in a compact readable string, e.g. "Q200/mes · Q50 clase suelta".
 - For booleans like trial_class, only include the field when the new material explicitly confirms it.
-- If nothing should change, return {}.
+- If no profile field should change, still return the required reviewSignals object.
 
-Allowed output keys for this update:
+Allowed profile-field keys for this update (reviewSignals is additionally required):
 ${buildFieldInstructions(entity)}
 
 Current record JSON:

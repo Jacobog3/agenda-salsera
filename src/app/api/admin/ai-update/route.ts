@@ -16,6 +16,9 @@ import {
 } from "@/lib/utils/gemini-response";
 import { env } from "@/lib/utils/env";
 import { getGeminiGenerateContentUrl, logGeminiUsage } from "@/lib/ai/gemini";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { normalizeReviewSignals } from "@/lib/submissions/analysis";
+import { enrichReviewMentions } from "@/lib/admin/entity-matching";
 
 type AiUpdateRequest = {
   entity: AiUpdateEntity;
@@ -161,11 +164,18 @@ export async function POST(request: Request) {
       const parsed = JSON.parse(cleaned) as Record<string, unknown>;
       const normalizedSuggestion = normalizeAiUpdateSuggestion(entity, parsed);
       const suggestion = filterMeaningfulAiChanges(entity, currentData, normalizedSuggestion);
+      const reviewSignals = normalizeReviewSignals(parsed.reviewSignals);
+      const mentions = await enrichReviewMentions(
+        createSupabaseAdminClient(),
+        reviewSignals
+      );
 
       return NextResponse.json({
         ok: true,
         data: suggestion,
-        changedKeys: Object.keys(suggestion)
+        changedKeys: Object.keys(suggestion),
+        reviewSignals,
+        mentions
       });
     } catch (error) {
       parseError = error;

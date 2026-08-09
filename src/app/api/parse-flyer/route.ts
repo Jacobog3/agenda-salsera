@@ -36,13 +36,6 @@ Extract the following fields and return ONLY a valid JSON object with these exac
 - eventKind: one of "social", "workshop", "class", "bootcamp", "competition", "show", "concert", "festival", "congress", "other" (string)
 - festivalName: permanent festival/congress brand name only when this activity belongs to one; otherwise empty string (string)
 - festivalEditionLabel: edition year or label such as "2026" only when explicitly supported; otherwise empty string (string)
-- people: every named dance professional visibly associated with the activity (array of objects). Each object must contain exactly:
-  - name: public/stage name as shown (string)
-  - roles: any supported roles from "teacher", "dancer", "performer", "dj", "judge", "choreographer", "organizer", "host", "musician", "other" (array of strings)
-  - affiliation: academy, company, dance partner, or team explicitly associated with the person (string)
-  - originCity: city they are described as coming from or based in, only when explicit (string)
-  - originCountryCode: ISO country code for that origin/base, only when explicit (string)
-  - evidence: short exact-context paraphrase explaining why the person is associated with the event (string)
 - description: informative 2-4 sentence description in Spanish using concrete details from the flyer/text (string)
 
 Rules:
@@ -50,10 +43,8 @@ Rules:
 - Combine information from both the text and the flyer image when both are provided
 - Prefer explicit information from the flyer image for venue names, times, and location details
 - Keep important concrete details in description when available: workshop names, levels, instructors, key price structure, venue reference, parking, or capacity notes
-- Include every clearly named instructor, performer, DJ, judge, host, musician, couple, or team in people. Do not invent surnames, nationalities, affiliations, or roles.
 - A foreign guest workshop remains eventKind "workshop" or "class"; the guest's origin does not make it a festival.
 - Use eventKind "festival" or "congress" only when the source itself presents a multi-activity festival/congress, not merely because several workshops are listed.
-- If no people are identifiable, return an empty array []
 - Do not over-summarize the description into a vague generic blurb
 - For danceStyle: use "other" for cumbia, merengue, kizomba, etc.
 - For city: if text mentions "zona [number]" in Guatemala's capital without a city, use "Ciudad de Guatemala". Use "Antigua Guatemala", not "Antigua". Otherwise preserve the correct city for the country shown.
@@ -131,33 +122,21 @@ Distinguish the physical venue from the academy or organizer hosting an activity
 Use empty strings for fields that cannot be determined.
 Remove emojis from values and return JSON only.`;
 
-const REVIEW_SIGNALS_PROMPT = `
+const BASIC_REVIEW_SIGNALS_PROMPT = `
 
-In the SAME JSON object, always include reviewSignals with this exact structure:
+This is a LOW-COST PUBLIC autofill pass. In the SAME JSON object, include only this minimal internal triage signal:
 "reviewSignals": {
   "reasons": [],
-  "mentions": [
-    {
-      "entityType": "professional|academy|organizer|spot|festival",
-      "displayName": "",
-      "roles": [],
-      "affiliation": "",
-      "originCity": "",
-      "originCountryCode": "",
-      "evidence": ""
-    }
-  ],
+  "mentions": [],
   "ambiguousFields": []
 }
 
-Review-signal rules:
-- List every explicitly named related professional, academy, organizer, venue, festival, congress, company, or team that may deserve a canonical relationship.
-- A physical venue is entityType "spot"; a dance school or studio as an institution is "academy".
-- Reasons may include: people_detected, academy_detected, organizer_detected, festival_detected, possible_duplicate, ambiguous_fields.
-- ambiguousFields contains field names that the source contradicts or leaves genuinely ambiguous.
-- Evidence must be a short paraphrase of source context, not an invented claim.
-- Do not create a mention for vague phrases such as "guest artist" without a name.
-- If nothing additional is detected, use empty arrays.`;
+Public-triage rules:
+- mentions MUST always be an empty array. Do not extract related names, roles, affiliations, evidence, or candidate matches in this public pass.
+- reasons may contain only "related_entities_possible", "possible_duplicate", or "ambiguous_fields".
+- Use "related_entities_possible" when the material visibly contains named people or institutions beyond the primary resource. The Admin will run the detailed analysis later.
+- ambiguousFields contains only field names that are genuinely contradictory or unclear.
+- Keep this pass focused on completing the basic public form.`;
 
 type ParseFlyerRequest = {
   text?: string;
@@ -244,7 +223,7 @@ export async function POST(request: Request) {
     teacher: "Professional profile material to parse",
     spot: "Dance venue material to parse"
   };
-  const systemPrompt = `${prompts[type]}${REVIEW_SIGNALS_PROMPT}`;
+  const systemPrompt = `${prompts[type]}${BASIC_REVIEW_SIGNALS_PROMPT}`;
   const label = labels[type];
   const parts: Array<Record<string, unknown>> = [{ text: systemPrompt }];
 
@@ -333,7 +312,15 @@ export async function POST(request: Request) {
     try {
       const cleaned = cleanGeminiJsonResponse(rawText);
       const parsed = JSON.parse(cleaned) as Record<string, unknown>;
-      parsed.reviewSignals = normalizeReviewSignals(parsed.reviewSignals, parsed);
+      const normalizedReviewSignals = normalizeReviewSignals(parsed.reviewSignals, parsed);
+      parsed.reviewSignals = {
+        ...normalizedReviewSignals,
+        reasons: normalizedReviewSignals.reasons.filter((reason) =>
+          ["related_entities_possible", "possible_duplicate", "ambiguous_fields"].includes(reason)
+        ),
+        mentions: []
+      };
+      delete parsed.people;
       return NextResponse.json({
         ok: true,
         data: parsed,

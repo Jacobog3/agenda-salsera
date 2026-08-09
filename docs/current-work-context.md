@@ -1,5 +1,28 @@
 # Current Work Context
 
+## 2026-08-09 — Public/basic vs Admin/advanced AI separation
+
+- Public event, academy, artist, and spot forms now use AI only for minimal form
+  completion. They may set a low-cost `related_entities_possible` review flag,
+  but the public endpoint never returns or persists extracted names, roles,
+  evidence, or canonical matches.
+- All four Admin AI editors now run the advanced relationship pass. They show
+  named professionals, academies, organizers, venues, and festivals with roles,
+  evidence, and deterministic match suggestions before the record is saved.
+- Admin-detected relationships are persisted as explicit candidates in the
+  existing review inbox. Nothing is linked automatically; approved matches
+  backfill event/academy/professional relationships from the same inbox used by
+  public-submission review.
+- `Noche Bachatera` was reanalyzed without creating another August event. Four
+  candidates were recovered: Mariano Pucheta, Fátima Gudiel, Dance Studio Majao,
+  and CC Novicentro. Fátima Gudiel matched an existing profile at 100%; all four
+  remain pending explicit Admin review.
+- Mobile browser QA passed at 390×844 for event, academy, artist, and spot Admin
+  editors with no horizontal overflow. The public Celia Pergo sample returned
+  basic event fields plus only `related_entities_possible`, with an empty
+  mentions array.
+- Verification completed: `npm run lint`, `npm run typecheck`, and `npm run build`.
+
 ## 2026-08-09 — Browser and PWA icon cache refresh
 
 - The old ExploraGuate `public/favicon.ico` was still being served alongside the new

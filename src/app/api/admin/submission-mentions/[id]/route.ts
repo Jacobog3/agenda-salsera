@@ -11,6 +11,13 @@ const SUBMISSION_TABLES = {
   spot: "spot_submissions"
 } as const;
 
+const CANONICAL_TABLES = {
+  event: "events",
+  academy: "academies",
+  teacher: "teachers",
+  spot: "spots"
+} as const;
+
 const VALID_STATUSES = new Set(["matched", "candidate", "ignored"]);
 
 export async function PATCH(
@@ -58,12 +65,27 @@ export async function PATCH(
       .select("published_entity_id")
       .eq("id", current.submission_id)
       .maybeSingle();
-    if (submission?.published_entity_id) {
+    let publishedEntityId = submission?.published_entity_id
+      ? String(submission.published_entity_id)
+      : "";
+
+    // Advanced Admin analyses use the canonical entity ID directly instead of a
+    // public-submission ID. This fallback keeps both review sources in one inbox.
+    if (!publishedEntityId) {
+      const { data: canonicalEntity } = await supabase
+        .from(CANONICAL_TABLES[submissionType])
+        .select("id")
+        .eq("id", current.submission_id)
+        .maybeSingle();
+      publishedEntityId = canonicalEntity?.id ? String(canonicalEntity.id) : "";
+    }
+
+    if (publishedEntityId) {
       await applyResolvedSubmissionRelations(
         supabase,
         submissionType,
         String(current.submission_id),
-        String(submission.published_entity_id)
+        publishedEntityId
       );
     }
   }

@@ -239,7 +239,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
     : null;
 
   const currentDataForAi = Object.fromEntries(
-    Object.entries(data).filter(([k]) => k !== "id" && k !== "created_at")
+    Object.entries(data).filter(([k]) => !["id", "created_at", "review_signals"].includes(k))
   );
 
   const panelContent = (
@@ -300,6 +300,7 @@ export function AcademyEditSheet({ item, onClose, onSaved }: Props) {
                 currentData={currentDataForAi}
                 fieldLabels={AI_FIELD_LABELS}
                 onApply={applyAiSuggestions}
+                onReviewSignals={(reviewSignals) => set("review_signals", reviewSignals)}
               />
             </div>
           ) : (

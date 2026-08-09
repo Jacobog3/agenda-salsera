@@ -687,7 +687,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
   const currentDataForAi = Object.fromEntries(
     Object.entries(data).filter(([key]) =>
-      !["id", "created_at", "starts_at_date", "starts_at_time", "ends_at_date", "ends_at_time", "event_teachers"].includes(key)
+      !["id", "created_at", "starts_at_date", "starts_at_time", "ends_at_date", "ends_at_time", "event_teachers", "review_signals"].includes(key)
     )
   );
 
@@ -745,6 +745,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
               currentData={currentDataForAi}
               fieldLabels={AI_FIELD_LABELS}
               onApply={applyAiSuggestions}
+              onReviewSignals={(reviewSignals) => set("review_signals", reviewSignals)}
             />
           </div>
         ) : (
