@@ -72,7 +72,11 @@ function getLocalizedUrl(pathname: string, locale: Locale, siteUrl: string, coun
   }
   const cleanPath = localizedPath === "/" ? "" : localizedPath;
   const prefix = locale === "es" ? "" : "/en";
-  return `${siteUrl}${publicUrlPath(`${prefix}${cleanPath || "/"}`, country)}`;
+  // Fall back to "/" only once both parts are empty. Applying the fallback to
+  // cleanPath alone appends a trailing slash to locale roots ("/en" + "/"),
+  // producing hreflang URLs that redirect.
+  const path = `${prefix}${cleanPath}` || "/";
+  return `${siteUrl}${publicUrlPath(path, country)}`;
 }
 
 export async function buildMetadata(
