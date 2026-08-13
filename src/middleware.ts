@@ -81,8 +81,14 @@ export default function middleware(request: NextRequest) {
     response = NextResponse.rewrite(rewriteTarget ?? internalUrl, {
       request: { headers: requestHeaders }
     });
+    // next-intl builds its Link hreflang alternates from the rewritten,
+    // country-stripped URL, so they point at "/" and "/en" instead of
+    // "/gt" and "/gt/en". Those contradict the correct <link rel="alternate">
+    // tags rendered from metadata, and Google discards conflicting hreflang
+    // annotations outright — so drop the header and let the HTML tags stand.
+    const droppedHeaders = new Set(["x-middleware-rewrite", "link"]);
     intlResponse.headers.forEach((value, key) => {
-      if (key !== "x-middleware-rewrite") response.headers.set(key, value);
+      if (!droppedHeaders.has(key)) response.headers.set(key, value);
     });
   }
 
