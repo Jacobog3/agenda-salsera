@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
 import { CountrySelect } from "@/components/forms/country-select";
-import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
+import { DEFAULT_SITE_COUNTRY, SITE_COUNTRY_CODES } from "@/lib/site-countries";
 import { SubmissionErrorNotice } from "@/components/forms/submission-error-notice";
 import {
   analyzeSubmissionMaterial,
@@ -44,7 +44,7 @@ const defaultFields: Fields = {
   name: "",
   description: "",
   city: "",
-  countryCode: DEFAULT_COUNTRY_CODE,
+  countryCode: DEFAULT_SITE_COUNTRY.code,
   address: "",
   schedule: "",
   coverCharge: "",
@@ -74,7 +74,7 @@ export function SubmitSpotForm() {
     storageKey: "somossalsa:draft:spot",
     value: { fields, sourceText },
     onRestore: (saved) => {
-      setFields(saved.fields);
+      setFields({ ...saved.fields, countryCode: DEFAULT_SITE_COUNTRY.code });
       setSourceText(saved.sourceText || "");
     },
     enabled: status !== "success"
@@ -129,7 +129,7 @@ export function SubmitSpotForm() {
         name: d.name || prev.name,
         description: d.description || prev.description,
         city: d.city || prev.city,
-        countryCode: d.countryCode || prev.countryCode,
+        countryCode: DEFAULT_SITE_COUNTRY.code,
         address: d.address || prev.address,
         schedule: d.schedule || prev.schedule,
         coverCharge: d.coverCharge || prev.coverCharge,
@@ -371,6 +371,7 @@ export function SubmitSpotForm() {
             <Field label={`${f("country")} *`} error={fieldErrors.countryCode}>
               <CountrySelect
                 value={fields.countryCode}
+                allowedCountryCodes={SITE_COUNTRY_CODES}
                 onChange={(countryCode) => setField("countryCode", countryCode)}
               />
             </Field>

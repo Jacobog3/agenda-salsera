@@ -1,39 +1,38 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Home, CalendarDays, MapPinned, GraduationCap, PartyPopper } from "lucide-react";
+import { CalendarDays, MapPinned, GraduationCap, PartyPopper, PackageSearch } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
 import type { LucideIcon } from "lucide-react";
 
-type NavKey = "home" | "events" | "festivals" | "spots" | "academies";
+type NavKey = "events" | "festivals" | "spots" | "academies" | "resources";
 
 type NavItem = {
   key: NavKey;
-  href: "/" | "/events" | "/festivals" | "/spots" | "/academies";
+  href: "/events" | "/festivals" | "/spots" | "/academies" | "/resources";
   icon: LucideIcon;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { key: "home",      href: "/",          icon: Home },
   { key: "events",    href: "/events",    icon: CalendarDays },
   { key: "festivals", href: "/festivals", icon: PartyPopper },
   { key: "spots",     href: "/spots",     icon: MapPinned },
-  { key: "academies", href: "/academies", icon: GraduationCap }
+  { key: "academies", href: "/academies", icon: GraduationCap },
+  { key: "resources", href: "/resources", icon: PackageSearch }
 ];
 
 const aliases: Record<string, string[]> = {
-  "/":          ["/"],
   "/events":    ["/events",    "/eventos"],
   "/festivals": ["/festivals", "/festivales"],
   "/spots":     ["/spots",     "/lugares"],
-  "/academies": ["/academies", "/academias"]
+  "/academies": ["/academies", "/academias"],
+  "/resources": ["/resources", "/recursos"]
 };
 
 function isActive(href: string, pathname: string): boolean {
-  const normalized = pathname.replace(/^\/(es|en)/, "") || "/";
+  const normalized = pathname.replace(/^\/[a-z]{2}(?:\/en)?/, "") || "/";
   const paths = aliases[href] ?? [href];
-  if (href === "/") return paths.includes(normalized);
   return paths.some((p) => normalized === p || normalized.startsWith(p + "/"));
 }
 

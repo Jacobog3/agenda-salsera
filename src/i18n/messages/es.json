@@ -45,6 +45,7 @@
     "relatedAcademy": "Academia relacionada",
     "relatedTeacher": "Artista relacionado",
     "relatedTeachers": "Artistas relacionados",
+    "relatedResources": "DJs del evento",
     "relatedAcademies": "Academias relacionadas",
     "relatedEvents": "Eventos relacionados",
     "upcomingAcademyEvents": "Próximos eventos con esta academia",
@@ -65,6 +66,11 @@
     "artists": "Artistas",
     "spots": "Lugares",
     "academies": "Academias",
+    "resources": "Recursos",
+    "about": "Acerca de",
+    "more": "Más secciones",
+    "explore": "Explorar",
+    "closeMenu": "Cerrar menú",
     "search": "Buscar",
     "searchCompact": "Buscar en SomosSalsa",
     "submitEvent": "Enviar evento",
@@ -78,10 +84,12 @@
     "submitTeacherLabel": "Maestro",
     "submitTeacherDesc": "Profesor independiente para clases, privadas o bootcamps",
     "submitSpotLabel": "Bar / Lugar",
-    "submitSpotDesc": "Lugar donde hay salsa o bachata seguido"
+    "submitSpotDesc": "Lugar donde hay salsa o bachata seguido",
+    "submitResourceLabel": "Recurso",
+    "submitResourceDesc": "Tienda, DJ, fotografía u otro servicio útil"
   },
   "footer": {
-    "description": "Encuentra eventos, festivales, academias, artistas y lugares para bailar, organizados por ciudad.",
+    "description": "Encuentra eventos, academias, artistas, lugares y recursos útiles para bailar.",
     "navigationTitle": "Navegación",
     "contactTitle": "Contacto",
     "emailAria": "Enviar correo a SomosSalsa",
@@ -97,7 +105,7 @@
   "about": {
     "eyebrow": "Acerca de SomosSalsa",
     "title": "Encuentra dónde bailar y con quién aprender",
-    "intro": "SomosSalsa reúne eventos, festivales, academias, artistas y lugares de baile en un solo sitio, organizados por ciudad para que sea más fácil encontrarlos.",
+    "intro": "SomosSalsa reúne eventos, festivales, academias, artistas, lugares y recursos de la comunidad en un solo sitio para que sea más fácil encontrarlos.",
     "missionTitle": "Lo que queremos facilitar",
     "missionText": "Queremos que cualquier persona pueda descubrir qué está pasando, dónde aprender y dónde bailar sin depender de información dispersa. SomosSalsa nació en Guatemala y está preparada para crecer ciudad por ciudad, dando el mismo espacio a academias, organizadores, artistas y lugares.",
     "sourcesTitle": "Cómo reunimos la información",
@@ -137,6 +145,23 @@
     "eventsTitle": "Agenda",
     "spotsTitle": "Lugares para bailar",
     "academiesTitle": "Academias",
+    "resourcesTitle": "Recursos para la comunidad",
+    "resourcesDescription": "Encuentra productos y servicios útiles para bailar o producir un evento.",
+    "resourcesCta": "Explorar",
+    "resourceCategories": {
+      "dancewear": {
+        "title": "Zapatos y ropa",
+        "description": "Opciones de calzado, vestuario y accesorios para bailar."
+      },
+      "dj": {
+        "title": "DJs",
+        "description": "Profesionales para sociales, fiestas, festivales y eventos."
+      },
+      "photography": {
+        "title": "Fotografía y video",
+        "description": "Personas que documentan presentaciones y eventos de baile."
+      }
+    },
     "festivalsEyebrow": "Festivales y congresos",
     "festivalsTitle": "Cada edición, toda la información",
     "festivalsDescription": "Artistas, programación, pases, sedes, flyers y videos reunidos en una página permanente.",
@@ -365,10 +390,35 @@
     "emptyDescription": "Los nuevos invitados y profesionales aparecerán aquí conforme verifiquemos sus fuentes.",
     "submit": "Enviar un perfil"
   },
+  "resources": {
+    "title": "Recursos para bailar y organizar eventos",
+    "description": "Una guía curada de productos y servicios disponibles en Guatemala. SomosSalsa te ayuda a encontrarlos y el contacto se realiza directamente con cada perfil.",
+    "filterLabel": "Filtrar recursos",
+    "categories": {
+      "all": "Todos",
+      "dancewear": "Zapatos y ropa",
+      "dj": "DJs",
+      "photography": "Fotografía y video",
+      "other": "Otros"
+    },
+    "instagramCta": "Ver Instagram",
+    "profileCta": "Ver perfil",
+    "verified": "Información pública revisada",
+    "verifiedPrefix": "Información revisada el",
+    "communityRecommendation": "Recomendación pendiente de confirmar",
+    "contactOnline": "Contacto en línea",
+    "actionsLabel": "Opciones del recurso",
+    "suggestChange": "Sugerir un cambio o reportar",
+    "suggestTitle": "¿Conoces otra opción útil?",
+    "suggestDescription": "Recomienda una tienda, DJ, fotógrafo u otro perfil disponible en Guatemala. Revisaremos la información antes de publicarla.",
+    "suggestCta": "Recomendar un recurso",
+    "correctionCta": "¿Encontraste información incorrecta? Sugiere una corrección",
+    "disclaimer": "SomosSalsa funciona como directorio informativo. No vende productos, no gestiona contrataciones y no garantiza precios, disponibilidad ni servicios de terceros. Confirma los detalles directamente con cada perfil."
+  },
   "search": {
     "pageTitle": "Busca en SomosSalsa",
-    "pageDescription": "Encuentra eventos, lugares, academias y artistas por nombre, ciudad o estilo.",
-    "placeholder": "Busca eventos, academias, artistas o lugares",
+    "pageDescription": "Encuentra eventos, lugares, academias, artistas y recursos por nombre, ciudad o estilo.",
+    "placeholder": "Busca eventos, artistas, lugares o recursos",
     "submit": "Buscar",
     "idleTitle": "Empieza con una búsqueda",
     "idleDescription": "Puedes buscar por nombre, ciudad, lugar o estilo. Por ejemplo: salsa, Antigua, José Medina o bachata.",
@@ -381,13 +431,21 @@
       "events": "Eventos",
       "spots": "Lugares",
       "academies": "Academias",
-      "teachers": "Artistas"
+      "teachers": "Artistas",
+      "resources": "Recursos"
     },
     "types": {
       "event": "Evento",
       "spot": "Lugar",
       "academy": "Academia",
-      "teacher": "Artista"
+      "teacher": "Artista",
+      "resource": "Recurso"
+    },
+    "resourceCategories": {
+      "dancewear": "Zapatos y ropa",
+      "dj": "DJ",
+      "photography": "Fotografía y video",
+      "other": "Otro recurso"
     }
   },
   "submitEvent": {
@@ -413,13 +471,15 @@
   "metadata": {
     "siteName": "SomosSalsa",
     "homeTitle": "SomosSalsa | Encuentra. Aprende. Baila.",
-    "homeDescription": "Encuentra eventos, festivales, academias, artistas y lugares de salsa, bachata y baile latino organizados por ciudad y país.",
+    "homeDescription": "Encuentra en Guatemala eventos, festivales, academias, artistas, lugares y recursos de salsa, bachata y baile latino.",
     "eventsTitle": "Eventos | SomosSalsa",
-    "eventsDescription": "Próximos eventos de salsa y bachata organizados por ciudad y país.",
+    "eventsDescription": "Próximos eventos de salsa y bachata en Guatemala, organizados por ciudad.",
     "spotsTitle": "Lugares | SomosSalsa",
-    "spotsDescription": "Lugares con noches regulares de salsa y bachata, organizados por ubicación.",
+    "spotsDescription": "Lugares en Guatemala con noches regulares de salsa y bachata, organizados por ubicación.",
     "academiesTitle": "Academias | SomosSalsa",
-    "academiesDescription": "Directorio de academias y maestros de salsa y bachata por ubicación.",
+    "academiesDescription": "Directorio de academias y maestros de salsa y bachata en Guatemala.",
+    "resourcesTitle": "Recursos para bailar | SomosSalsa",
+    "resourcesDescription": "Encuentra en Guatemala zapatos, ropa, DJs, fotografía y otros recursos de la comunidad de baile latino.",
     "aboutTitle": "Acerca de SomosSalsa",
     "aboutDescription": "Conoce cómo SomosSalsa recopila, revisa y conecta información de la comunidad de baile latino.",
     "privacyTitle": "Política de privacidad | SomosSalsa",
@@ -433,7 +493,9 @@
     "submitTeacherTitle": "Registrar maestro | SomosSalsa",
     "submitTeacherDescription": "Registra gratis tu perfil como maestro de baile en SomosSalsa.",
     "submitSpotTitle": "Registrar lugar | SomosSalsa",
-    "submitSpotDescription": "Registra en SomosSalsa tu bar o lugar con noches de salsa."
+    "submitSpotDescription": "Registra en SomosSalsa tu bar o lugar con noches de salsa.",
+    "submitResourceTitle": "Recomendar un recurso | SomosSalsa",
+    "submitResourceDescription": "Recomienda una tienda, DJ, fotógrafo u otro servicio disponible en Guatemala."
   },
   "forms": {
     "step1Flyer": "1. Sube el flyer",
@@ -535,7 +597,7 @@
   },
   "privacyPolicy": {
     "title": "Política de privacidad",
-    "updated": "Última actualización: 9 de agosto de 2026",
+    "updated": "Última actualización: 13 de agosto de 2026",
     "intro": "Esta política explica qué información procesa SomosSalsa, para qué la utiliza y qué opciones tienes cuando visitas el sitio o envías contenido.",
     "controllerTitle": "1. Quién opera SomosSalsa",
     "controllerText": "SomosSalsa es operado por GuatCloud, un proyecto independiente con actividad en Guatemala. GuatCloud administra el tratamiento de la información recibida a través de {domain}.",
@@ -546,11 +608,11 @@
     "analyticsData": "Analítica opcional: si aceptas, Google Analytics 4 procesa páginas visitadas, interacciones, datos del navegador o dispositivo y ubicación geográfica aproximada. SomosSalsa no envía nombres, correos ni teléfonos a Analytics.",
     "advertisingData": "Publicidad: el sitio integra Google AdSense. Google y otros proveedores autorizados pueden utilizar cookies, identificadores, balizas web, direcciones IP u otras tecnologías para mostrar, limitar y medir anuncios, según su configuración y tus preferencias.",
     "voluntaryTitle": "Información que decides enviar",
-    "submissionsData": "Formularios públicos: podemos recibir nombres, descripciones, fechas, horarios, ubicaciones, imágenes, perfiles sociales, teléfonos, enlaces de contacto y texto promocional de eventos, academias, artistas o lugares.",
+    "submissionsData": "Formularios públicos: podemos recibir nombres, descripciones, fechas, horarios, ubicaciones, imágenes, perfiles sociales, teléfonos, enlaces de contacto y texto promocional de eventos, academias, artistas, lugares o recursos de la comunidad. Una recomendación también puede incluir el nombre y correo privados de quien la envía.",
     "incidentsData": "Reportes de problemas: conservamos el tipo de formulario, el paso donde ocurrió el problema, un mensaje técnico y un código de incidente. No solicitamos contraseñas ni datos financieros.",
     "communicationsData": "Comunicaciones: si nos escribes por correo, procesamos la dirección y el contenido necesarios para responder.",
     "publicSourcesTitle": "3. Información de fuentes públicas",
-    "publicSourcesText": "También organizamos información publicada para difusión por organizadores, academias, artistas, festivales y lugares en sitios oficiales, redes sociales o material promocional compartido directamente. No asumimos que todo el contenido de una cuenta o conversación privada sea público.",
+    "publicSourcesText": "También organizamos información publicada para difusión por organizadores, academias, artistas, festivales, lugares, tiendas y proveedores de servicios en sitios oficiales, redes sociales o material promocional compartido directamente. No asumimos que todo el contenido de una cuenta o conversación privada sea público.",
     "publicSourcesRemoval": "Si representas a una persona u organización mencionada y deseas corregir o retirar información, puedes escribir a",
     "aiTitle": "4. Uso de inteligencia artificial",
     "aiText": "Los formularios pueden usar Google Gemini para extraer datos de un flyer o texto promocional. El análisis puede detectar nombres de artistas, academias, organizadores o lugares y marcarlos para revisión administrativa. La IA no publica perfiles ni relaciones por sí sola.",
@@ -558,7 +620,7 @@
     "localTitle": "5. Información guardada en tu dispositivo",
     "localText": "Los formularios pueden guardar durante siete días un borrador de los campos y del texto en el almacenamiento local de tu navegador para ayudarte a recuperar el trabajo. Las imágenes no se guardan en ese borrador. Nada se envía como publicación hasta que presionas el botón de envío.",
     "purposesTitle": "6. Para qué usamos la información",
-    "purposePublish": "Revisar, publicar y mantener eventos, festivales, academias, artistas y lugares.",
+    "purposePublish": "Revisar, publicar y mantener eventos, festivales, academias, artistas, lugares y recursos de la comunidad.",
     "purposeRelations": "Relacionar actividades con sus responsables y ubicaciones cuando la coincidencia es verificable.",
     "purposeOperate": "Prevenir duplicados, investigar errores, proteger el servicio y responder solicitudes.",
     "purposeMeasure": "Medir el uso del sitio y mejorar la experiencia cuando aceptas analítica.",
@@ -573,7 +635,7 @@
     "supabasePrivacyLink": "Privacidad de Supabase",
     "vercelPrivacyLink": "Privacidad de Vercel",
     "publicationTitle": "8. Información destinada a publicación",
-    "publicationText": "Los datos promocionales enviados y aprobados pueden mostrarse públicamente, incluidos nombres profesionales, imágenes, horarios, ubicaciones y medios de contacto. Antes de enviar información de otra persona, confirma que tienes autorización para compartirla.",
+    "publicationText": "Los datos promocionales enviados y aprobados pueden mostrarse públicamente, incluidos nombres profesionales, imágenes, horarios, ubicaciones y medios de contacto del perfil. El nombre y correo identificados como contacto privado de quien recomienda un recurso no se publican. Antes de enviar información de otra persona, confirma que tienes autorización para compartirla.",
     "retentionTitle": "9. Conservación y seguridad",
     "retentionText": "Conservamos envíos, publicaciones y registros operativos mientras sean necesarios para revisar contenido, mantener referencias útiles, atender solicitudes o proteger el servicio. Algunos eventos anteriores pueden permanecer como archivo histórico. Adoptamos medidas razonables de seguridad, pero ningún sistema conectado a internet puede garantizar riesgo cero.",
     "choicesTitle": "10. Tus opciones y solicitudes",
@@ -591,12 +653,12 @@
   },
   "termsPolicy": {
     "title": "Términos de uso",
-    "updated": "Última actualización: 9 de agosto de 2026",
+    "updated": "Última actualización: 13 de agosto de 2026",
     "intro": "Estos términos regulan el acceso y uso de SomosSalsa. Al utilizar el sitio o enviar contenido, aceptas estas condiciones.",
     "operatorTitle": "1. Operador",
     "operatorText": "SomosSalsa es operado por GuatCloud, un proyecto independiente con actividad en Guatemala. Puedes contactarnos en",
     "serviceTitle": "2. Qué ofrece SomosSalsa",
-    "serviceText": "SomosSalsa es una plataforma informativa para encontrar eventos, festivales, academias, artistas y lugares relacionados con salsa, bachata y baile latino. Guatemala es la primera ubicación activa, pero la cobertura puede crecer a otras ciudades y países.",
+    "serviceText": "SomosSalsa es una plataforma informativa para encontrar eventos, festivales, academias, artistas, lugares y recursos relacionados con salsa, bachata y baile latino. Guatemala es la primera ubicación activa, pero la cobertura puede crecer a otras ciudades y países.",
     "independenceText": "SomosSalsa no es una academia, no organiza las actividades listadas y actualmente no procesa pagos ni vende entradas. Cuando mostramos un enlace de contacto o compra, la relación se realiza directamente con el organizador o proveedor externo.",
     "sourcesTitle": "3. Fuentes y contenido promocional",
     "sourcesText": "Parte de la información proviene de sitios oficiales, publicaciones públicas y material compartido para difusión. Los flyers, fotografías, marcas y textos originales pertenecen a sus respectivos titulares. Su inclusión busca identificar y describir la actividad, no atribuirnos su autoría.",
@@ -651,6 +713,51 @@
   "submitSpot": {
     "pageTitle": "Registrar bar o lugar",
     "pageDescription": "¿Tienes un bar, restaurante o espacio con noches de salsa o bachata? Regístralo gratis."
+  },
+  "submitResource": {
+    "pageTitle": "Recomendar un recurso",
+    "pageDescription": "Comparte una tienda, DJ, fotógrafo u otro servicio disponible en Guatemala. Revisaremos la información antes de publicarla.",
+    "updatePageTitle": "Sugerir un cambio",
+    "updatePageDescription": "Selecciona el recurso y cuéntanos qué información deberíamos corregir. Nada se modifica sin revisión.",
+    "resourceToCorrect": "Recurso",
+    "selectResource": "Selecciona un recurso",
+    "requestType": "Tipo de solicitud",
+    "requestUpdate": "Sugerir una actualización",
+    "requestReport": "Reportar información incorrecta",
+    "name": "Nombre o marca",
+    "category": "Categoría",
+    "categories": {
+      "dancewear": "Zapatos y ropa",
+      "dj": "DJ",
+      "photography": "Fotografía y video",
+      "other": "Otro recurso"
+    },
+    "description": "¿Qué ofrece?",
+    "descriptionPlaceholder": "Cuéntanos brevemente por qué sería útil para la comunidad.",
+    "changeDescription": "¿Qué deberíamos cambiar?",
+    "changeDescriptionPlaceholder": "Explica qué información cambió o qué está incorrecto.",
+    "city": "Ciudad",
+    "country": "País",
+    "contactSection": "¿Dónde podemos encontrarlo?",
+    "contactHint": "Agrega al menos Instagram, WhatsApp o sitio web.",
+    "evidenceSection": "Fuente o evidencia (opcional)",
+    "evidenceHint": "Comparte un enlace donde podamos verificar la corrección.",
+    "website": "Sitio web",
+    "relationship": "Tu relación con este perfil",
+    "relationshipRecommendation": "Estoy recomendando a alguien",
+    "relationshipOwner": "Soy responsable del perfil o negocio",
+    "contactName": "Tu nombre (privado)",
+    "contactEmail": "Tu correo (privado)",
+    "privacyNotice": "La información del perfil puede publicarse; tu nombre y correo marcados como privados se usan solo para revisar la recomendación. Consulta nuestra",
+    "requiredError": "Completa el nombre y al menos una forma de contacto.",
+    "correctionRequiredError": "Selecciona el recurso y describe qué información deberíamos revisar.",
+    "submit": "Enviar recomendación",
+    "submitting": "Enviando...",
+    "submitError": "No pudimos enviar la recomendación.",
+    "submitChange": "Enviar para revisión",
+    "successTitle": "Recibimos tu recomendación",
+    "successDescription": "La revisaremos antes de publicar cualquier información.",
+    "backToResources": "Volver a Recursos"
   },
   "notFound": {
     "title": "Página no encontrada",

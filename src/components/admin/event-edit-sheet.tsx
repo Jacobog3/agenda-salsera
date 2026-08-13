@@ -10,6 +10,7 @@ import { EntityAiPanel } from "./academy-ai-panel";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import { extractLowestPriceAmount } from "@/lib/utils/formatters";
 import { AdminCountrySelect } from "@/components/forms/country-select";
+import type { ReviewSignals } from "@/lib/submissions/analysis";
 import {
   DEFAULT_COUNTRY_CODE,
   DEFAULT_TIME_ZONE,
@@ -102,6 +103,7 @@ function buildInitialData(item: EventData | null): EventData {
       organizer_id: "",
       academy_id: "",
       teacher_ids: [],
+      resource_ids: [],
       contact_url: "",
       is_featured: false,
       is_published: true
@@ -121,6 +123,9 @@ function buildInitialData(item: EventData | null): EventData {
       : [],
     teacher_ids: Array.isArray(item.teacher_ids)
       ? item.teacher_ids.map((entry) => String(entry ?? "")).filter(Boolean)
+      : [],
+    resource_ids: Array.isArray(item.resource_ids)
+      ? item.resource_ids.map((entry) => String(entry ?? "")).filter(Boolean)
       : [],
     price_amount:
       item.price_amount === null || item.price_amount === undefined || item.price_amount === ""
@@ -470,6 +475,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     { value: "", label: "Sin relacionar" }
   ]);
   const [teacherOptions, setTeacherOptions] = useState<SelectOption[]>([]);
+  const [resourceOptions, setResourceOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -485,16 +491,18 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
     async function loadOptions() {
       try {
-        const [organizersRes, academiesRes, teachersRes] = await Promise.all([
+        const [organizersRes, academiesRes, teachersRes, resourcesRes] = await Promise.all([
           fetch("/api/admin/organizers?format=options"),
           fetch("/api/admin/academies?format=options"),
-          fetch("/api/admin/teachers?format=options")
+          fetch("/api/admin/teachers?format=options"),
+          fetch("/api/admin/resources")
         ]);
 
-        const [organizersJson, academiesJson, teachersJson] = await Promise.all([
+        const [organizersJson, academiesJson, teachersJson, resourcesJson] = await Promise.all([
           organizersRes.json(),
           academiesRes.json(),
-          teachersRes.json()
+          teachersRes.json(),
+          resourcesRes.json()
         ]);
 
         if (cancelled) return;
@@ -510,11 +518,26 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
             : [{ value: "", label: "Sin relacionar" }]
         );
         setTeacherOptions(Array.isArray(teachersJson.data) ? teachersJson.data : []);
+        setResourceOptions(
+          Array.isArray(resourcesJson.data)
+            ? resourcesJson.data
+                .filter((resource: Record<string, unknown>) =>
+                  resource.is_published !== false
+                  && Array.isArray(resource.categories)
+                  && resource.categories.includes("dj")
+                )
+                .map((resource: Record<string, unknown>) => ({
+                  value: String(resource.id),
+                  label: String(resource.name)
+                }))
+            : []
+        );
       } catch {
         if (cancelled) return;
         setOrganizerOptions([{ value: "", label: "Sin relacionar" }]);
         setAcademyOptions([{ value: "", label: "Sin relacionar" }]);
         setTeacherOptions([]);
+        setResourceOptions([]);
       }
     }
 
@@ -528,6 +551,49 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
   function set(key: string, value: unknown) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
+
+  function handleReviewSignals(reviewSignals: ReviewSignals) {
+    setData((current) => ({
+      ...current,
+      review_signals: reviewSignals
+    }));
+  }
+
+  useEffect(() => {
+    const reviewSignals = data.review_signals as ReviewSignals | undefined;
+    if (!reviewSignals || resourceOptions.length === 0) return;
+
+    const normalize = (value: string) => value
+      .toLocaleLowerCase("es")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+    const detectedDjNames = new Set(
+      reviewSignals.mentions
+        .filter((mention) => {
+          const normalizedName = normalize(mention.displayName);
+          return mention.entityType === "professional" && (
+            normalizedName.startsWith("dj ")
+            || mention.roles.some((role) => normalize(role) === "dj")
+          );
+        })
+        .map((mention) => normalize(mention.displayName))
+    );
+    const matchedResourceIds = resourceOptions
+      .filter((option) => detectedDjNames.has(normalize(option.label)))
+      .map((option) => option.value);
+    if (matchedResourceIds.length === 0) return;
+
+    setData((current) => {
+      const existingResourceIds = Array.isArray(current.resource_ids)
+        ? current.resource_ids.map(String)
+        : [];
+      const nextResourceIds = [...new Set([...existingResourceIds, ...matchedResourceIds])];
+      if (nextResourceIds.length === existingResourceIds.length) return current;
+      return { ...current, resource_ids: nextResourceIds };
+    });
+  }, [data.review_signals, resourceOptions]);
 
   function updatePriceText(nextValue: string, currencyOverride?: string) {
     const currency = String(currencyOverride ?? data.currency ?? "GTQ");
@@ -640,12 +706,16 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         teacher_ids: Array.isArray(data.teacher_ids)
           ? [...new Set(data.teacher_ids.map((entry) => String(entry ?? "").trim()).filter(Boolean))]
           : [],
+        resource_ids: Array.isArray(data.resource_ids)
+          ? [...new Set(data.resource_ids.map((entry) => String(entry ?? "").trim()).filter(Boolean))]
+          : [],
         price_amount: parsedPriceAmount
       };
 
       delete payload.id;
       delete payload.created_at;
       delete payload.event_teachers;
+      delete payload.event_resources;
       delete payload.starts_at_date;
       delete payload.starts_at_time;
       delete payload.ends_at_date;
@@ -687,7 +757,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
   const currentDataForAi = Object.fromEntries(
     Object.entries(data).filter(([key]) =>
-      !["id", "created_at", "starts_at_date", "starts_at_time", "ends_at_date", "ends_at_time", "event_teachers", "review_signals"].includes(key)
+      !["id", "created_at", "starts_at_date", "starts_at_time", "ends_at_date", "ends_at_time", "event_teachers", "event_resources", "review_signals"].includes(key)
     )
   );
 
@@ -745,7 +815,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
               currentData={currentDataForAi}
               fieldLabels={AI_FIELD_LABELS}
               onApply={applyAiSuggestions}
-              onReviewSignals={(reviewSignals) => set("review_signals", reviewSignals)}
+              onReviewSignals={handleReviewSignals}
             />
           </div>
         ) : (
@@ -1027,12 +1097,21 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
               </div>
             </div>
             <div className="space-y-1">
-              <FieldLabel label="Maestros relacionados" />
+              <FieldLabel label="Artistas relacionados" />
               <SearchableMultiSelectField
                 value={Array.isArray(data.teacher_ids) ? (data.teacher_ids as string[]) : []}
                 options={teacherOptions}
                 onChange={(next) => set("teacher_ids", next)}
-                placeholder="Buscar maestros"
+                placeholder="Buscar artistas"
+              />
+            </div>
+            <div className="space-y-1">
+              <FieldLabel label="DJs del evento" hint="Perfiles publicados en Recursos" />
+              <SearchableMultiSelectField
+                value={Array.isArray(data.resource_ids) ? (data.resource_ids as string[]) : []}
+                options={resourceOptions}
+                onChange={(next) => set("resource_ids", next)}
+                placeholder="Buscar DJs"
               />
             </div>
 

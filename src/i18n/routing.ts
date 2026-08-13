@@ -47,6 +47,10 @@ export const routing = defineRouting({
       es: "/academias/[slug]",
       en: "/academies/[slug]"
     },
+    "/resources": {
+      es: "/recursos",
+      en: "/resources"
+    },
     "/teachers/[slug]": {
       es: "/maestros/[slug]",
       en: "/teachers/[slug]"
@@ -74,6 +78,10 @@ export const routing = defineRouting({
     "/submit-spot": {
       es: "/enviar-lugar",
       en: "/submit-spot"
+    },
+    "/submit-resource": {
+      es: "/recomendar-recurso",
+      en: "/suggest-resource"
     },
     "/legal/terms": {
       es: "/legal/terminos",

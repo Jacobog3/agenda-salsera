@@ -13,7 +13,8 @@ import {
   UserRound,
   MapPinned,
   Flag,
-  Bug
+  Bug,
+  PackageSearch
 } from "lucide-react";
 
 export const metadata = {
@@ -28,6 +29,7 @@ const navLinks = [
   { href: "/admin/academies", label: "Academias", icon: GraduationCap },
   { href: "/admin/teachers", label: "Artistas", icon: UserRound },
   { href: "/admin/spots", label: "Bares", icon: MapPinned },
+  { href: "/admin/resources", label: "Recursos", icon: PackageSearch },
   { href: "/admin/reports", label: "Reportes", icon: Flag }
 ];
 
@@ -49,7 +51,7 @@ export default async function AdminProtectedLayout({
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 md:h-16 md:gap-4 md:px-8">
 
           <div className="flex items-center gap-3 md:gap-4">
-            <Link href="/" className="flex shrink-0 items-center gap-2">
+            <Link href="/gt" className="flex shrink-0 items-center gap-2">
               <LogoIcon size={28} />
               <span className="hidden font-display text-sm font-bold leading-none tracking-normal sm:inline">
                 <span className="text-gray-900">Somos</span>
@@ -61,7 +63,7 @@ export default async function AdminProtectedLayout({
               Admin
             </span>
 
-            <nav className="hidden items-center gap-0.5 md:flex">
+            <nav className="hidden items-center gap-0.5 lg:flex">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -81,13 +83,13 @@ export default async function AdminProtectedLayout({
               href="/admin/errors"
               aria-label="Ver errores del administrador"
               title="Errores"
-              className="hidden rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 md:inline-flex"
+              className="hidden rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 lg:inline-flex"
             >
               <Bug className="h-4 w-4" />
             </Link>
             <Link
-              href="/"
-              className="hidden text-sm text-gray-400 transition-colors hover:text-gray-700 md:inline"
+              href="/gt"
+              className="hidden text-sm text-gray-400 transition-colors hover:text-gray-700 lg:inline"
             >
               ← Ver sitio
             </Link>
@@ -97,7 +99,7 @@ export default async function AdminProtectedLayout({
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 md:px-3"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="hidden md:inline">Salir</span>
+                <span className="hidden lg:inline">Salir</span>
               </button>
             </form>
           </div>

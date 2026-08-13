@@ -9,6 +9,7 @@ type CountrySelectProps = {
   onChange: (countryCode: string) => void;
   id?: string;
   required?: boolean;
+  allowedCountryCodes?: readonly string[];
 };
 
 function CountrySelectField({
@@ -16,6 +17,7 @@ function CountrySelectField({
   onChange,
   id,
   required = true,
+  allowedCountryCodes,
   locale
 }: CountrySelectProps & { locale: Locale }) {
   const placeholder = locale === "es" ? "Selecciona un país" : "Select a country";
@@ -31,11 +33,13 @@ function CountrySelectField({
       <option value="" disabled={required}>
         {placeholder}
       </option>
-      {COUNTRY_OPTIONS.map(({ code }) => (
+      {COUNTRY_OPTIONS
+        .filter(({ code }) => !allowedCountryCodes || allowedCountryCodes.includes(code))
+        .map(({ code }) => (
         <option key={code} value={code}>
           {getCountryName(code, locale)}
         </option>
-      ))}
+        ))}
     </select>
   );
 }

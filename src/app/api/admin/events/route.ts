@@ -15,6 +15,8 @@ function normalizeTeacherIds(value: unknown) {
   return [...new Set(value.map((entry) => String(entry ?? "").trim()).filter(Boolean))];
 }
 
+const normalizeResourceIds = normalizeTeacherIds;
+
 function normalizeDateStatus(value: unknown) {
   return value === "coming_soon" ? "coming_soon" : "confirmed";
 }
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("events")
-    .select("*, event_teachers(teacher_id)")
+    .select("*, event_teachers(teacher_id), event_resources(resource_id)")
     .order("starts_at", { ascending: false, nullsFirst: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -62,6 +64,9 @@ export async function GET(request: NextRequest) {
       ...event,
       teacher_ids: Array.isArray(event.event_teachers)
         ? event.event_teachers.map((row: { teacher_id: string }) => row.teacher_id)
+        : [],
+      resource_ids: Array.isArray(event.event_resources)
+        ? event.event_resources.map((row: { resource_id: string }) => row.resource_id)
         : []
     }))
   });
@@ -109,6 +114,7 @@ export async function POST(request: NextRequest) {
 
   const slug = generateSlug(body.title_es);
   const teacherIds = normalizeTeacherIds(body.teacher_ids);
+  const resourceIds = normalizeResourceIds(body.resource_ids);
   const countryCode = normalizeCountryCode(body.country_code ?? body.countryCode);
   if (!countryCode) {
     return NextResponse.json({ error: "Selecciona el país del evento." }, { status: 400 });
@@ -173,6 +179,22 @@ export async function POST(request: NextRequest) {
 
       if (teacherLinkError) {
         return NextResponse.json({ error: teacherLinkError.message }, { status: 500 });
+      }
+    }
+
+    if (resourceIds.length > 0) {
+      const { error: resourceLinkError } = await supabase
+        .from("event_resources")
+        .insert(
+          resourceIds.map((resourceId) => ({
+            event_id: data.id,
+            resource_id: resourceId,
+            roles: ["dj"]
+          }))
+        );
+
+      if (resourceLinkError) {
+        return NextResponse.json({ error: resourceLinkError.message }, { status: 500 });
       }
     }
 

@@ -1,8 +1,9 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { switchCountryPathLocale } from "@/lib/site-countries";
 import { Globe } from "lucide-react";
 
 export function LanguageSwitcher() {
@@ -20,10 +21,9 @@ export function LanguageSwitcher() {
         className="min-h-11 appearance-none rounded-full border border-border bg-surface-soft/80 py-2 pl-8 pr-3 text-xs font-semibold text-foreground outline-none transition focus:border-brand-500 focus:bg-white"
         value={locale}
         onChange={(event) => {
-          router.replace(
-            pathname as never,
-            { locale: event.target.value as (typeof routing.locales)[number] } as never
-          );
+          const nextLocale = event.target.value as (typeof routing.locales)[number];
+          const nextPath = switchCountryPathLocale(pathname, nextLocale);
+          router.replace(`${nextPath}${window.location.search}${window.location.hash}`);
         }}
       >
         {routing.locales.map((nextLocale) => (

@@ -19,6 +19,8 @@ function normalizeTeacherIds(value: unknown) {
   return [...new Set(value.map((entry) => String(entry ?? "").trim()).filter(Boolean))];
 }
 
+const normalizeResourceIds = normalizeTeacherIds;
+
 function normalizeDateStatus(value: unknown) {
   return value === "coming_soon" ? "coming_soon" : "confirmed";
 }
@@ -58,7 +60,9 @@ export async function PATCH(
   ], { force: forceAutoTranslate });
   const supabase = createSupabaseAdminClient();
   const teacherIds = normalizeTeacherIds(body.teacher_ids);
+  const resourceIds = normalizeResourceIds(body.resource_ids);
   delete body.teacher_ids;
+  delete body.resource_ids;
 
   const { data: existing, error: existingError } = await supabase
     .from("events")
@@ -164,6 +168,31 @@ export async function PATCH(
 
     if (insertTeacherLinksError) {
       return NextResponse.json({ error: insertTeacherLinksError.message }, { status: 500 });
+    }
+  }
+
+  const { error: deleteResourceLinksError } = await supabase
+    .from("event_resources")
+    .delete()
+    .eq("event_id", id);
+
+  if (deleteResourceLinksError) {
+    return NextResponse.json({ error: deleteResourceLinksError.message }, { status: 500 });
+  }
+
+  if (resourceIds.length > 0) {
+    const { error: insertResourceLinksError } = await supabase
+      .from("event_resources")
+      .insert(
+        resourceIds.map((resourceId) => ({
+          event_id: id,
+          resource_id: resourceId,
+          roles: ["dj"]
+        }))
+      );
+
+    if (insertResourceLinksError) {
+      return NextResponse.json({ error: insertResourceLinksError.message }, { status: 500 });
     }
   }
 

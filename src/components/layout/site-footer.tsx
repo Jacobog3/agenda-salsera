@@ -46,6 +46,7 @@ export async function SiteFooter() {
                   <li><Link href="/spots" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("spots")}</Link></li>
                   <li><Link href="/academies" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("academies")}</Link></li>
                   <li><Link href="/artists" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("artists")}</Link></li>
+                  <li><Link href="/resources" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("resources")}</Link></li>
                 </ul>
               </div>
 
@@ -58,6 +59,7 @@ export async function SiteFooter() {
                   <li><Link href="/submit-academy" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitAcademyLabel")}</Link></li>
                   <li><Link href="/submit-teacher" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitTeacherLabel")}</Link></li>
                   <li><Link href="/submit-spot" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitSpotLabel")}</Link></li>
+                  <li><Link href="/submit-resource" className="inline-flex min-h-11 items-center hover:text-brand-600 transition-colors">{navigation("submitResourceLabel")}</Link></li>
                 </ul>
               </div>
 

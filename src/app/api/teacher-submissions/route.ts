@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { normalizeCountryCode } from "@/lib/locations";
+import { getSiteCountryByCode } from "@/lib/site-countries";
 import {
   buildSubmissionMetadata,
   findExistingSubmission,
@@ -20,7 +21,8 @@ export async function POST(request: Request) {
     fieldErrors.city = "required";
   }
 
-  if (!/^[A-Za-z]{2}$/.test(String(body.countryCode ?? "").trim())) {
+  const countryCode = normalizeCountryCode(body.countryCode);
+  if (!getSiteCountryByCode(countryCode)) {
     fieldErrors.countryCode = "required";
   }
 
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
     name: body.name,
     description: body.description || null,
     city: body.city,
-    country_code: normalizeCountryCode(body.countryCode),
+    country_code: countryCode,
     address: body.address || null,
     styles: body.styles || null,
     levels: body.levels || null,
