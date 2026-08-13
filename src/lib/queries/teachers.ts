@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeTeacher } from "@/lib/utils/localize";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
+import { getCurrentSiteCountryCode } from "@/lib/site-country-server";
 import type { Locale } from "@/types/locale";
 import type { TeacherRecord } from "@/types/teacher";
 
@@ -66,12 +67,15 @@ function normalizeTeacher(row: Record<string, unknown>): TeacherRecord {
   };
 }
 
-export async function getTeachers(locale: Locale) {
+export async function getTeachers(locale: Locale, countryCode?: string) {
   const records = isSupabaseConfigured
     ? await fetchSupabaseTeachers()
     : sampleTeachers;
+  const siteCountryCode = countryCode ?? await getCurrentSiteCountryCode();
 
-  return records.map((teacher) => localizeTeacher(teacher, locale));
+  return records
+    .filter((teacher) => teacher.countryCode === siteCountryCode)
+    .map((teacher) => localizeTeacher(teacher, locale));
 }
 
 export async function getFeaturedTeachers(locale: Locale) {

@@ -1,4 +1,5 @@
 import { env } from "@/lib/utils/env";
+import { publicUrlPath } from "@/lib/site-countries";
 
 const INDEXNOW_KEY = "81d6ddf222834d9bbb881b65f9dfd8f0";
 const INDEXNOW_KEY_FILE = `${INDEXNOW_KEY}.txt`;
@@ -18,31 +19,31 @@ function buildEntityUrls(type: EntityType, slug: string): string[] {
   switch (type) {
     case "event":
       return [
-        `${env.siteUrl}/eventos/${slug}`,
-        `${env.siteUrl}/en/events/${slug}`,
-        `${env.siteUrl}/eventos`,
-        `${env.siteUrl}/en/events`
+        `${env.siteUrl}${publicUrlPath(`/eventos/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath(`/en/events/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath("/eventos")}`,
+        `${env.siteUrl}${publicUrlPath("/en/events")}`
       ];
     case "academy":
       return [
-        `${env.siteUrl}/academias/${slug}`,
-        `${env.siteUrl}/en/academies/${slug}`,
-        `${env.siteUrl}/academias`,
-        `${env.siteUrl}/en/academies`
+        `${env.siteUrl}${publicUrlPath(`/academias/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath(`/en/academies/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath("/academias")}`,
+        `${env.siteUrl}${publicUrlPath("/en/academies")}`
       ];
     case "teacher":
       return [
-        `${env.siteUrl}/artistas/${slug}`,
-        `${env.siteUrl}/en/artists/${slug}`,
-        `${env.siteUrl}/artistas`,
-        `${env.siteUrl}/en/artists`
+        `${env.siteUrl}${publicUrlPath(`/artistas/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath(`/en/artists/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath("/artistas")}`,
+        `${env.siteUrl}${publicUrlPath("/en/artists")}`
       ];
     case "spot":
       return [
-        `${env.siteUrl}/lugares/${slug}`,
-        `${env.siteUrl}/en/spots/${slug}`,
-        `${env.siteUrl}/lugares`,
-        `${env.siteUrl}/en/spots`
+        `${env.siteUrl}${publicUrlPath(`/lugares/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath(`/en/spots/${slug}`)}`,
+        `${env.siteUrl}${publicUrlPath("/lugares")}`,
+        `${env.siteUrl}${publicUrlPath("/en/spots")}`
       ];
   }
 }

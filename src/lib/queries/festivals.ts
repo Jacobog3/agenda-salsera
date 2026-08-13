@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
+import { getCurrentSiteCountryCode } from "@/lib/site-country-server";
 import type { Locale } from "@/types/locale";
 import type {
   FestivalArtist,
@@ -432,13 +433,19 @@ function sampleFestivalDetail(locale: Locale, slug: string): FestivalDetail | nu
 const sampleSeries = [asbfSeries, congressSeries];
 
 export async function getFestivals(locale: Locale): Promise<LocalizedFestivalSeries[]> {
-  if (!isSupabaseConfigured) return sampleSeries.map((series) => localizeSeries(series, locale));
+  const siteCountryCode = await getCurrentSiteCountryCode();
+  if (!isSupabaseConfigured) {
+    return sampleSeries
+      .filter((series) => series.homeCountryCode === siteCountryCode)
+      .map((series) => localizeSeries(series, locale));
+  }
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("festival_series")
     .select("*")
     .eq("is_published", true)
+    .eq("home_country_code", siteCountryCode)
     .order("is_featured", { ascending: false })
     .order("name", { ascending: true });
 
@@ -453,9 +460,13 @@ export async function getFestivals(locale: Locale): Promise<LocalizedFestivalSer
 }
 
 export async function getFestivalBySlug(locale: Locale, slug: string): Promise<FestivalDetail | null> {
-  if (!isSupabaseConfigured) return sampleFestivalDetail(locale, slug);
-  const remote = await fetchFestivalDetail(locale, slug);
-  return remote ?? sampleFestivalDetail(locale, slug);
+  const siteCountryCode = await getCurrentSiteCountryCode();
+  const sample = sampleSeries.some((series) => series.slug === slug && series.homeCountryCode === siteCountryCode)
+    ? sampleFestivalDetail(locale, slug)
+    : null;
+  if (!isSupabaseConfigured) return sample;
+  const remote = await fetchFestivalDetail(locale, slug, siteCountryCode);
+  return remote ?? sample;
 }
 
 export async function getFestivalSeriesSlugByEditionId(editionId: string): Promise<string | null> {
@@ -484,13 +495,14 @@ export async function getFestivalSeriesSlugByEditionId(editionId: string): Promi
   return seriesError || !series?.slug ? null : String(series.slug);
 }
 
-async function fetchFestivalDetail(locale: Locale, slug: string): Promise<FestivalDetail | null> {
+async function fetchFestivalDetail(locale: Locale, slug: string, countryCode: string): Promise<FestivalDetail | null> {
   const supabase = await createSupabaseServerClient();
   const { data: seriesRow, error: seriesError } = await supabase
     .from("festival_series")
     .select("*")
     .eq("slug", slug)
     .eq("is_published", true)
+    .eq("home_country_code", countryCode)
     .maybeSingle();
 
   if (seriesError || !seriesRow) return null;

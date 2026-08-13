@@ -3,6 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { env } from "@/lib/utils/env";
 import { brand } from "@/lib/brand";
 import type { Locale } from "@/types/locale";
+import { publicUrlPath } from "@/lib/site-countries";
+import type { SiteCountrySlug } from "@/lib/site-countries";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 
 type MetadataKey =
   | "homeTitle"
@@ -26,7 +29,11 @@ type MetadataKey =
   | "submitTeacherTitle"
   | "submitTeacherDescription"
   | "submitSpotTitle"
-  | "submitSpotDescription";
+  | "submitSpotDescription"
+  | "resourcesTitle"
+  | "resourcesDescription"
+  | "submitResourceTitle"
+  | "submitResourceDescription";
 
 function sanitizeTitle(title: string): string {
   return title.replace(/\s*\|\s*(?:exploraguate|somossalsa)\s*$/i, "").trim();
@@ -41,17 +48,19 @@ const PAGE_PATHS: Record<string, { es: string; en: string } | string> = {
   "/events": { es: "/eventos", en: "/events" },
   "/spots": { es: "/lugares", en: "/spots" },
   "/academies": { es: "/academias", en: "/academies" },
+  "/resources": { es: "/recursos", en: "/resources" },
   "/search": { es: "/buscar", en: "/search" },
   "/about": { es: "/acerca-de", en: "/about" },
   "/submit-event": { es: "/enviar-evento", en: "/submit-event" },
   "/submit-academy": { es: "/enviar-academia", en: "/submit-academy" },
   "/submit-teacher": { es: "/enviar-maestro", en: "/submit-teacher" },
   "/submit-spot": { es: "/enviar-lugar", en: "/submit-spot" },
+  "/submit-resource": { es: "/recomendar-recurso", en: "/suggest-resource" },
   "/legal/terms": { es: "/legal/terminos", en: "/legal/terms" },
   "/legal/privacy": { es: "/legal/privacidad", en: "/legal/privacy" }
 };
 
-function getLocalizedUrl(pathname: string, locale: Locale, siteUrl: string): string {
+function getLocalizedUrl(pathname: string, locale: Locale, siteUrl: string, country: SiteCountrySlug): string {
   const entry = PAGE_PATHS[pathname];
   let localizedPath: string;
   if (!entry) {
@@ -63,7 +72,7 @@ function getLocalizedUrl(pathname: string, locale: Locale, siteUrl: string): str
   }
   const cleanPath = localizedPath === "/" ? "" : localizedPath;
   const prefix = locale === "es" ? "" : "/en";
-  return `${siteUrl}${prefix}${cleanPath}`;
+  return `${siteUrl}${publicUrlPath(`${prefix}${cleanPath || "/"}`, country)}`;
 }
 
 export async function buildMetadata(
@@ -84,21 +93,22 @@ export async function buildMetadata(
   const description = overrides?.description ?? t(descriptionKey);
   const siteUrl = env.siteUrl;
   const image = overrides?.image ?? DEFAULT_OG_IMAGE;
+  const country = await getCurrentSiteCountry();
   const ogImage = image.startsWith("http") ? image : `${siteUrl}${image}`;
 
   const canonicalUrl = overrides?.pathname
-    ? getLocalizedUrl(overrides.pathname, locale, siteUrl)
+    ? getLocalizedUrl(overrides.pathname, locale, siteUrl, country.slug)
     : locale === "es"
-      ? siteUrl
-      : `${siteUrl}/en`;
+      ? `${siteUrl}/${country.slug}`
+      : `${siteUrl}/${country.slug}/en`;
 
   const esUrl = overrides?.pathname
-    ? getLocalizedUrl(overrides.pathname, "es", siteUrl)
-    : siteUrl;
+    ? getLocalizedUrl(overrides.pathname, "es", siteUrl, country.slug)
+    : `${siteUrl}/${country.slug}`;
 
   const enUrl = overrides?.pathname
-    ? getLocalizedUrl(overrides.pathname, "en", siteUrl)
-    : `${siteUrl}/en`;
+    ? getLocalizedUrl(overrides.pathname, "en", siteUrl, country.slug)
+    : `${siteUrl}/${country.slug}/en`;
 
   return {
     title,
@@ -152,12 +162,14 @@ export function buildDetailMetadata(options: {
   enPath: string;
   type?: "website" | "article";
   noIndex?: boolean;
+  country?: SiteCountrySlug;
 }): Metadata {
   const siteUrl = env.siteUrl;
   const title = sanitizeTitle(options.title);
+  const country = options.country;
   const canonical = options.locale === "es"
-    ? `${siteUrl}${options.esPath}`
-    : `${siteUrl}${options.enPath}`;
+    ? `${siteUrl}${publicUrlPath(options.esPath, country)}`
+    : `${siteUrl}${publicUrlPath(options.enPath, country)}`;
 
   const ogImage = options.image.startsWith("http")
     ? options.image
@@ -172,8 +184,8 @@ export function buildDetailMetadata(options: {
     alternates: {
       canonical,
       languages: {
-        es: `${siteUrl}${options.esPath}`,
-        en: `${siteUrl}${options.enPath}`
+        es: `${siteUrl}${publicUrlPath(options.esPath, country)}`,
+        en: `${siteUrl}${publicUrlPath(options.enPath, country)}`
       }
     },
     robots: options.noIndex
@@ -219,7 +231,7 @@ export function buildEventMetadata(event: {
   priceAmount?: number | null;
   currency: string;
   organizerName: string;
-}, locale: Locale, options?: { noIndex?: boolean }): Metadata {
+}, locale: Locale, options?: { noIndex?: boolean; country?: SiteCountrySlug }): Metadata {
   return buildDetailMetadata({
     locale,
     title: event.title,
@@ -228,6 +240,7 @@ export function buildEventMetadata(event: {
     esPath: `/eventos/${event.slug}`,
     enPath: `/en/events/${event.slug}`,
     type: "article",
-    noIndex: options?.noIndex
+    noIndex: options?.noIndex,
+    country: options?.country
   });
 }

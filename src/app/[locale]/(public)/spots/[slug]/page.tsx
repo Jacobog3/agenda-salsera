@@ -8,6 +8,8 @@ import { env } from "@/lib/utils/env";
 import { MapPin, Clock, Banknote } from "lucide-react";
 import type { Locale } from "@/types/locale";
 import { formatLocation } from "@/lib/locations";
+import { publicUrlPath } from "@/lib/site-countries";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 
 export async function generateMetadata({
   params
@@ -16,7 +18,10 @@ export async function generateMetadata({
 }) {
   const { locale, slug } = await params;
   const currentLocale = locale as Locale;
-  const spot = await getSpotBySlug(currentLocale, slug);
+  const [spot, country] = await Promise.all([
+    getSpotBySlug(currentLocale, slug),
+    getCurrentSiteCountry()
+  ]);
 
   if (!spot) return {};
 
@@ -31,7 +36,8 @@ export async function generateMetadata({
     image: spot.coverImageUrl,
     esPath: `/lugares/${spot.slug}`,
     enPath: `/en/spots/${spot.slug}`,
-    type: "article"
+    type: "article",
+    country: country.slug
   });
 }
 
@@ -57,8 +63,8 @@ function SpotJsonLd({
 }) {
   const siteUrl = env.siteUrl;
   const pageUrl = locale === "es"
-    ? `${siteUrl}/lugares/${spot.slug}`
-    : `${siteUrl}/en/spots/${spot.slug}`;
+    ? `${siteUrl}${publicUrlPath(`/lugares/${spot.slug}`)}`
+    : `${siteUrl}${publicUrlPath(`/en/spots/${spot.slug}`)}`;
 
   const imageUrl = spot.coverImageUrl.startsWith("http")
     ? spot.coverImageUrl

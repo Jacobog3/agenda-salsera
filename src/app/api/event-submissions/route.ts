@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { env } from "@/lib/utils/env";
 import { eventSubmissionSchema } from "@/lib/validations/event-submission";
 import { normalizeCountryCode } from "@/lib/locations";
+import { getSiteCountryByCode } from "@/lib/site-countries";
 import {
   buildSubmissionMetadata,
   findExistingSubmission,
@@ -23,6 +24,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { error: "Review the required fields.", fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  const countryCode = normalizeCountryCode(parsed.data.countryCode);
+  if (!getSiteCountryByCode(countryCode)) {
+    return NextResponse.json(
+      { error: "Review the required fields.", fieldErrors: { countryCode: "unsupported" } },
       { status: 400 }
     );
   }
@@ -56,7 +65,7 @@ export async function POST(request: Request) {
     time: parsed.data.time,
     price_text: parsed.data.price || null,
     city: parsed.data.city,
-    country_code: normalizeCountryCode(parsed.data.countryCode),
+    country_code: countryCode,
     time_zone: parsed.data.timeZone,
     venue_name: parsed.data.venue,
     address: parsed.data.address || null,

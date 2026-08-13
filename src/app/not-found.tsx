@@ -22,14 +22,14 @@ export default function GlobalNotFound() {
             Ir al inicio
           </Link>
           <Link
-            href="/eventos"
+            href="/gt/eventos"
             className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
           >
             <CalendarDays className="h-4 w-4" />
             Ver eventos
           </Link>
           <Link
-            href="/lugares"
+            href="/gt/lugares"
             className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
           >
             <MapPinned className="h-4 w-4" />

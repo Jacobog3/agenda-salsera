@@ -45,6 +45,7 @@
     "relatedAcademy": "Related academy",
     "relatedTeacher": "Related teacher",
     "relatedTeachers": "Related teachers",
+    "relatedResources": "Event DJs",
     "relatedAcademies": "Related academies",
     "relatedEvents": "Related events",
     "upcomingAcademyEvents": "Upcoming events with this academy",
@@ -65,6 +66,11 @@
     "artists": "Artists",
     "spots": "Spots",
     "academies": "Academies",
+    "resources": "Resources",
+    "about": "About",
+    "more": "More sections",
+    "explore": "Explore",
+    "closeMenu": "Close menu",
     "search": "Search",
     "searchCompact": "Search SomosSalsa",
     "submitEvent": "Submit event",
@@ -78,10 +84,12 @@
     "submitTeacherLabel": "Teacher",
     "submitTeacherDesc": "Independent instructor for classes, privates, or bootcamps",
     "submitSpotLabel": "Bar / Venue",
-    "submitSpotDesc": "Place with regular salsa or bachata nights"
+    "submitSpotDesc": "Place with regular salsa or bachata nights",
+    "submitResourceLabel": "Resource",
+    "submitResourceDesc": "Shop, DJ, photography, or another useful service"
   },
   "footer": {
-    "description": "Find dance events, festivals, academies, artists, and venues organized by city.",
+    "description": "Find dance events, academies, artists, venues, and useful community resources.",
     "navigationTitle": "Navigation",
     "contactTitle": "Contact",
     "emailAria": "Email SomosSalsa",
@@ -97,7 +105,7 @@
   "about": {
     "eyebrow": "About SomosSalsa",
     "title": "Find where to dance and who to learn from",
-    "intro": "SomosSalsa brings dance events, festivals, academies, artists, and venues together in one place, organized by city so they are easier to find.",
+    "intro": "SomosSalsa brings dance events, festivals, academies, artists, venues, and community resources together so they are easier to find.",
     "missionTitle": "What we want to make easier",
     "missionText": "We want anyone to discover what is happening, where to learn, and where to dance without relying on scattered information. SomosSalsa started in Guatemala and is built to grow city by city, giving academies, organizers, artists, and venues the same space.",
     "sourcesTitle": "How we gather information",
@@ -137,6 +145,23 @@
     "eventsTitle": "Agenda",
     "spotsTitle": "Dance spots",
     "academiesTitle": "Academies",
+    "resourcesTitle": "Community resources",
+    "resourcesDescription": "Find useful products and services for dancing or producing an event.",
+    "resourcesCta": "Explore",
+    "resourceCategories": {
+      "dancewear": {
+        "title": "Shoes and clothing",
+        "description": "Dance footwear, clothing, and accessory options."
+      },
+      "dj": {
+        "title": "DJs",
+        "description": "Professionals for socials, parties, festivals, and events."
+      },
+      "photography": {
+        "title": "Photography and video",
+        "description": "People who document dance performances and events."
+      }
+    },
     "festivalsEyebrow": "Festivals and congresses",
     "festivalsTitle": "Every edition, all the information",
     "festivalsDescription": "Artists, schedules, passes, venues, flyers, and videos brought together on one permanent page.",
@@ -365,10 +390,35 @@
     "emptyDescription": "New guests and professionals will appear here as their sources are verified.",
     "submit": "Submit a profile"
   },
+  "resources": {
+    "title": "Resources for dancing and organizing events",
+    "description": "A curated guide to products and services available in Guatemala. SomosSalsa helps you find them, and you contact each profile directly.",
+    "filterLabel": "Filter resources",
+    "categories": {
+      "all": "All",
+      "dancewear": "Shoes and clothing",
+      "dj": "DJs",
+      "photography": "Photography and video",
+      "other": "Other"
+    },
+    "instagramCta": "View Instagram",
+    "profileCta": "View profile",
+    "verified": "Public information reviewed",
+    "verifiedPrefix": "Information reviewed on",
+    "communityRecommendation": "Recommendation pending confirmation",
+    "contactOnline": "Online contact",
+    "actionsLabel": "Resource options",
+    "suggestChange": "Suggest a change or report",
+    "suggestTitle": "Know another useful option?",
+    "suggestDescription": "Recommend a shop, DJ, photographer, or another profile available in Guatemala. We review the information before publishing it.",
+    "suggestCta": "Suggest a resource",
+    "correctionCta": "Found incorrect information? Suggest a correction",
+    "disclaimer": "SomosSalsa is an informational directory. It does not sell products, manage bookings, or guarantee third-party pricing, availability, or services. Confirm details directly with each profile."
+  },
   "search": {
     "pageTitle": "Search SomosSalsa",
-    "pageDescription": "Find events, spots, academies, and teachers by name, city, or dance style.",
-    "placeholder": "Search events, academies, teachers, or spots",
+    "pageDescription": "Find events, spots, academies, artists, and resources by name, city, or dance style.",
+    "placeholder": "Search events, artists, spots, or resources",
     "submit": "Search",
     "idleTitle": "Start with a search",
     "idleDescription": "Search by name, city, venue, or style. For example: salsa, Antigua, Jose Medina, or bachata.",
@@ -381,13 +431,21 @@
       "events": "Events",
       "spots": "Spots",
       "academies": "Academies",
-      "teachers": "Teachers"
+      "teachers": "Artists",
+      "resources": "Resources"
     },
     "types": {
       "event": "Event",
       "spot": "Spot",
       "academy": "Academy",
-      "teacher": "Teacher"
+      "teacher": "Artist",
+      "resource": "Resource"
+    },
+    "resourceCategories": {
+      "dancewear": "Shoes and clothing",
+      "dj": "DJ",
+      "photography": "Photography and video",
+      "other": "Other resource"
     }
   },
   "submitEvent": {
@@ -413,13 +471,15 @@
   "metadata": {
     "siteName": "SomosSalsa",
     "homeTitle": "SomosSalsa | Find. Learn. Dance.",
-    "homeDescription": "Find salsa, bachata, and Latin dance events, festivals, academies, artists, and venues organized by city and country.",
+    "homeDescription": "Find salsa, bachata, and Latin dance events, festivals, academies, artists, venues, and community resources in Guatemala.",
     "eventsTitle": "Events | SomosSalsa",
-    "eventsDescription": "Upcoming salsa and bachata events organized by city and country.",
+    "eventsDescription": "Upcoming salsa and bachata events in Guatemala, organized by city.",
     "spotsTitle": "Spots | SomosSalsa",
-    "spotsDescription": "Venues with regular salsa and bachata nights, organized by location.",
+    "spotsDescription": "Venues in Guatemala with regular salsa and bachata nights, organized by location.",
     "academiesTitle": "Academies | SomosSalsa",
-    "academiesDescription": "Directory of salsa and bachata academies and teachers by location.",
+    "academiesDescription": "Directory of salsa and bachata academies and teachers in Guatemala.",
+    "resourcesTitle": "Dance resources | SomosSalsa",
+    "resourcesDescription": "Find shoes, clothing, DJs, photography, and other Latin dance community resources in Guatemala.",
     "aboutTitle": "About SomosSalsa",
     "aboutDescription": "Learn how SomosSalsa collects, reviews, and connects information from the Latin dance community.",
     "privacyTitle": "Privacy policy | SomosSalsa",
@@ -433,7 +493,9 @@
     "submitTeacherTitle": "Register teacher | SomosSalsa",
     "submitTeacherDescription": "Register your dance teacher profile on SomosSalsa for free.",
     "submitSpotTitle": "Register venue | SomosSalsa",
-    "submitSpotDescription": "Register your bar or venue with salsa nights on SomosSalsa."
+    "submitSpotDescription": "Register your bar or venue with salsa nights on SomosSalsa.",
+    "submitResourceTitle": "Suggest a resource | SomosSalsa",
+    "submitResourceDescription": "Recommend a shop, DJ, photographer, or another service available in Guatemala."
   },
   "forms": {
     "step1Flyer": "1. Upload the flyer",
@@ -535,7 +597,7 @@
   },
   "privacyPolicy": {
     "title": "Privacy policy",
-    "updated": "Last updated: August 9, 2026",
+    "updated": "Last updated: August 13, 2026",
     "intro": "This policy explains what information SomosSalsa processes, why it is used, and what choices you have when you visit the site or submit content.",
     "controllerTitle": "1. Who operates SomosSalsa",
     "controllerText": "SomosSalsa is operated by GuatCloud, an independent project active in Guatemala. GuatCloud manages the processing of information received through {domain}.",
@@ -546,11 +608,11 @@
     "analyticsData": "Optional analytics: if you accept, Google Analytics 4 processes visited pages, interactions, browser or device data, and approximate geographic location. SomosSalsa does not send names, email addresses, or phone numbers to Analytics.",
     "advertisingData": "Advertising: the site integrates Google AdSense. Google and authorized vendors may use cookies, identifiers, web beacons, IP addresses, or similar technologies to serve, limit, and measure ads, depending on their configuration and your choices.",
     "voluntaryTitle": "Information you choose to submit",
-    "submissionsData": "Public forms: we may receive names, descriptions, dates, schedules, locations, images, social profiles, phone numbers, contact links, and promotional text for events, academies, artists, or venues.",
+    "submissionsData": "Public forms: we may receive names, descriptions, dates, schedules, locations, images, social profiles, phone numbers, contact links, and promotional text for events, academies, artists, venues, or community resources. A recommendation may also include the private name and email of the person who submitted it.",
     "incidentsData": "Problem reports: we retain the form type, the step where the problem occurred, a technical message, and an incident code. We do not request passwords or financial information.",
     "communicationsData": "Communications: if you email us, we process the address and content needed to respond.",
     "publicSourcesTitle": "3. Information from public sources",
-    "publicSourcesText": "We also organize information published for promotion by organizers, academies, artists, festivals, and venues on official websites, social media, or promotional material shared directly. We do not assume that everything in an account or private conversation is public.",
+    "publicSourcesText": "We also organize information published for promotion by organizers, academies, artists, festivals, venues, shops, and service providers on official websites, social media, or promotional material shared directly. We do not assume that everything in an account or private conversation is public.",
     "publicSourcesRemoval": "If you represent a person or organization mentioned and want information corrected or removed, email",
     "aiTitle": "4. Use of artificial intelligence",
     "aiText": "Forms may use Google Gemini to extract details from a flyer or promotional text. Analysis may detect artists, academies, organizers, or venues and flag them for admin review. AI does not publish profiles or relationships on its own.",
@@ -558,7 +620,7 @@
     "localTitle": "5. Information stored on your device",
     "localText": "Forms may keep a draft of fields and text in your browser's local storage for seven days to help recover your work. Images are not kept in that draft. Nothing is submitted for publication until you press the submit button.",
     "purposesTitle": "6. How we use information",
-    "purposePublish": "Review, publish, and maintain events, festivals, academies, artists, and venues.",
+    "purposePublish": "Review, publish, and maintain events, festivals, academies, artists, venues, and community resources.",
     "purposeRelations": "Connect activities to responsible parties and locations when the match can be verified.",
     "purposeOperate": "Prevent duplicates, investigate errors, protect the service, and respond to requests.",
     "purposeMeasure": "Measure site usage and improve the experience when you accept analytics.",
@@ -573,7 +635,7 @@
     "supabasePrivacyLink": "Supabase privacy",
     "vercelPrivacyLink": "Vercel privacy",
     "publicationTitle": "8. Information intended for publication",
-    "publicationText": "Promotional information that is submitted and approved may be shown publicly, including professional names, images, schedules, locations, and contact methods. Before submitting someone else's information, confirm that you have permission to share it.",
+    "publicationText": "Promotional information that is submitted and approved may be shown publicly, including professional names, images, schedules, locations, and profile contact methods. The name and email identified as the private contact for a resource recommendation are not published. Before submitting someone else's information, confirm that you have permission to share it.",
     "retentionTitle": "9. Retention and security",
     "retentionText": "We retain submissions, publications, and operational records while needed to review content, maintain useful references, handle requests, or protect the service. Some past events may remain as a historical archive. We use reasonable security measures, but no internet-connected system can guarantee zero risk.",
     "choicesTitle": "10. Your choices and requests",
@@ -591,12 +653,12 @@
   },
   "termsPolicy": {
     "title": "Terms of use",
-    "updated": "Last updated: August 9, 2026",
+    "updated": "Last updated: August 13, 2026",
     "intro": "These terms govern access to and use of SomosSalsa. By using the site or submitting content, you agree to these conditions.",
     "operatorTitle": "1. Operator",
     "operatorText": "SomosSalsa is operated by GuatCloud, an independent project active in Guatemala. You can contact us at",
     "serviceTitle": "2. What SomosSalsa provides",
-    "serviceText": "SomosSalsa is an information platform for finding events, festivals, academies, artists, and venues related to salsa, bachata, and Latin dance. Guatemala is the first active location, but coverage may grow to other cities and countries.",
+    "serviceText": "SomosSalsa is an information platform for finding events, festivals, academies, artists, venues, and resources related to salsa, bachata, and Latin dance. Guatemala is the first active location, but coverage may grow to other cities and countries.",
     "independenceText": "SomosSalsa is not an academy, does not organize listed activities, and does not currently process payments or sell tickets. When we display a contact or purchase link, the relationship is directly with the organizer or external provider.",
     "sourcesTitle": "3. Sources and promotional content",
     "sourcesText": "Some information comes from official websites, public posts, and material shared for promotion. Flyers, photographs, trademarks, and original copy belong to their respective owners. Their inclusion identifies and describes an activity and does not claim authorship.",
@@ -651,6 +713,51 @@
   "submitSpot": {
     "pageTitle": "Register bar or venue",
     "pageDescription": "Do you have a bar, restaurant, or space with salsa or bachata nights? Register it for free."
+  },
+  "submitResource": {
+    "pageTitle": "Suggest a resource",
+    "pageDescription": "Share a shop, DJ, photographer, or another service available in Guatemala. We review the information before publishing it.",
+    "updatePageTitle": "Suggest a change",
+    "updatePageDescription": "Select the resource and tell us what should be corrected. Nothing changes without review.",
+    "resourceToCorrect": "Resource",
+    "selectResource": "Select a resource",
+    "requestType": "Request type",
+    "requestUpdate": "Suggest an update",
+    "requestReport": "Report incorrect information",
+    "name": "Name or brand",
+    "category": "Category",
+    "categories": {
+      "dancewear": "Shoes and clothing",
+      "dj": "DJ",
+      "photography": "Photography and video",
+      "other": "Other resource"
+    },
+    "description": "What do they offer?",
+    "descriptionPlaceholder": "Tell us briefly why this would be useful to the community.",
+    "changeDescription": "What should we change?",
+    "changeDescriptionPlaceholder": "Explain what changed or which information is incorrect.",
+    "city": "City",
+    "country": "Country",
+    "contactSection": "Where can we find them?",
+    "contactHint": "Add at least Instagram, WhatsApp, or a website.",
+    "evidenceSection": "Source or evidence (optional)",
+    "evidenceHint": "Share a link where we can verify the correction.",
+    "website": "Website",
+    "relationship": "Your relationship to this profile",
+    "relationshipRecommendation": "I am recommending someone",
+    "relationshipOwner": "I manage this profile or business",
+    "contactName": "Your name (private)",
+    "contactEmail": "Your email (private)",
+    "privacyNotice": "Profile information may be published; your name and email marked as private are used only to review the suggestion. See our",
+    "requiredError": "Complete the name and at least one contact method.",
+    "correctionRequiredError": "Select the resource and describe which information we should review.",
+    "submit": "Send suggestion",
+    "submitting": "Submitting...",
+    "submitError": "We could not send the suggestion.",
+    "submitChange": "Submit for review",
+    "successTitle": "We received your suggestion",
+    "successDescription": "We will review it before publishing any information.",
+    "backToResources": "Back to Resources"
   },
   "notFound": {
     "title": "Page not found",

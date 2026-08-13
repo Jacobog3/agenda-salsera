@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Link, redirect } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
+import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/shared/container";
 import { ReportForm } from "@/components/shared/report-form";
@@ -12,6 +13,7 @@ import { isEventExpired, isHistoricalEventIndexable } from "@/lib/utils/event-st
 import {
   getRelatedAcademyForEvent,
   getRelatedOrganizerForEvent,
+  getRelatedResourcesForEvent,
   getRelatedTeachersForEvent
 } from "@/lib/queries/relations";
 import {
@@ -20,8 +22,10 @@ import {
   formatEventDateTime,
   formatEventDateRange
 } from "@/lib/utils/formatters";
-import { Calendar, MapPin, User, Banknote, Globe, ExternalLink, History } from "lucide-react";
+import { Calendar, MapPin, User, Banknote, Disc3, Globe, ExternalLink, History } from "lucide-react";
 import { env } from "@/lib/utils/env";
+import { publicUrlPath } from "@/lib/site-countries";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 import type { LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
 import { formatLocation } from "@/lib/locations";
@@ -117,11 +121,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const event = await getEventBySlug(locale as Locale, slug);
+  const [event, country] = await Promise.all([
+    getEventBySlug(locale as Locale, slug),
+    getCurrentSiteCountry()
+  ]);
   if (!event) return {};
   const expired = isEventExpired(event);
   return buildEventMetadata(event, locale as Locale, {
-    noIndex: expired && !isHistoricalEventIndexable(event)
+    noIndex: expired && !isHistoricalEventIndexable(event),
+    country: country.slug
   });
 }
 
@@ -162,8 +170,8 @@ function EventJsonLd({
   if (!event.startsAt) return null;
 
   const eventUrl = locale === "es"
-    ? `${siteUrl}/eventos/${event.slug}`
-    : `${siteUrl}/en/events/${event.slug}`;
+    ? `${siteUrl}${publicUrlPath(`/eventos/${event.slug}`)}`
+    : `${siteUrl}${publicUrlPath(`/en/events/${event.slug}`)}`;
 
   const ogImage = event.coverImageUrl.startsWith("http")
     ? event.coverImageUrl
@@ -183,8 +191,8 @@ function EventJsonLd({
         name: teacher.name,
         url:
           locale === "es"
-            ? `${siteUrl}/artistas/${teacher.slug}`
-            : `${siteUrl}/en/artists/${teacher.slug}`
+            ? `${siteUrl}${publicUrlPath(`/artistas/${teacher.slug}`)}`
+            : `${siteUrl}${publicUrlPath(`/en/artists/${teacher.slug}`)}`
       }))
     : relatedAcademy
       ? {
@@ -192,8 +200,8 @@ function EventJsonLd({
           name: relatedAcademy.name,
           url:
             locale === "es"
-              ? `${siteUrl}/academias/${relatedAcademy.slug}`
-              : `${siteUrl}/en/academies/${relatedAcademy.slug}`
+              ? `${siteUrl}${publicUrlPath(`/academias/${relatedAcademy.slug}`)}`
+              : `${siteUrl}${publicUrlPath(`/en/academies/${relatedAcademy.slug}`)}`
         }
       : {
           "@type": "Organization",
@@ -269,20 +277,23 @@ export default async function EventDetailPage({
   ) {
     const festivalSlug = await getFestivalSeriesSlugByEditionId(event.festivalEditionId);
     if (festivalSlug) {
-      redirect({
-        href: { pathname: "/festivals/[slug]", params: { slug: festivalSlug } },
-        locale: currentLocale
-      });
+      redirect(currentLocale === "es"
+        ? `/gt/festivales/${festivalSlug}`
+        : `/gt/en/festivals/${festivalSlug}`);
     }
   }
 
   const expired = isEventExpired(event);
-  const [relatedAcademy, relatedOrganizer, relatedTeachers, relatedUpcomingEvents] = await Promise.all([
+  const [relatedAcademy, relatedOrganizer, relatedTeachers, relatedResources, relatedUpcomingEvents] = await Promise.all([
     getRelatedAcademyForEvent(currentLocale, event.academyId),
     getRelatedOrganizerForEvent(event.organizerId),
     getRelatedTeachersForEvent(currentLocale, event.id),
+    getRelatedResourcesForEvent(currentLocale, event.id),
     expired ? getRelatedUpcomingEvents(currentLocale, event) : Promise.resolve([])
   ]);
+  const visibleRelatedResources = relatedResources.filter(
+    (resource) => !resource.teacherSlug || !relatedTeachers.some((teacher) => teacher.slug === resource.teacherSlug)
+  );
   const isLongEvent =
     !!event.startsAt &&
     !!event.endsAt &&
@@ -407,6 +418,28 @@ export default async function EventDetailPage({
                           className="block font-medium text-brand-600 transition-colors hover:text-brand-700"
                         >
                           {teacher.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </InfoRow>
+                ) : null}
+                {visibleRelatedResources.length > 0 ? (
+                  <InfoRow icon={Disc3} label={common("relatedResources")}>
+                    <div className="space-y-1">
+                      {visibleRelatedResources.map((resource) => resource.instagramUrl ? (
+                        <a
+                          key={resource.id}
+                          href={resource.instagramUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 font-medium text-brand-600 transition-colors hover:text-brand-700"
+                        >
+                          {resource.name}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <Link key={resource.id} href="/resources" className="block font-medium text-brand-600 hover:text-brand-700">
+                          {resource.name}
                         </Link>
                       ))}
                     </div>

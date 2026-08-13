@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeAcademy } from "@/lib/utils/localize";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
+import { getCurrentSiteCountryCode } from "@/lib/site-country-server";
 import type { AcademyRecord, LocalizedAcademy } from "@/types/academy";
 import type { Locale } from "@/types/locale";
 
@@ -43,12 +44,15 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
   };
 }
 
-export async function getAcademies(locale: Locale): Promise<LocalizedAcademy[]> {
+export async function getAcademies(locale: Locale, countryCode?: string): Promise<LocalizedAcademy[]> {
   const records = isSupabaseConfigured
     ? await fetchSupabaseAcademies()
     : sampleAcademies;
+  const siteCountryCode = countryCode ?? await getCurrentSiteCountryCode();
 
-  return records.map((academy) => localizeAcademy(academy, locale));
+  return records
+    .filter((academy) => academy.countryCode === siteCountryCode)
+    .map((academy) => localizeAcademy(academy, locale));
 }
 
 export async function getFeaturedAcademies(locale: Locale) {

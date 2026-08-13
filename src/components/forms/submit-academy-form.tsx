@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
 import { CountrySelect } from "@/components/forms/country-select";
-import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
+import { DEFAULT_SITE_COUNTRY, SITE_COUNTRY_CODES } from "@/lib/site-countries";
 import { SubmissionErrorNotice } from "@/components/forms/submission-error-notice";
 import {
   analyzeSubmissionMaterial,
@@ -46,7 +46,7 @@ type Fields = {
 };
 
 const defaultFields: Fields = {
-  name: "", description: "", city: "", countryCode: DEFAULT_COUNTRY_CODE, address: "",
+  name: "", description: "", city: "", countryCode: DEFAULT_SITE_COUNTRY.code, address: "",
   scheduleText: "", levels: "", trialClass: false,
   modality: "presencial", styles: "", contactName: "",
   whatsapp: "", instagram: "", website: ""
@@ -73,7 +73,7 @@ export function SubmitAcademyForm() {
     storageKey: "somossalsa:draft:academy",
     value: { fields, sourceText: whatsappText },
     onRestore: (saved) => {
-      setFields(saved.fields);
+      setFields({ ...saved.fields, countryCode: DEFAULT_SITE_COUNTRY.code });
       setWhatsappText(saved.sourceText || "");
     },
     enabled: status !== "success"
@@ -130,7 +130,7 @@ export function SubmitAcademyForm() {
         name:         d.name         || prev.name,
         description:  d.description  || prev.description,
         city:         d.city         || prev.city,
-        countryCode:  d.countryCode  || prev.countryCode,
+        countryCode: DEFAULT_SITE_COUNTRY.code,
         address:      d.address      || prev.address,
         scheduleText: d.scheduleText || prev.scheduleText,
         levels:       d.levels       || prev.levels,
@@ -412,6 +412,7 @@ export function SubmitAcademyForm() {
           <Field label={`${f("country")} *`} error={fieldErrors.countryCode}>
             <CountrySelect
               value={fields.countryCode}
+              allowedCountryCodes={SITE_COUNTRY_CODES}
               onChange={(countryCode) => setField("countryCode", countryCode)}
             />
           </Field>

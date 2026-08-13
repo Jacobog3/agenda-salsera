@@ -24,7 +24,8 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { uploadSubmissionImage } from "@/lib/uploads/upload-submission-image";
 import { CountrySelect } from "@/components/forms/country-select";
-import { DEFAULT_COUNTRY_CODE, DEFAULT_TIME_ZONE, getDefaultTimeZone } from "@/lib/locations";
+import { getDefaultTimeZone } from "@/lib/locations";
+import { DEFAULT_SITE_COUNTRY, SITE_COUNTRY_CODES } from "@/lib/site-countries";
 import { SubmissionErrorNotice } from "@/components/forms/submission-error-notice";
 import {
   analyzeSubmissionMaterial,
@@ -69,8 +70,8 @@ export function SubmitEventForm() {
       time: "",
       price: "",
       city: "",
-      countryCode: DEFAULT_COUNTRY_CODE,
-      timeZone: DEFAULT_TIME_ZONE,
+      countryCode: DEFAULT_SITE_COUNTRY.code,
+      timeZone: getDefaultTimeZone(DEFAULT_SITE_COUNTRY.code),
       venue: "",
       address: "",
       organizerName: "",
@@ -81,7 +82,11 @@ export function SubmitEventForm() {
     storageKey: "somossalsa:draft:event",
     value: { fields: form.watch(), sourceText: whatsappText },
     onRestore: (saved) => {
-      form.reset(saved.fields);
+      form.reset({
+        ...saved.fields,
+        countryCode: DEFAULT_SITE_COUNTRY.code,
+        timeZone: getDefaultTimeZone(DEFAULT_SITE_COUNTRY.code)
+      });
       setWhatsappText(saved.sourceText || "");
     },
     enabled: status !== "success"
@@ -159,10 +164,8 @@ export function SubmitEventForm() {
       if (d.venue) form.setValue("venue", d.venue, { shouldValidate: true });
       if (d.address) form.setValue("address", d.address);
       if (d.city) form.setValue("city", d.city, { shouldValidate: true });
-      if (d.countryCode) {
-        form.setValue("countryCode", d.countryCode, { shouldValidate: true });
-        form.setValue("timeZone", d.timeZone || getDefaultTimeZone(d.countryCode));
-      }
+      form.setValue("countryCode", DEFAULT_SITE_COUNTRY.code, { shouldValidate: true });
+      form.setValue("timeZone", getDefaultTimeZone(DEFAULT_SITE_COUNTRY.code));
       if (d.price) form.setValue("price", d.price);
       if (d.organizerName) form.setValue("organizerName", d.organizerName);
       if (d.contactLink) form.setValue("contactLink", d.contactLink);
@@ -376,6 +379,7 @@ export function SubmitEventForm() {
           <Field label={`${f("country")} *`} error={form.formState.errors.countryCode ? requiredMessage(f("country")) : undefined}>
             <CountrySelect
               value={form.watch("countryCode")}
+              allowedCountryCodes={SITE_COUNTRY_CODES}
               onChange={(countryCode) => {
                 form.setValue("countryCode", countryCode, { shouldValidate: true });
                 form.setValue("timeZone", getDefaultTimeZone(countryCode));

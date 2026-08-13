@@ -27,6 +27,8 @@ import { getTeacherBySlug } from "@/lib/queries/teachers";
 import { env } from "@/lib/utils/env";
 import type { Locale } from "@/types/locale";
 import { formatLocation } from "@/lib/locations";
+import { publicUrlPath } from "@/lib/site-countries";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 
 const MODALITY_MAP: Record<string, "inPerson" | "online" | "hybrid"> = {
   presencial: "inPerson",
@@ -79,7 +81,10 @@ export async function generateMetadata({
 }) {
   const { locale, slug } = await params;
   const currentLocale = locale as Locale;
-  const teacher = await getTeacherBySlug(currentLocale, slug);
+  const [teacher, country] = await Promise.all([
+    getTeacherBySlug(currentLocale, slug),
+    getCurrentSiteCountry()
+  ]);
 
   if (!teacher) return {};
 
@@ -104,7 +109,8 @@ export async function generateMetadata({
     image: teacher.profileImageUrl || teacher.bannerImageUrl || "/images/somossalsa-og.png",
     esPath: `/artistas/${teacher.slug}`,
     enPath: `/en/artists/${teacher.slug}`,
-    type: "article"
+    type: "article",
+    country: country.slug
   });
 }
 
@@ -121,8 +127,8 @@ function TeacherJsonLd({
 
   const siteUrl = env.siteUrl;
   const pageUrl = locale === "es"
-    ? `${siteUrl}/artistas/${teacher.slug}`
-    : `${siteUrl}/en/artists/${teacher.slug}`;
+    ? `${siteUrl}${publicUrlPath(`/artistas/${teacher.slug}`)}`
+    : `${siteUrl}${publicUrlPath(`/en/artists/${teacher.slug}`)}`;
   const image = teacher.profileImageUrl || teacher.bannerImageUrl || "/images/somossalsa-og.png";
   const imageUrl = image.startsWith("http") ? image : `${siteUrl}${image}`;
   const sameAs = [

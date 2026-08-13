@@ -8,7 +8,7 @@ import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CalendarDays, MapPinned, GraduationCap, PartyPopper, UserRound } from "lucide-react";
+import { ArrowRight, CalendarDays, Camera, Disc3, MapPinned, GraduationCap, PackageSearch, PartyPopper, Shirt, UserRound } from "lucide-react";
 import { getFeaturedAcademies } from "@/lib/queries/academies";
 import { getFeaturedEvents } from "@/lib/queries/events";
 import { getFeaturedSpots } from "@/lib/queries/spots";
@@ -139,6 +139,52 @@ export default async function HomePage({
           </Container>
         </section>
       )}
+
+      <section className="page-section">
+        <Container className="space-y-4 md:space-y-8">
+          <div className="flex items-end justify-between gap-4">
+            <SectionHeading
+              icon={PackageSearch}
+              title={t("resourcesTitle")}
+              description={t("resourcesDescription")}
+              tone="green"
+            />
+            <Button asChild variant="ghost" size="sm" className="shrink-0 text-xs md:text-[13px]">
+              <Link href="/resources" aria-label={`${common("viewAll")} ${t("resourcesTitle")}`}>
+                {common("viewAll")}
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3 md:gap-5">
+            {([
+              { category: "dancewear", icon: Shirt, tone: "bg-accentScale-50 text-accentScale-700" },
+              { category: "dj", icon: Disc3, tone: "bg-salsaRed-50 text-salsaRed-600" },
+              { category: "photography", icon: Camera, tone: "bg-brand-50 text-brand-700" }
+            ] as const).map(({ category, icon: Icon, tone }) => (
+              <Link
+                key={category}
+                href={{ pathname: "/resources", query: { category } }}
+                className="group rounded-2xl border border-black/[0.04] bg-white p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-card md:rounded-3xl md:p-5"
+              >
+                <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}>
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="mt-4 font-display text-base font-bold text-foreground md:text-lg">
+                  {t(`resourceCategories.${category}.title`)}
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground md:text-sm">
+                  {t(`resourceCategories.${category}.description`)}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700">
+                  {t("resourcesCta")}
+                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Container>
+      </section>
 
       <section className="page-section pb-4 md:pb-6">
         <Container>

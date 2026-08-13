@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import type { Locale } from "@/types/locale";
 import { formatLocation, getCountryName } from "@/lib/locations";
+import { publicUrlPath } from "@/lib/site-countries";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 
 const MODALITY_MAP: Record<string, "inPerson" | "online" | "hybrid"> = {
   presencial: "inPerson",
@@ -42,7 +44,10 @@ export async function generateMetadata({
 }) {
   const { locale, slug } = await params;
   const currentLocale = locale as Locale;
-  const academy = await getAcademyBySlug(currentLocale, slug);
+  const [academy, country] = await Promise.all([
+    getAcademyBySlug(currentLocale, slug),
+    getCurrentSiteCountry()
+  ]);
 
   if (!academy) return {};
 
@@ -57,7 +62,8 @@ export async function generateMetadata({
     image: academy.coverImageUrl,
     esPath: `/academias/${academy.slug}`,
     enPath: `/en/academies/${academy.slug}`,
-    type: "article"
+    type: "article",
+    country: country.slug
   });
 }
 
@@ -83,8 +89,8 @@ function AcademyJsonLd({
 }) {
   const siteUrl = env.siteUrl;
   const pageUrl = locale === "es"
-    ? `${siteUrl}/academias/${academy.slug}`
-    : `${siteUrl}/en/academies/${academy.slug}`;
+    ? `${siteUrl}${publicUrlPath(`/academias/${academy.slug}`)}`
+    : `${siteUrl}${publicUrlPath(`/en/academies/${academy.slug}`)}`;
 
   const imageUrl = academy.coverImageUrl.startsWith("http")
     ? academy.coverImageUrl

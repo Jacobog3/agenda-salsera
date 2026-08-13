@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/utils/env";
 import { localizeSpot } from "@/lib/utils/localize";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/locations";
+import { getCurrentSiteCountryCode } from "@/lib/site-country-server";
 import type { SpotRecord, LocalizedSpot } from "@/types/spot";
 import type { Locale } from "@/types/locale";
 
@@ -29,12 +30,15 @@ function normalizeSpot(row: Record<string, unknown>): SpotRecord {
   };
 }
 
-export async function getSpots(locale: Locale): Promise<LocalizedSpot[]> {
+export async function getSpots(locale: Locale, countryCode?: string): Promise<LocalizedSpot[]> {
   const records = isSupabaseConfigured
     ? await fetchSupabaseSpots()
     : sampleSpots;
+  const siteCountryCode = countryCode ?? await getCurrentSiteCountryCode();
 
-  return records.map((spot) => localizeSpot(spot, locale));
+  return records
+    .filter((spot) => spot.countryCode === siteCountryCode)
+    .map((spot) => localizeSpot(spot, locale));
 }
 
 export async function getFeaturedSpots(locale: Locale) {

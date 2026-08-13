@@ -55,7 +55,7 @@ export default async function SearchPage({
     getTranslations({ locale: currentLocale, namespace: "common" })
   ]);
   const results = currentQuery ? await searchSite(currentLocale, currentQuery) : null;
-  const formAction = currentLocale === "es" ? "/buscar" : "/en/search";
+  const formAction = currentLocale === "es" ? "/gt/buscar" : "/gt/en/search";
 
   const sections = results ? [
     {
@@ -77,6 +77,11 @@ export default async function SearchPage({
       key: "spots" as const,
       title: t("sections.spots"),
       items: results.spots
+    },
+    {
+      key: "resources" as const,
+      title: t("sections.resources"),
+      items: results.resources
     }
   ] : [];
 
@@ -168,11 +173,15 @@ export default async function SearchPage({
                         key={`${item.type}-${item.id}`}
                         result={item}
                         typeLabel={t(`types.${item.type}`)}
-                        localizedBadges={item.badges.map((badge) =>
-                          badge in { salsa: true, bachata: true, salsa_bachata: true, other: true }
-                            ? common(`danceStyles.${badge as "salsa" | "bachata" | "salsa_bachata" | "other"}`)
-                            : badge
-                        )}
+                        localizedBadges={item.badges.map((badge) => {
+                          if (badge in { salsa: true, bachata: true, salsa_bachata: true, other: true }) {
+                            return common(`danceStyles.${badge as "salsa" | "bachata" | "salsa_bachata" | "other"}`);
+                          }
+                          if (badge in { dancewear: true, dj: true, photography: true }) {
+                            return t(`resourceCategories.${badge as "dancewear" | "dj" | "photography"}`);
+                          }
+                          return badge;
+                        })}
                       />
                     ))}
                   </div>

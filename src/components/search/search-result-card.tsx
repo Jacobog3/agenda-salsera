@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CalendarDays, GraduationCap, MapPinned, Search, UserRound } from "lucide-react";
+import { CalendarDays, GraduationCap, MapPinned, PackageSearch, Search, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { SearchResult, SearchResultType } from "@/lib/search/site-search";
@@ -8,14 +8,16 @@ const ICONS: Record<SearchResultType, typeof Search> = {
   event: CalendarDays,
   spot: MapPinned,
   academy: GraduationCap,
-  teacher: UserRound
+  teacher: UserRound,
+  resource: PackageSearch
 };
 
 const TYPE_COLORS: Record<SearchResultType, { background: string; foreground: string }> = {
   event: { background: "bg-salsaRed-50", foreground: "text-salsaRed-600" },
   spot: { background: "bg-salsaGreen-50", foreground: "text-salsaGreen-600" },
   academy: { background: "bg-accentScale-50", foreground: "text-accentScale-700" },
-  teacher: { background: "bg-salsaOrange-50", foreground: "text-salsaOrange-600" }
+  teacher: { background: "bg-salsaOrange-50", foreground: "text-salsaOrange-600" },
+  resource: { background: "bg-brand-50", foreground: "text-brand-600" }
 };
 
 function getInitials(title: string) {

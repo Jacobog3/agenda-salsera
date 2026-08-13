@@ -32,7 +32,7 @@ const aliases: Record<string, string[]> = {
 };
 
 function isActiveRoute(href: string, pathname: string): boolean {
-  const normalized = pathname.replace(/^\/(es|en)/, "") || "/";
+  const normalized = pathname.replace(/^\/[a-z]{2}(?:\/en)?/, "") || "/";
   const paths = aliases[href] ?? [href];
 
   if (href === "/") {

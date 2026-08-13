@@ -15,7 +15,8 @@ import {
   Flag,
   Bug,
   LogOut,
-  ArrowLeft
+  ArrowLeft,
+  PackageSearch
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -26,6 +27,7 @@ const navLinks = [
   { href: "/admin/academies", label: "Academias", icon: GraduationCap },
   { href: "/admin/teachers", label: "Artistas", icon: UserRound },
   { href: "/admin/spots", label: "Bares", icon: MapPinned },
+  { href: "/admin/resources", label: "Recursos", icon: PackageSearch },
   { href: "/admin/reports", label: "Reportes", icon: Flag },
   { href: "/admin/errors", label: "Errores", icon: Bug }
 ];
@@ -52,7 +54,7 @@ export function AdminMobileNav() {
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -131,7 +133,7 @@ export function AdminMobileNav() {
 
             <div className="mt-6 grid gap-3">
               <Link
-                href="/"
+                href="/gt"
                 className="flex items-center justify-center gap-2 rounded-full border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-brand-200 hover:text-brand-700"
               >
                 <ArrowLeft className="h-4 w-4" />

@@ -7,7 +7,8 @@ const allowedFolders = new Set([
   "artists",
   "spots",
   "festivals",
-  "festival-editions"
+  "festival-editions",
+  "resources"
 ]);
 const imageLimit = 15 * 1024 * 1024;
 const documentLimit = 25 * 1024 * 1024;

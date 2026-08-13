@@ -4,6 +4,7 @@ import { isSupabaseConfigured } from "@/lib/utils/env";
 import { isEventActive, isEventExpired, isHistoricalEventIndexable } from "@/lib/utils/event-status";
 import { localizeEvent } from "@/lib/utils/localize";
 import { DEFAULT_COUNTRY_CODE, DEFAULT_TIME_ZONE, getLocationKey } from "@/lib/locations";
+import { getCurrentSiteCountryCode } from "@/lib/site-country-server";
 import type { DanceStyle, EventKind, EventRecord, LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 
@@ -60,6 +61,9 @@ export async function getEvents(
   filters?: EventFilters
 ): Promise<LocalizedEvent[]> {
   const records = await getPublishedEventRecords();
+  const siteCountryCode = filters?.countryCode && filters.countryCode !== "all"
+    ? filters.countryCode
+    : await getCurrentSiteCountryCode();
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -67,6 +71,8 @@ export async function getEvents(
   return records
     .filter((event) => {
       if (!isEventActive(event)) return false;
+
+      if (event.countryCode !== siteCountryCode) return false;
 
       if (filters?.city && filters.city !== "all" && event.city !== filters.city) {
         return false;
@@ -112,14 +118,16 @@ export async function getFeaturedEvents(locale: Locale) {
 }
 
 export async function getEventBySlug(locale: Locale, slug: string) {
+  const siteCountryCode = await getCurrentSiteCountryCode();
   const events = (await getPublishedEventRecords()).map((event) => localizeEvent(event, locale));
-  return events.find((event) => event.slug === slug) ?? null;
+  return events.find((event) => event.slug === slug && event.countryCode === siteCountryCode) ?? null;
 }
 
 export async function getIndexableHistoricalEvents(locale: Locale) {
+  const siteCountryCode = await getCurrentSiteCountryCode();
   return (await getPublishedEventRecords())
     .map((event) => localizeEvent(event, locale))
-    .filter((event) => isEventExpired(event) && isHistoricalEventIndexable(event));
+    .filter((event) => event.countryCode === siteCountryCode && isEventExpired(event) && isHistoricalEventIndexable(event));
 }
 
 export async function getRelatedUpcomingEvents(

@@ -36,6 +36,7 @@ export type FieldDef = {
   options?: { value: string; label: string }[];
   optionsEndpoint?: string;
   group?: string;
+  defaultValue?: unknown;
 };
 
 type DisplayColumn = {
@@ -52,9 +53,13 @@ type EntityListProps = {
   disableInlineCreate?: boolean;
   onCreateOverride?: () => void;
   onEditOverride?: (item: Record<string, unknown>) => void;
+  requestedEditId?: string | null;
+  onSaved?: (itemId: string) => void | Promise<void>;
+  onEditCancelled?: (itemId: string) => void;
   fields: FieldDef[];
   displayColumns: DisplayColumn[];
   imageKey?: string;
+  uploadFolder?: string;
   dateKey?: string;
   statusResolver?: (item: Record<string, unknown>) => "active" | "expired";
   autoTranslateFields?: { sourceKey: string; targetKey: string }[];
@@ -115,6 +120,11 @@ function buildEmptyEditData(fields: FieldDef[]) {
   const data: Record<string, unknown> = {};
 
   for (const field of fields) {
+    if (field.defaultValue !== undefined) {
+      data[field.key] = field.defaultValue;
+      continue;
+    }
+
     if (field.type === "checkbox") {
       data[field.key] = false;
       continue;
@@ -143,9 +153,10 @@ function buildEmptyEditData(fields: FieldDef[]) {
   return data;
 }
 
-async function uploadAdminImage(file: File): Promise<string> {
+async function uploadAdminImage(file: File, folder = "events"): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("folder", folder);
 
   const response = await fetch("/api/admin/upload", {
     method: "POST",
@@ -162,10 +173,12 @@ async function uploadAdminImage(file: File): Promise<string> {
 
 function ImageUploadField({
   value,
-  onChange
+  onChange,
+  uploadFolder
 }: {
   value: string;
   onChange: (url: string) => void;
+  uploadFolder?: string;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -177,7 +190,7 @@ function ImageUploadField({
     setUploading(true);
     setError("");
     try {
-      const url = await uploadAdminImage(file);
+      const url = await uploadAdminImage(file, uploadFolder);
       onChange(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -222,10 +235,12 @@ function ImageUploadField({
 
 function ImageListUploadField({
   value,
-  onChange
+  onChange,
+  uploadFolder
 }: {
   value: string[];
   onChange: (urls: string[]) => void;
+  uploadFolder?: string;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -240,7 +255,7 @@ function ImageListUploadField({
     setUploading(true);
     setError("");
     try {
-      const uploaded = await Promise.all(files.map((file) => uploadAdminImage(file)));
+      const uploaded = await Promise.all(files.map((file) => uploadAdminImage(file, uploadFolder)));
       onChange([...urls, ...uploaded]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -450,9 +465,13 @@ export function AdminEntityList({
   disableInlineCreate = false,
   onCreateOverride,
   onEditOverride,
+  requestedEditId,
+  onSaved,
+  onEditCancelled,
   fields,
   displayColumns,
   imageKey,
+  uploadFolder,
   dateKey,
   statusResolver,
   autoTranslateFields = [],
@@ -479,6 +498,7 @@ export function AdminEntityList({
   const [aiNotice, setAiNotice] = useState("");
   const [aiSuggestion, setAiSuggestion] = useState<Record<string, unknown> | null>(null);
   const [createIntentConsumed, setCreateIntentConsumed] = useState(false);
+  const [openedRequestId, setOpenedRequestId] = useState<string | null>(null);
 
   const createRequested = searchParams.get("create") === "1";
 
@@ -639,7 +659,7 @@ export function AdminEntityList({
     setAiSuggestion(null);
   }
 
-  function startEdit(item: Record<string, unknown>) {
+  const startEdit = useCallback((item: Record<string, unknown>) => {
     const data = { ...item };
     for (const field of fields) {
       if (field.type === "datetime" && data[field.key]) {
@@ -653,7 +673,20 @@ export function AdminEntityList({
     setSaveError("");
     setDeleteConfirm(null);
     resetAiAssist();
-  }
+  }, [fields, resetAiAssist]);
+
+  useEffect(() => {
+    if (!requestedEditId) {
+      setOpenedRequestId(null);
+      return;
+    }
+    if (loading || editingId === requestedEditId || openedRequestId === requestedEditId) return;
+    const requestedItem = items.find((item) => item.id === requestedEditId);
+    if (requestedItem) {
+      startEdit(requestedItem);
+      setOpenedRequestId(requestedEditId);
+    }
+  }, [requestedEditId, loading, editingId, openedRequestId, items, startEdit]);
 
   const startCreate = useCallback(() => {
     setEditingId(NEW_ENTITY_ID);
@@ -670,12 +703,16 @@ export function AdminEntityList({
     setCreateIntentConsumed(true);
   }, [createRequested, createIntentConsumed, loading, editingId, startCreate, disableInlineCreate]);
 
-  function cancelEdit() {
+  function cancelEdit(notify = true) {
+    const cancelledId = editingId;
     setEditingId(null);
     setEditData({});
     setSaveError("");
     setDeleteConfirm(null);
     resetAiAssist();
+    if (notify && cancelledId && cancelledId !== NEW_ENTITY_ID) {
+      onEditCancelled?.(cancelledId);
+    }
   }
 
   async function saveEdit(forceAutoTranslate = false) {
@@ -737,14 +774,16 @@ export function AdminEntityList({
         body: JSON.stringify(payload)
       });
       if (res.ok) {
+        const savedItemId = editingId;
         await fetchItems();
-        cancelEdit();
+        await onSaved?.(savedItemId);
+        cancelEdit(false);
       } else {
         const json = await res.json().catch(() => ({}));
         setSaveError(String(json.error || "No se pudo guardar los cambios."));
       }
-    } catch {
-      setSaveError("No se pudo guardar los cambios.");
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "No se pudo guardar los cambios.");
     } finally {
       setSaving(false);
     }
@@ -836,11 +875,13 @@ export function AdminEntityList({
                         <ImageUploadField
                           value={String(editData[field.key] ?? "")}
                           onChange={(url) => setEditData((p) => ({ ...p, [field.key]: url }))}
+                          uploadFolder={uploadFolder}
                         />
                       ) : field.type === "image-list" ? (
                         <ImageListUploadField
                           value={Array.isArray(editData[field.key]) ? (editData[field.key] as string[]) : []}
                           onChange={(urls) => setEditData((p) => ({ ...p, [field.key]: urls }))}
+                          uploadFolder={uploadFolder}
                         />
                       ) : field.type === "textarea" ? (
                         <Textarea
@@ -1073,7 +1114,7 @@ export function AdminEntityList({
                 Regenerar inglés
               </Button>
             ) : null}
-            <Button size="sm" variant="outline" onClick={cancelEdit} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => cancelEdit()} className="gap-1.5">
               <X className="h-3.5 w-3.5" />
               Cancelar
             </Button>

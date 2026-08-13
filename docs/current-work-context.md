@@ -1,5 +1,85 @@
 # Current Work Context
 
+## 2026-08-13 — Country-scoped public routes
+
+- Public URLs now separate market from language. Guatemala uses `/gt`; Spanish
+  remains implicit (`/gt/eventos`) and English follows the country
+  (`/gt/en/events`). Admin and API routes remain unprefixed.
+- Requests without a supported country use the saved country, then Vercel's
+  country header, and finally Guatemala. Because Guatemala is currently the only
+  active market, `/`, unsupported country prefixes, and legacy URLs redirect to
+  their `/gt` equivalent. Explicit country URLs are never changed by location
+  detection.
+- All generated public links, language switching, search results, canonical and
+  alternate URLs, JSON-LD detail URLs, IndexNow payloads, the PWA start URL, and
+  sitemap entries include the country prefix.
+- Public events, festivals, academies, artists, spots, and resources are scoped
+  to the active country. The redundant event country filter was removed, and
+  legacy `?country=` parameters are stripped while preserving other filters.
+- Production data audit confirmed 82 events, 18 academies, 4 artists, 2 spots,
+  4 organizers, 2 festival series, and 3 festival editions already use `GT`.
+  Only the 6 community resources had a null country.
+- Migration `20260813000100_scope_resources_to_guatemala.sql` is applied in the
+  linked production Supabase project. It assigns `GT` to current resources,
+  requires country on resources and resource submissions, and adds the
+  country/published resource index.
+- Browser QA covered the complete Spanish/English public route matrix, legacy
+  redirects, unsupported countries, language switching with query retention,
+  Guatemala-only resource cards and search results, canonical/alternate URLs,
+  Admin isolation, and removal of the country filter. No browser errors were
+  recorded.
+
+## 2026-08-13 — Community resources directory (implementation in review)
+
+- Active branch: `codex/community-resources-directory`.
+- New public `/recursos` / `/en/resources` pages organize dancewear, DJs,
+  photography/video, and future community resources without adding marketplace
+  inventory, checkout, booking, or payments.
+- Discovery entry points include the home page, desktop navigation (replacing the
+  redundant Home link), mobile Explore sheet, footer, global search, and the
+  existing Publish menus.
+- Public recommendations use `/recomendar-recurso` / `/en/suggest-resource` and
+  remain pending until an Admin creates and reviews an unpublished draft.
+- Every resource card now keeps its primary actions compact behind an accessible
+  `…` menu with `Sugerir un cambio o reportar`. A directory-level correction
+  link supports the same flow when the visitor has not started from a card.
+- Correction forms identify the existing resource, distinguish updates from
+  incorrect-information reports, and never modify published data directly.
+- Admin resource suggestions distinguish new listings, updates, and reports.
+  New recommendations may create an unpublished draft; updates and reports open
+  the existing resource editor with the submitted explanation and evidence in
+  context, then resolve only after the Admin saves that resource.
+- `community_resources` may link to an existing canonical professional. Jose
+  Medina is linked to his existing artist record and gains verified `dj` and
+  `dancer` roles instead of receiving a duplicate profile.
+- Event Admin forms can relate published DJ resources directly through
+  `event_resources`. Advanced AI analysis preselects a DJ resource only on an
+  exact normalized name match, while retaining the existing candidate-review
+  workflow for uncertain or not-yet-canonical people.
+- Public event details show related DJs and suppress the resource entry when the
+  same person is already displayed as a related canonical professional.
+- Initial public Instagram verification on 2026-08-13 confirmed Tiendanza as a
+  dance shoes/clothing/accessories shop, MJ Dance Store as dance footwear, Jose
+  Medina as DJ/dancer, and Pako Perez as a professional photographer. DJ Lux had
+  no explicit public bio and `@pakeyro` was private, so their DJ categorization
+  remains a clearly labeled community recommendation.
+- Migration `20260813000000_add_community_resources.sql` was applied to the
+  linked production Supabase project on 2026-08-13. The remote migration history
+  now matches the local migration history through `20260813000000`.
+- Authenticated end-to-end QA covered update suggestions, incorrect-information
+  reports, new-resource draft creation, publication, public visibility, event DJ
+  relationships, and canonical-professional deduplication. All temporary QA
+  submissions, resources, and event relationships were removed afterward.
+- Real Gemini analysis exposed a race between AI mention detection and the
+  asynchronous resource-options request. DJ preselection now runs reactively
+  after both inputs exist; an exact `DJ Lux` result was then confirmed selected
+  in the event form without saving it.
+- Responsive browser QA passed at 390×844 and 1280×800 for the resource listing,
+  compact correction menu, prefilled and global correction forms, English
+  localization, event details, mobile Explore menu, and blank-form validation.
+- Verification completed after the final AI-preselection fix: `npm run
+  typecheck`, `npm run lint`, and `npm run build`.
+
 ## 2026-08-09 — Candidate create-and-link workflow
 
 - The review inbox no longer sends unmatched entity candidates to a generic

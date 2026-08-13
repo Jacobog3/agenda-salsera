@@ -2,11 +2,15 @@ import { getAcademies } from "@/lib/queries/academies";
 import { getEvents } from "@/lib/queries/events";
 import { getSpots } from "@/lib/queries/spots";
 import { getTeachers } from "@/lib/queries/teachers";
+import { getResources } from "@/lib/queries/resources";
 import { formatEventDate, formatEventDateRange, formatEventDateStatusLabel } from "@/lib/utils/formatters";
 import { formatLocation, getCountryName } from "@/lib/locations";
 import type { Locale } from "@/types/locale";
+import { publicUrlPath } from "@/lib/site-countries";
+import type { SiteCountrySlug } from "@/lib/site-countries";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 
-export type SearchResultType = "event" | "spot" | "academy" | "teacher";
+export type SearchResultType = "event" | "spot" | "academy" | "teacher" | "resource";
 
 export type SearchResult = {
   id: string;
@@ -28,6 +32,7 @@ export type SearchResults = {
   spots: SearchResult[];
   academies: SearchResult[];
   teachers: SearchResult[];
+  resources: SearchResult[];
 };
 
 const MAX_RESULTS_PER_GROUP = 6;
@@ -49,18 +54,20 @@ function tokenizeQuery(query: string) {
     .filter(Boolean);
 }
 
-function localizedHref(locale: Locale, type: SearchResultType, slug: string) {
+function localizedHref(locale: Locale, type: SearchResultType, slug: string, country: SiteCountrySlug) {
   const prefix = locale === "es" ? "" : "/en";
 
   switch (type) {
     case "event":
-      return `${prefix}${locale === "es" ? "/eventos" : "/events"}/${slug}`;
+      return publicUrlPath(`${prefix}${locale === "es" ? "/eventos" : "/events"}/${slug}`, country);
     case "spot":
-      return `${prefix}${locale === "es" ? "/lugares" : "/spots"}/${slug}`;
+      return publicUrlPath(`${prefix}${locale === "es" ? "/lugares" : "/spots"}/${slug}`, country);
     case "academy":
-      return `${prefix}${locale === "es" ? "/academias" : "/academies"}/${slug}`;
+      return publicUrlPath(`${prefix}${locale === "es" ? "/academias" : "/academies"}/${slug}`, country);
     case "teacher":
-      return `${prefix}${locale === "es" ? "/artistas" : "/artists"}/${slug}`;
+      return publicUrlPath(`${prefix}${locale === "es" ? "/artistas" : "/artists"}/${slug}`, country);
+    case "resource":
+      return `${publicUrlPath(`${prefix}${locale === "es" ? "/recursos" : "/resources"}`, country)}#${slug}`;
   }
 }
 
@@ -115,6 +122,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
   const query = rawQuery.trim();
   const normalizedQuery = normalizeSearchText(query);
   const tokens = tokenizeQuery(query);
+  const country = await getCurrentSiteCountry();
 
   if (!normalizedQuery || tokens.length === 0) {
     return {
@@ -123,15 +131,17 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
       events: [],
       spots: [],
       academies: [],
-      teachers: []
+      teachers: [],
+      resources: []
     };
   }
 
-  const [events, spots, academies, teachers] = await Promise.all([
+  const [events, spots, academies, teachers, resources] = await Promise.all([
     getEvents(locale),
     getSpots(locale),
     getAcademies(locale),
-    getTeachers(locale)
+    getTeachers(locale),
+    getResources(locale)
   ]);
 
   const eventResults = sortResults(
@@ -160,7 +170,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           id: event.id,
           type: "event" as const,
           title: event.title,
-          href: localizedHref(locale, "event", event.slug),
+          href: localizedHref(locale, "event", event.slug, country.slug),
           subtitle: `${event.venueName} · ${formatLocation(event.city, event.countryCode, locale)}`,
           description: event.description,
           imageUrl: event.coverImageUrl,
@@ -187,7 +197,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           id: spot.id,
           type: "spot" as const,
           title: spot.name,
-          href: localizedHref(locale, "spot", spot.slug),
+          href: localizedHref(locale, "spot", spot.slug, country.slug),
           subtitle: formatLocation(spot.city, spot.countryCode, locale),
           description: spot.description,
           imageUrl: spot.coverImageUrl,
@@ -222,7 +232,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           id: academy.id,
           type: "academy" as const,
           title: academy.name,
-          href: localizedHref(locale, "academy", academy.slug),
+          href: localizedHref(locale, "academy", academy.slug, country.slug),
           subtitle: formatLocation(academy.city, academy.countryCode, locale),
           description: academy.description,
           imageUrl: academy.coverImageUrl,
@@ -267,7 +277,7 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
           id: teacher.id,
           type: "teacher" as const,
           title: teacher.name,
-          href: localizedHref(locale, "teacher", teacher.slug),
+          href: localizedHref(locale, "teacher", teacher.slug, country.slug),
           subtitle: formatLocation(teacher.city, teacher.countryCode, locale),
           description: teacher.bio,
           imageUrl: teacher.profileImageUrl ?? null,
@@ -280,16 +290,46 @@ export async function searchSite(locale: Locale, rawQuery: string): Promise<Sear
       })
   );
 
+  const resourceResults = sortResults(
+    resources.map((resource) => {
+      const score = scoreCandidate(
+        tokens,
+        normalizedQuery,
+        [resource.name, resource.city ?? "", getCountryName(resource.countryCode ?? "", locale)],
+        [resource.description, resource.categories.join(" "), resource.resourceKind]
+      );
+
+      if (score === null) return null;
+
+      return {
+        id: resource.id,
+        type: "resource" as const,
+        title: resource.name,
+        href: localizedHref(locale, "resource", resource.slug, country.slug),
+        subtitle: resource.city || resource.countryCode
+          ? formatLocation(resource.city ?? "", resource.countryCode ?? "", locale)
+          : resource.instagramUrl?.replace(/^https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "") ?? "",
+        description: resource.description,
+        imageUrl: resource.imageUrl ?? resource.teacherImageUrl ?? null,
+        badges: resource.categories,
+        meta: null,
+        score
+      };
+    })
+  );
+
   return {
     query,
     total:
       eventResults.length +
       spotResults.length +
       academyResults.length +
-      teacherResults.length,
+      teacherResults.length +
+      resourceResults.length,
     events: eventResults,
     spots: spotResults,
     academies: academyResults,
-    teachers: teacherResults
+    teachers: teacherResults,
+    resources: resourceResults
   };
 }

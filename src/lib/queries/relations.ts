@@ -2,11 +2,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAcademies } from "@/lib/queries/academies";
 import { getEvents } from "@/lib/queries/events";
 import { getTeachers } from "@/lib/queries/teachers";
+import { getResources } from "@/lib/queries/resources";
 import type { LocalizedAcademy } from "@/types/academy";
 import type { LocalizedEvent } from "@/types/event";
 import type { Locale } from "@/types/locale";
 import type { OrganizerSummary } from "@/types/organizer";
 import type { LocalizedTeacher } from "@/types/teacher";
+import type { LocalizedResource } from "@/types/resource";
 import { getOrganizerById } from "./organizers";
 
 async function getTeacherIdsForEvent(eventId: string) {
@@ -65,6 +67,27 @@ export async function getRelatedTeachersForEvent(
 
   if (teacherIds.length === 0) return [];
   return teachers.filter((teacher) => teacherIds.includes(teacher.id));
+}
+
+export async function getRelatedResourcesForEvent(
+  locale: Locale,
+  eventId: string
+): Promise<LocalizedResource[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("event_resources")
+    .select("resource_id")
+    .eq("event_id", eventId);
+
+  if (error) {
+    console.warn("[relations:event_resources]", error.message);
+    return [];
+  }
+
+  const resourceIds = (data ?? []).map((row) => String(row.resource_id));
+  if (resourceIds.length === 0) return [];
+  const resources = await getResources(locale);
+  return resources.filter((resource) => resourceIds.includes(resource.id));
 }
 
 export async function getRelatedAcademyForEvent(
