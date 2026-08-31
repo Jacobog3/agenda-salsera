@@ -343,7 +343,9 @@ function normalizeSeries(row: Record<string, unknown>): FestivalSeriesRecord {
     facebookUrl: row.facebook_url ? String(row.facebook_url) : null,
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,
     verificationStatus: asVerificationStatus(row.verification_status),
-    isFeatured: Boolean(row.is_featured)
+    isFeatured: Boolean(row.is_featured),
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 
@@ -381,7 +383,9 @@ function normalizeEdition(row: Record<string, unknown>): FestivalEditionRecord {
     rulesUrl: row.rules_url ? String(row.rules_url) : null,
     status,
     verificationStatus: asVerificationStatus(row.verification_status),
-    isFeatured: Boolean(row.is_featured)
+    isFeatured: Boolean(row.is_featured),
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 

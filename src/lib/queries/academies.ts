@@ -40,7 +40,9 @@ function normalizeAcademy(row: Record<string, unknown>): AcademyRecord {
     facebookUrl: row.facebook_url ? String(row.facebook_url) : null,
     websiteUrl: row.website_url ? String(row.website_url) : null,
     googlePlaceId: row.google_place_id ? String(row.google_place_id) : null,
-    isFeatured: Boolean(row.is_featured)
+    isFeatured: Boolean(row.is_featured),
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 

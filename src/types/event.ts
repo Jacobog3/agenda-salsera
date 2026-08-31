@@ -44,6 +44,7 @@ export type EventRecord = {
   externalUrl?: string | null;
   isFeatured: boolean;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 export type LocalizedEvent = {
@@ -76,4 +77,5 @@ export type LocalizedEvent = {
   externalUrl?: string | null;
   isFeatured: boolean;
   createdAt?: string;
+  updatedAt?: string;
 };

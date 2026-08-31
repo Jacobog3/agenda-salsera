@@ -50,14 +50,14 @@ export default function middleware(request: NextRequest) {
     redirectUrl.pathname = unsupportedCountryPrefix
       ? `/${country}${pathname.slice(firstSegment.length + 1)}`
       : legacyRedirectPath(pathname, country);
-    return NextResponse.redirect(redirectUrl, 307);
+    return NextResponse.redirect(redirectUrl, 308);
   }
 
   const country = getSiteCountryBySlug(firstSegment) ?? DEFAULT_SITE_COUNTRY;
   if (request.nextUrl.searchParams.has("country")) {
     const cleanUrl = request.nextUrl.clone();
     cleanUrl.searchParams.delete("country");
-    return NextResponse.redirect(cleanUrl, 307);
+    return NextResponse.redirect(cleanUrl, 308);
   }
 
   const internalUrl = request.nextUrl.clone();

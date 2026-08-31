@@ -25,6 +25,8 @@ export type ResourceRecord = {
   isFeatured: boolean;
   isPublished: boolean;
   sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type LocalizedResource = Omit<ResourceRecord, "descriptionEs" | "descriptionEn"> & {

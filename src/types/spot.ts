@@ -17,6 +17,8 @@ export type SpotRecord = {
   instagramUrl?: string | null;
   googleMapsUrl?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type LocalizedSpot = {
@@ -35,4 +37,6 @@ export type LocalizedSpot = {
   instagramUrl?: string | null;
   googleMapsUrl?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };

@@ -26,7 +26,9 @@ function normalizeSpot(row: Record<string, unknown>): SpotRecord {
     whatsappUrl: row.whatsapp_url ? String(row.whatsapp_url) : null,
     instagramUrl: row.instagram_url ? String(row.instagram_url) : null,
     googleMapsUrl: row.google_maps_url ? String(row.google_maps_url) : null,
-    isFeatured: Boolean(row.is_featured)
+    isFeatured: Boolean(row.is_featured),
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 

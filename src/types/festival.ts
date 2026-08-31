@@ -20,6 +20,8 @@ export type FestivalSeriesRecord = {
   whatsappUrl?: string | null;
   verificationStatus: VerificationStatus;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type FestivalEditionRecord = {
@@ -53,6 +55,8 @@ export type FestivalEditionRecord = {
   status: "upcoming" | "active" | "finished" | "cancelled";
   verificationStatus: VerificationStatus;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type FestivalMedia = {

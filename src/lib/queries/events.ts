@@ -52,7 +52,8 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     contactUrl: String(row.contact_url),
     externalUrl: row.external_url ? String(row.external_url) : null,
     isFeatured: Boolean(row.is_featured),
-    createdAt: row.created_at ? String(row.created_at) : undefined
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 
