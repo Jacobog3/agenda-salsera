@@ -37,6 +37,8 @@ export type AcademyRecord = {
   websiteUrl?: string | null;
   googlePlaceId?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type LocalizedAcademy = {
@@ -64,4 +66,6 @@ export type LocalizedAcademy = {
   websiteUrl?: string | null;
   googlePlaceId?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };

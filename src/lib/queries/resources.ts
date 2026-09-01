@@ -39,7 +39,9 @@ function normalizeResource(row: Record<string, unknown>): ResourceRecord {
     lastVerifiedAt: row.last_verified_at ? String(row.last_verified_at) : null,
     isFeatured: Boolean(row.is_featured),
     isPublished: row.is_published !== false,
-    sortOrder: Number(row.sort_order ?? 0)
+    sortOrder: Number(row.sort_order ?? 0),
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 

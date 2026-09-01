@@ -37,7 +37,8 @@ export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEven
     contactUrl: event.contactUrl,
     externalUrl: event.externalUrl,
     isFeatured: event.isFeatured,
-    createdAt: event.createdAt
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt
   };
 }
 
@@ -69,7 +70,9 @@ export function localizeAcademy(
     facebookUrl: academy.facebookUrl,
     websiteUrl: academy.websiteUrl,
     googlePlaceId: academy.googlePlaceId,
-    isFeatured: academy.isFeatured
+    isFeatured: academy.isFeatured,
+    createdAt: academy.createdAt,
+    updatedAt: academy.updatedAt
   };
 }
 
@@ -89,7 +92,9 @@ export function localizeSpot(spot: SpotRecord, locale: Locale): LocalizedSpot {
     whatsappUrl: spot.whatsappUrl,
     instagramUrl: spot.instagramUrl,
     googleMapsUrl: spot.googleMapsUrl,
-    isFeatured: spot.isFeatured
+    isFeatured: spot.isFeatured,
+    createdAt: spot.createdAt,
+    updatedAt: spot.updatedAt
   };
 }
 
@@ -131,6 +136,8 @@ export function localizeTeacher(
     websiteUrl: teacher.websiteUrl,
     trialClass: teacher.trialClass,
     priceText: teacher.priceText,
-    isFeatured: teacher.isFeatured
+    isFeatured: teacher.isFeatured,
+    createdAt: teacher.createdAt,
+    updatedAt: teacher.updatedAt
   };
 }

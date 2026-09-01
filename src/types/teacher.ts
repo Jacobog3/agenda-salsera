@@ -38,6 +38,8 @@ export type TeacherRecord = {
   priceText?: string | null;
   isFeatured: boolean;
   isPublished?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type LocalizedTeacher = {
@@ -75,4 +77,6 @@ export type LocalizedTeacher = {
   trialClass?: boolean;
   priceText?: string | null;
   isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };

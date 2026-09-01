@@ -63,7 +63,9 @@ function normalizeTeacher(row: Record<string, unknown>): TeacherRecord {
     trialClass: Boolean(row.trial_class),
     priceText: row.price_text ? String(row.price_text) : null,
     isFeatured: Boolean(row.is_featured),
-    isPublished: row.is_published !== false
+    isPublished: row.is_published !== false,
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    updatedAt: row.updated_at ? String(row.updated_at) : undefined
   };
 }
 
