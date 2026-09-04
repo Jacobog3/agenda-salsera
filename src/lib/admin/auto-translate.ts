@@ -85,7 +85,7 @@ ${pending.map((mapping) => `- ${String(mapping.targetKey)}`).join("\n")}`;
     }
 
     const data = await response.json();
-    logGeminiUsage("auto-translate", data);
+    await logGeminiUsage("auto-translate", data);
     const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const parsed = JSON.parse(cleaned) as Record<string, string>;

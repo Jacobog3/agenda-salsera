@@ -84,6 +84,7 @@ export default function AdminEventsPage() {
 
       {editingItem !== null && (
         <EventEditSheet
+          key={editingItem === "new" ? "new-event" : String(editingItem.id)}
           item={editingItem === "new" ? null : editingItem}
           onClose={closeSheet}
           onSaved={handleSaved}

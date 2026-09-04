@@ -12,12 +12,15 @@ export async function GET(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("submission_mentions")
     .select("*")
     .eq("resolution_status", status)
-    .order("created_at", { ascending: false })
     .limit(200);
+  if (status === "candidate") {
+    query = query.order("match_confidence", { ascending: false, nullsFirst: false });
+  }
+  const { data, error } = await query.order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data: data ?? [] });
 }

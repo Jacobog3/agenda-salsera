@@ -149,7 +149,7 @@ export async function POST(request: Request) {
     }
 
     const geminiPayload = await response.json();
-    logGeminiUsage("submission-analysis", geminiPayload);
+    await logGeminiUsage("submission-analysis", geminiPayload);
     const candidate = extractGeminiText(geminiPayload);
     try {
       const parsed = JSON.parse(cleanGeminiJsonResponse(candidate.rawText)) as Record<string, unknown>;

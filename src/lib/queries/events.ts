@@ -49,6 +49,7 @@ function normalizeEvent(row: Record<string, unknown>): EventRecord {
     organizerName: String(row.organizer_name),
     organizerId: row.organizer_id ? String(row.organizer_id) : null,
     academyId: row.academy_id ? String(row.academy_id) : null,
+    spotId: row.spot_id ? String(row.spot_id) : null,
     contactUrl: String(row.contact_url),
     externalUrl: row.external_url ? String(row.external_url) : null,
     isFeatured: Boolean(row.is_featured),

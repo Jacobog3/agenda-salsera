@@ -154,7 +154,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    logGeminiUsage("admin-ai-update", data, attemptIndex + 1);
+    await logGeminiUsage("admin-ai-update", data, attemptIndex + 1);
     const candidate = extractGeminiText(data);
     rawText = candidate.rawText;
     finishReason = candidate.finishReason;

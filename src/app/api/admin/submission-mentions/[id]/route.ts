@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { applyResolvedSubmissionRelations } from "@/lib/submissions/server";
-import type { SubmissionType } from "@/lib/submissions/analysis";
+import { rememberEntityAlias } from "@/lib/admin/candidate-resolution";
+import type { MentionEntityType, SubmissionType } from "@/lib/submissions/analysis";
 
 const SUBMISSION_TABLES = {
   event: "event_submissions",
@@ -20,6 +21,14 @@ const CANONICAL_TABLES = {
 
 const VALID_STATUSES = new Set(["matched", "candidate", "ignored"]);
 
+const ENTITY_TABLES: Record<MentionEntityType, string> = {
+  professional: "teachers",
+  academy: "academies",
+  organizer: "organizers",
+  spot: "spots",
+  festival: "festival_series"
+};
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -36,7 +45,7 @@ export async function PATCH(
   const supabase = createSupabaseAdminClient();
   const { data: current, error: loadError } = await supabase
     .from("submission_mentions")
-    .select("suggested_match_id,submission_type,submission_id")
+    .select("suggested_match_id,submission_type,submission_id,entity_type,display_name")
     .eq("id", id)
     .single();
   if (loadError || !current) {
@@ -50,6 +59,19 @@ export async function PATCH(
     return NextResponse.json({ error: "Selecciona una coincidencia." }, { status: 400 });
   }
 
+  if (status === "matched") {
+    const entityType = current.entity_type as MentionEntityType;
+    const targetTable = ENTITY_TABLES[entityType];
+    const { data: target } = await supabase
+      .from(targetTable)
+      .select("id")
+      .eq("id", resolvedEntityId)
+      .maybeSingle();
+    if (!target) {
+      return NextResponse.json({ error: "El perfil seleccionado ya no existe." }, { status: 400 });
+    }
+  }
+
   const { error } = await supabase.from("submission_mentions").update({
     resolution_status: status,
     resolved_entity_id: resolvedEntityId,
@@ -58,6 +80,13 @@ export async function PATCH(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   if (status === "matched") {
+    await rememberEntityAlias(
+      supabase,
+      current.entity_type as MentionEntityType,
+      String(resolvedEntityId),
+      String(current.display_name)
+    );
+
     const submissionType = current.submission_type as SubmissionType;
     const submissionTable = SUBMISSION_TABLES[submissionType];
     const { data: submission } = await supabase

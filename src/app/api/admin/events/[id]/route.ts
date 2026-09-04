@@ -66,7 +66,7 @@ export async function PATCH(
 
   const { data: existing, error: existingError } = await supabase
     .from("events")
-    .select("slug, cover_image_url, is_published, title_es, organizer_name, organizer_id, academy_id, venue_name")
+    .select("slug, cover_image_url, is_published, title_es, organizer_name, organizer_id, academy_id, spot_id, venue_name")
     .eq("id", id)
     .single();
 
@@ -97,25 +97,32 @@ export async function PATCH(
   if (hasCountryCode && !body.time_zone) body.time_zone = getDefaultTimeZone(countryCode);
   const organizerIdWasSubmitted = "organizer_id" in body;
   const academyIdWasSubmitted = "academy_id" in body;
+  const spotIdWasSubmitted = "spot_id" in body;
   body.organizer_id = organizerIdWasSubmitted
     ? normalizeNullableId(body.organizer_id)
     : existing?.organizer_id ?? null;
   body.academy_id = academyIdWasSubmitted
     ? normalizeNullableId(body.academy_id)
     : existing?.academy_id ?? null;
+  body.spot_id = spotIdWasSubmitted
+    ? normalizeNullableId(body.spot_id)
+    : existing?.spot_id ?? null;
   const relations = await inferEventRelations(supabase, {
     title_es: body.title_es ?? existing?.title_es,
     organizer_name: body.organizer_name ?? existing?.organizer_name,
     venue_name: body.venue_name ?? existing?.venue_name,
     organizer_id: body.organizer_id,
-    academy_id: body.academy_id
+    academy_id: body.academy_id,
+    spot_id: body.spot_id
   }, {
     inferOrganizer: !(organizerIdWasSubmitted && existing?.organizer_id && body.organizer_id === null),
-    inferAcademy: !(academyIdWasSubmitted && existing?.academy_id && body.academy_id === null)
+    inferAcademy: !(academyIdWasSubmitted && existing?.academy_id && body.academy_id === null),
+    inferSpot: !(spotIdWasSubmitted && existing?.spot_id && body.spot_id === null)
   });
   body.organizer_name = relations.organizer_name;
   body.organizer_id = relations.organizer_id;
   body.academy_id = relations.academy_id;
+  body.spot_id = relations.spot_id;
   body.date_status = normalizeDateStatus(body.date_status);
 
   if (body.date_status === "coming_soon") {

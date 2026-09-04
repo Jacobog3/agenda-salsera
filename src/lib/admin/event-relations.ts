@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { findSuggestedEntityMatches } from "@/lib/admin/entity-matching";
 
 type EventRelationInput = {
   title_es?: unknown;
@@ -6,12 +7,14 @@ type EventRelationInput = {
   venue_name?: unknown;
   organizer_id?: unknown;
   academy_id?: unknown;
+  spot_id?: unknown;
 };
 
 type RelationResult = {
   organizer_name: string;
   organizer_id: string | null;
   academy_id: string | null;
+  spot_id: string | null;
 };
 
 const ACADEMY_ALIASES = new Map<string, string>([
@@ -82,7 +85,7 @@ function inferAcademyName(organizerName: string, venueName: string): string | nu
 export async function inferEventRelations(
   supabase: SupabaseClient,
   input: EventRelationInput,
-  options: { inferOrganizer?: boolean; inferAcademy?: boolean } = {}
+  options: { inferOrganizer?: boolean; inferAcademy?: boolean; inferSpot?: boolean } = {}
 ): Promise<RelationResult> {
   const currentOrganizerName = String(input.organizer_name ?? "").trim();
   const normalizedOrganizerName = normalizeName(currentOrganizerName);
@@ -95,6 +98,7 @@ export async function inferEventRelations(
   const canonicalAcademyName = inferAcademyName(normalizedOrganizerName, venueName);
   let organizerId = nullableId(input.organizer_id);
   let academyId = nullableId(input.academy_id);
+  let spotId = nullableId(input.spot_id);
 
   if (!organizerId && canonicalOrganizerName && options.inferOrganizer !== false) {
     const { data, error } = await supabase.from("organizers").select("id,name");
@@ -108,9 +112,34 @@ export async function inferEventRelations(
     academyId = findIdByName(data ?? [], canonicalAcademyName);
   }
 
+  if (!organizerId && currentOrganizerName && options.inferOrganizer !== false) {
+    const [match] = await findSuggestedEntityMatches(supabase, "organizer", currentOrganizerName, {
+      limit: 1,
+      minimumConfidence: 1
+    });
+    organizerId = match?.id ?? null;
+  }
+
+  if (!academyId && currentOrganizerName && options.inferAcademy !== false) {
+    const [match] = await findSuggestedEntityMatches(supabase, "academy", currentOrganizerName, {
+      limit: 1,
+      minimumConfidence: 1
+    });
+    academyId = match?.id ?? null;
+  }
+
+  if (!spotId && venueName && options.inferSpot !== false) {
+    const [match] = await findSuggestedEntityMatches(supabase, "spot", String(input.venue_name ?? ""), {
+      limit: 1,
+      minimumConfidence: 1
+    });
+    spotId = match?.id ?? null;
+  }
+
   return {
     organizer_name: organizerName,
     organizer_id: organizerId,
-    academy_id: academyId
+    academy_id: academyId,
+    spot_id: spotId
   };
 }

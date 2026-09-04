@@ -171,12 +171,16 @@ async function imageUrlToInlineData(imageUrl: string) {
 }
 
 export async function POST(request: Request) {
-  const quota = consumePublicAiQuota(request);
+  const quota = await consumePublicAiQuota(request);
   if (!quota.allowed) {
     return NextResponse.json(
-      { error: "Alcanzaste el límite temporal de análisis. Intenta de nuevo en unos minutos." },
       {
-        status: 429,
+        error: quota.unavailable
+          ? "El análisis automático está temporalmente pausado. Intenta de nuevo en un minuto."
+          : "Alcanzaste el límite temporal de análisis. Intenta de nuevo en unos minutos."
+      },
+      {
+        status: quota.unavailable ? 503 : 429,
         headers: { "Retry-After": String(quota.retryAfterSeconds) }
       }
     );
@@ -304,7 +308,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    logGeminiUsage("parse-flyer", data, attemptIndex + 1);
+    await logGeminiUsage("parse-flyer", data, attemptIndex + 1);
     const candidate = extractGeminiText(data);
     rawText = candidate.rawText;
     finishReason = candidate.finishReason;

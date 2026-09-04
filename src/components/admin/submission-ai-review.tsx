@@ -160,7 +160,7 @@ export function SubmissionAiReview({
               ) : null}
               {!resolved ? (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {mention.suggestedMatch ? (
+                  {mention.suggestedMatch && mention.entity_type !== "festival" ? (
                     <Button type="button" size="sm" className="h-8 text-xs" disabled={updatingId === mention.id} onClick={() => resolve(mention, "matched")}>
                       <Link2 className="mr-1.5 h-3.5 w-3.5" /> Vincular
                     </Button>

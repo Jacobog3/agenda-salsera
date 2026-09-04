@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!String(body.cover_image_url ?? "").trim()) {
+  if (body.is_published !== false && !String(body.cover_image_url ?? "").trim()) {
     return NextResponse.json(
       { error: "La imagen principal de la academia es obligatoria." },
       { status: 400 }
