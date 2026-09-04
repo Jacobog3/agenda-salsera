@@ -4,7 +4,17 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { TeacherCard } from "@/components/teachers/teacher-card";
 import { getTeachers } from "@/lib/queries/teachers";
+import { buildMetadata } from "@/lib/metadata/build-metadata";
 import type { Locale } from "@/types/locale";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
+  return buildMetadata(locale as Locale, "artistsTitle", "artistsDescription", { pathname: "/artists" });
+}
 
 export default async function ArtistsPage({
   params

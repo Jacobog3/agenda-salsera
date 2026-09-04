@@ -51,10 +51,6 @@ export const routing = defineRouting({
       es: "/recursos",
       en: "/resources"
     },
-    "/teachers/[slug]": {
-      es: "/maestros/[slug]",
-      en: "/teachers/[slug]"
-    },
     "/artists": {
       es: "/artistas",
       en: "/artists"

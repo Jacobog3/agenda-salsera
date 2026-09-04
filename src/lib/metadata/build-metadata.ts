@@ -16,6 +16,10 @@ type MetadataKey =
   | "spotsDescription"
   | "academiesTitle"
   | "academiesDescription"
+  | "artistsTitle"
+  | "artistsDescription"
+  | "festivalsTitle"
+  | "festivalsDescription"
   | "aboutTitle"
   | "aboutDescription"
   | "privacyTitle"
@@ -48,6 +52,8 @@ const PAGE_PATHS: Record<string, { es: string; en: string } | string> = {
   "/events": { es: "/eventos", en: "/events" },
   "/spots": { es: "/lugares", en: "/spots" },
   "/academies": { es: "/academias", en: "/academies" },
+  "/artists": { es: "/artistas", en: "/artists" },
+  "/festivals": { es: "/festivales", en: "/festivals" },
   "/resources": { es: "/recursos", en: "/resources" },
   "/search": { es: "/buscar", en: "/search" },
   "/about": { es: "/acerca-de", en: "/about" },

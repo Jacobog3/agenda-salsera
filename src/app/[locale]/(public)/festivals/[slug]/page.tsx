@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EventImageGallery } from "@/components/events/event-image-gallery";
 import { getFestivalBySlug } from "@/lib/queries/festivals";
+import { buildDetailMetadata } from "@/lib/metadata/build-metadata";
+import { getCurrentSiteCountry } from "@/lib/site-country-server";
 import { formatLocation } from "@/lib/locations";
 import { formatCurrency, formatEventDateRange } from "@/lib/utils/formatters";
 import type { FestivalArtist, FestivalPassPriceTier } from "@/types/festival";
@@ -29,12 +31,21 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const detail = await getFestivalBySlug(locale as Locale, slug);
+  const [detail, country] = await Promise.all([
+    getFestivalBySlug(locale as Locale, slug),
+    getCurrentSiteCountry()
+  ]);
   if (!detail) return {};
-  return {
+  return buildDetailMetadata({
+    locale: locale as Locale,
     title: detail.festival.name,
-    description: detail.festival.shortDescription
-  };
+    description: detail.festival.shortDescription,
+    image: detail.currentEdition?.coverImageUrl ?? detail.festival.bannerImageUrl ?? "/images/somossalsa-og.png",
+    esPath: "/festivales/" + detail.festival.slug,
+    enPath: "/en/festivals/" + detail.festival.slug,
+    type: "article",
+    country: country.slug
+  });
 }
 
 export default async function FestivalDetailPage({
