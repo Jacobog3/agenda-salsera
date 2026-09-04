@@ -1,23 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, Check, Link2, Loader2, Plus, RefreshCw, UsersRound, X } from "lucide-react";
+import { AlertCircle, Check, Link2, Loader2, RefreshCw, UsersRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  EntityCandidateResolver,
+  type EntityCandidate
+} from "@/components/admin/entity-candidate-resolver";
 
-type Candidate = {
-  id: string;
+type Candidate = EntityCandidate & {
   submission_type: "event" | "academy" | "teacher" | "spot";
   submission_id: string;
-  entity_type: string;
-  display_name: string;
-  roles: string[] | null;
   affiliation: string | null;
-  origin_city: string | null;
-  origin_country_code: string | null;
   evidence: string | null;
-  suggested_match_id: string | null;
-  suggested_match_name: string | null;
-  match_confidence: number | null;
   detected_by: "basic_ai" | "advanced_ai" | "admin";
   created_at: string;
 };
@@ -31,34 +26,6 @@ type Incident = {
   route: string | null;
   created_at: string;
 };
-
-const CREATE_TARGETS: Record<string, { route: string; label: string }> = {
-  professional: { route: "/admin/teachers", label: "Crear artista y vincular" },
-  academy: { route: "/admin/academies", label: "Crear academia y vincular" },
-  spot: { route: "/admin/spots", label: "Crear spot y vincular" }
-};
-
-const PROFESSIONAL_ROLES = new Set([
-  "teacher", "dancer", "performer", "dj", "judge", "choreographer",
-  "organizer", "host", "musician", "other"
-]);
-
-function buildCreateHref(candidate: Candidate) {
-  const target = CREATE_TARGETS[candidate.entity_type];
-  if (!target) return "";
-  const params = new URLSearchParams({
-    create: "1",
-    candidate: candidate.id,
-    name: candidate.display_name
-  });
-  if (candidate.origin_city) params.set("city", candidate.origin_city);
-  if (candidate.origin_country_code) params.set("country", candidate.origin_country_code);
-  if (candidate.entity_type === "professional") {
-    const supportedRole = candidate.roles?.find((role) => PROFESSIONAL_ROLES.has(role));
-    params.set("role", supportedRole ?? "other");
-  }
-  return `${target.route}?${params.toString()}`;
-}
 
 export function SubmissionOperationsInbox() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -155,11 +122,11 @@ export function SubmissionOperationsInbox() {
   }
 
   return (
-    <div className="mt-8 space-y-3 border-t border-border pt-6">
+    <div className="mb-8 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-lg font-bold">Seguimiento</h2>
-          <p className="text-xs text-muted-foreground">Candidatos guardados y problemas reportados por los formularios.</p>
+          <h2 className="font-display text-lg font-bold">Resolver relaciones</h2>
+          <p className="text-xs text-muted-foreground">Vincula perfiles existentes, crea borradores y corrige nombres alternativos.</p>
         </div>
         <button type="button" onClick={load} disabled={loading} className="rounded-lg p-2 text-muted-foreground hover:bg-gray-100">
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -167,7 +134,7 @@ export function SubmissionOperationsInbox() {
       </div>
       {error ? <p className="rounded-xl bg-red-50 p-3 text-xs text-red-700">{error}</p> : null}
 
-      <details className="rounded-2xl border border-border bg-white p-4">
+      <details className="rounded-2xl border border-border bg-white p-4" open={candidates.length > 0}>
         <summary className="flex cursor-pointer list-none items-center justify-between gap-2">
           <span className="flex items-center gap-2 text-sm font-semibold"><UsersRound className="h-4 w-4 text-brand-600" /> Candidatos</span>
           <span className="rounded-full bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700">{candidates.length}</span>
@@ -187,7 +154,7 @@ export function SubmissionOperationsInbox() {
                 </p>
               ) : null}
               <div className="mt-2 flex flex-wrap gap-2">
-                {candidate.suggested_match_id ? (
+                {candidate.suggested_match_id && candidate.entity_type !== "festival" ? (
                   <Button size="sm" className="h-8 text-xs" disabled={workingId === candidate.id} onClick={() => updateCandidate(candidate, "matched")}>
                     <Link2 className="mr-1.5 h-3.5 w-3.5" /> Vincular
                   </Button>
@@ -197,19 +164,11 @@ export function SubmissionOperationsInbox() {
                     Buscar de nuevo
                   </Button>
                 ) : null}
-                {!candidate.suggested_match_id && buildCreateHref(candidate) ? (
-                  <Button asChild size="sm" variant="outline" className="h-8 text-xs">
-                    <a href={buildCreateHref(candidate)}>
-                      <Plus className="mr-1.5 h-3.5 w-3.5" />
-                      {CREATE_TARGETS[candidate.entity_type].label}
-                    </a>
-                  </Button>
-                ) : null}
-                {!candidate.suggested_match_id && !CREATE_TARGETS[candidate.entity_type] ? (
-                  <span className="inline-flex h-8 items-center rounded-md bg-gray-50 px-2.5 text-xs text-gray-500">
-                    Aún no hay editor para este tipo
-                  </span>
-                ) : null}
+                <EntityCandidateResolver
+                  candidate={candidate}
+                  disabled={workingId === candidate.id}
+                  onResolved={() => setCandidates((items) => items.filter((item) => item.id !== candidate.id))}
+                />
                 <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground" disabled={workingId === candidate.id} onClick={() => updateCandidate(candidate, "ignored")}>
                   <X className="mr-1.5 h-3.5 w-3.5" /> Ignorar
                 </Button>

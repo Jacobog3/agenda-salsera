@@ -5,8 +5,18 @@ import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { getFestivals } from "@/lib/queries/festivals";
+import { buildMetadata } from "@/lib/metadata/build-metadata";
 import { formatLocation } from "@/lib/locations";
 import type { Locale } from "@/types/locale";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
+  return buildMetadata(locale as Locale, "festivalsTitle", "festivalsDescription", { pathname: "/festivals" });
+}
 
 export default async function FestivalsPage({
   params

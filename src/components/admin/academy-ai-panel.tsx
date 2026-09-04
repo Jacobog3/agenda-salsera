@@ -31,6 +31,14 @@ type RelationshipMention = SubmissionMention & {
     countryCode: string;
     confidence: number;
   } | null;
+  suggestedResourceMatch?: {
+    id: string;
+    name: string;
+    city: string;
+    countryCode: string;
+    confidence: number;
+  } | null;
+  accepted: boolean;
 };
 
 type Props = {
@@ -38,7 +46,10 @@ type Props = {
   mode: AiWorkflowMode;
   currentData: Record<string, unknown>;
   fieldLabels: Record<string, string>;
-  onApply: (fields: Record<string, unknown>) => void | { warning?: string };
+  onApply: (
+    fields: Record<string, unknown>,
+    relationships: RelationshipMention[]
+  ) => void | { warning?: string };
   onReviewSignals?: (signals: ReviewSignals) => void;
 };
 
@@ -253,7 +264,10 @@ export function EntityAiPanel({
         ? data.reviewSignals as ReviewSignals
         : { reasons: [], mentions: [], ambiguousFields: [] };
       const detectedRelationships = Array.isArray(data.mentions)
-        ? data.mentions as RelationshipMention[]
+        ? (data.mentions as Omit<RelationshipMention, "accepted">[]).map((relationship) => ({
+            ...relationship,
+            accepted: false
+          }))
         : [];
       setRelationships(detectedRelationships);
       onReviewSignals?.(reviewSignals);
@@ -288,6 +302,7 @@ export function EntityAiPanel({
       ];
 
       if (nextSuggestions.length === 0) {
+        setSuggestions([]);
         setNotice(
           detectedRelationships.length > 0
             ? "No hay campos nuevos, pero sí relaciones para revisar. Se guardarán como candidatas."
@@ -310,21 +325,31 @@ export function EntityAiPanel({
     );
   }
 
+  function toggleRelationship(index: number) {
+    setRelationships((current) => current.map((relationship, relationshipIndex) =>
+      relationshipIndex === index
+        ? { ...relationship, accepted: !relationship.accepted }
+        : relationship
+    ));
+  }
+
   function applySelected() {
     if (!suggestions) return;
-    const accepted = Object.fromEntries(
+    const acceptedFields = Object.fromEntries(
       suggestions.filter((s) => s.accepted).map((s) => [s.key, s.value])
     );
+    const acceptedRelationships = relationships.filter((relationship) => relationship.accepted);
     setError("");
 
     try {
-      const result = onApply(accepted);
+      const result = onApply(acceptedFields, acceptedRelationships);
       setSuggestions(null);
+      setRelationships([]);
       setImages([]);
       setText("");
       setNotice(
         relationships.length > 0
-          ? `Sugerencias aplicadas. ${relationships.length} relación${relationships.length === 1 ? "" : "es"} se guardará${relationships.length === 1 ? "" : "n"} para revisión.`
+          ? `Sugerencias aplicadas. ${acceptedRelationships.length} relación${acceptedRelationships.length === 1 ? "" : "es"} seleccionada${acceptedRelationships.length === 1 ? "" : "s"}.`
           : result?.warning
           ? `Sugerencias aplicadas con una advertencia: ${result.warning}`
           : "Sugerencias aplicadas. Revisa los campos y guarda."
@@ -341,6 +366,7 @@ export function EntityAiPanel({
 
   const canAnalyze = (images.length > 0 || text.trim().length >= 10) && !loading && !processingImages;
   const acceptedCount = suggestions?.filter((s) => s.accepted).length ?? 0;
+  const acceptedRelationshipCount = relationships.filter((relationship) => relationship.accepted).length;
 
   return (
     <div className="space-y-4">
@@ -451,16 +477,33 @@ export function EntityAiPanel({
             </p>
           </div>
           <p className="text-xs leading-5 text-gray-600">
-            Se guardarán como candidatas. Nada se relaciona automáticamente sin tu revisión.
+            Marca únicamente las coincidencias correctas. Las demás se guardarán como candidatas para revisión.
           </p>
           <div className="space-y-2">
-            {relationships.map((relationship, index) => (
-              <div
+            {relationships.map((relationship, index) => {
+              const hasMatch = Boolean(relationship.suggestedMatch || relationship.suggestedResourceMatch);
+              return (
+              <button
                 key={`${relationship.entityType}-${relationship.displayName}-${index}`}
-                className="rounded-xl border border-blue-100 bg-white p-3"
+                type="button"
+                disabled={!hasMatch}
+                onClick={() => toggleRelationship(index)}
+                className={`w-full rounded-xl border p-3 text-left transition ${
+                  relationship.accepted
+                    ? "border-brand-300 bg-brand-50"
+                    : "border-blue-100 bg-white"
+                } ${hasMatch ? "cursor-pointer" : "cursor-default"}`}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <div className="flex min-w-0 items-start gap-2.5">
+                    {hasMatch ? (
+                      <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
+                        relationship.accepted ? "border-brand-600 bg-brand-600" : "border-gray-300"
+                      }`}>
+                        {relationship.accepted ? <Check className="h-2.5 w-2.5 text-white" /> : null}
+                      </span>
+                    ) : null}
+                    <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-gray-900">
                       {relationship.displayName}
                     </p>
@@ -468,10 +511,14 @@ export function EntityAiPanel({
                       {relationship.entityType}
                       {relationship.roles.length > 0 ? ` · ${relationship.roles.join(", ")}` : ""}
                     </p>
+                    </div>
                   </div>
-                  {relationship.suggestedMatch ? (
+                  {hasMatch ? (
                     <span className="shrink-0 rounded-full bg-green-50 px-2 py-1 text-[10px] font-semibold text-green-700">
-                      Coincidencia {Math.round(relationship.suggestedMatch.confidence * 100)}%
+                      Coincidencia {Math.round(Math.max(
+                        relationship.suggestedMatch?.confidence ?? 0,
+                        relationship.suggestedResourceMatch?.confidence ?? 0
+                      ) * 100)}%
                     </span>
                   ) : (
                     <span className="shrink-0 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">
@@ -484,22 +531,29 @@ export function EntityAiPanel({
                     Posible perfil: {relationship.suggestedMatch.name}
                   </p>
                 ) : null}
+                {relationship.suggestedResourceMatch ? (
+                  <p className="mt-1.5 text-xs text-gray-600">
+                    Posible DJ publicado: {relationship.suggestedResourceMatch.name}
+                  </p>
+                ) : null}
                 {relationship.evidence ? (
                   <p className="mt-1.5 text-xs leading-5 text-gray-500">{relationship.evidence}</p>
                 ) : null}
-              </div>
-            ))}
+              </button>
+            );})}
           </div>
         </div>
       )}
 
       {/* Per-field suggestion toggles */}
-      {suggestions && suggestions.length > 0 && (
+      {suggestions !== null && (suggestions.length > 0 || relationships.length > 0) && (
         <div className="space-y-2 rounded-2xl border border-brand-100 bg-brand-50/40 p-3">
-          <p className="text-sm font-semibold text-gray-900">
-            {suggestions.length} campo{suggestions.length !== 1 ? "s" : ""} encontrado
-            {suggestions.length !== 1 ? "s" : ""}
-          </p>
+          {suggestions.length > 0 ? (
+            <p className="text-sm font-semibold text-gray-900">
+              {suggestions.length} campo{suggestions.length !== 1 ? "s" : ""} encontrado
+              {suggestions.length !== 1 ? "s" : ""}
+            </p>
+          ) : null}
 
           <div className="space-y-2">
             {suggestions.map((s) => (
@@ -535,16 +589,19 @@ export function EntityAiPanel({
 
           <div className="sticky bottom-0 z-10 -mx-3 -mb-3 border-t border-brand-100 bg-white/95 p-3 shadow-[0_-8px_20px_-16px_rgba(15,23,42,0.45)] backdrop-blur">
             <p className="mb-2 text-center text-xs text-gray-500">
-              Aplica los campos seleccionados para revisarlos antes de guardar.
+              Aplica los campos y relaciones seleccionados para revisarlos antes de guardar.
             </p>
             <Button
               type="button"
               onClick={applySelected}
-              disabled={acceptedCount === 0}
+              disabled={acceptedCount === 0 && acceptedRelationshipCount === 0}
               className="min-h-11 w-full gap-2"
             >
               <Sparkles className="h-4 w-4" />
               Aplicar {acceptedCount} campo{acceptedCount !== 1 ? "s" : ""}
+              {acceptedRelationshipCount > 0
+                ? ` y ${acceptedRelationshipCount} relación${acceptedRelationshipCount !== 1 ? "es" : ""}`
+                : ""}
             </Button>
           </div>
         </div>

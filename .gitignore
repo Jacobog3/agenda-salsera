@@ -9,5 +9,10 @@ dist
 repositories/
 tsconfig.tsbuildinfo
 src/lib/relations/
+.claude/
+.devcontainer/
+test-results/
+imagenes/
+public/brand-lab.html
 supabase/.temp/
 supabase/supabase/.temp/

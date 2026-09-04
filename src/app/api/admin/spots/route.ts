@@ -30,12 +30,21 @@ export async function GET(request: NextRequest) {
   if (denied) return denied;
 
   const supabase = createSupabaseAdminClient();
+  const format = request.nextUrl.searchParams.get("format");
   const { data, error } = await supabase
     .from("spots")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (format === "options") {
+    return NextResponse.json({
+      data: [
+        { value: "", label: "Sin relacionar" },
+        ...(data ?? []).map((spot) => ({ value: spot.id, label: spot.name }))
+      ]
+    });
+  }
   return NextResponse.json({ data: data ?? [] });
 }
 
@@ -61,7 +70,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!String(body.cover_image_url ?? "").trim()) {
+  if (body.is_published !== false && !String(body.cover_image_url ?? "").trim()) {
     return NextResponse.json(
       { error: "La imagen principal del lugar es obligatoria." },
       { status: 400 }

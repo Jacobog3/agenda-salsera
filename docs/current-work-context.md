@@ -1,5 +1,62 @@
 # Current Work Context
 
+## 2026-09-01 — Google API cost controls
+
+- Cloud Billing confirmed that August's USD 3.59 total consisted of USD 3.54
+  from 1,177 Places API Place Details Enterprise requests and USD 0.045762 from
+  Gemini. Gemini used 62,219 text-input tokens, 31,556 image-input tokens, and
+  14,897 output tokens.
+- Academy cards and profile pages no longer request live Google ratings. The
+  public rating endpoint was removed, and academy profiles now use a direct
+  Google Maps URL built from the stored Place ID, which does not call Places
+  API.
+- Public AI quotas now use an atomic Supabase function instead of process
+  memory, so the 12-requests-per-10-minutes limit is shared across serverless
+  instances. The public AI endpoint fails closed when the quota store is
+  unavailable.
+- Successful Gemini responses persist only model, operation, attempt, token
+  counts, estimated cost, release SHA, and timestamp. Prompts, responses,
+  uploads, raw IP addresses, and user data are not stored.
+- `/admin/ai-usage` summarizes the last 30 days by operation. Migration
+  `20260901010000_ai_cost_controls.sql` was applied to production on 2026-09-04.
+- Verification passed: Supabase migration dry-run, TypeScript, lint, and the
+  production build.
+
+## 2026-09-01 — Entity suggestion and profile resolution redesign
+
+- Active branch: `codex/improve-entity-resolution`.
+- A read-only production audit found 42 detected entity mentions: 41 remained
+  candidates and only 1 had been matched. Exact canonical matches were still
+  waiting for manual follow-up, confirming that the old inbox accumulated work
+  instead of completing relationships.
+- Candidate resolution now offers up to five ranked canonical profiles, supports
+  typo-tolerant matching, and handles entity-specific schemas instead of assuming
+  every catalog has city and country columns.
+- Confirmed alternate spellings are stored in `entity_aliases`, so a typo or stage
+  name that an Admin links once can resolve to the same canonical profile later.
+- Artists, academies, organizers, and spots can be created as minimal unpublished
+  drafts directly from the candidate card and linked without leaving the review
+  screen. Festival candidates remain explicit because a series cannot safely be
+  linked without selecting a specific edition.
+- Events now support a canonical `spot_id`, allowing a confirmed bar, venue, or
+  recurring dance spot to create an actual relationship instead of merely closing
+  a candidate with no downstream effect.
+- Authenticated localhost QA loaded all 43 current candidates without changing
+  their status. `Nanci Gudiel` ranked Nancy Gudiel first at 98%, and
+  `Sky Dance Academi` ranked Sky Dance Academy / Estilo Latino first at 100%
+  after canonical names began matching their slash-separated variants.
+- Quick-create forms open prefilled without writing until `Crear y vincular` is
+  confirmed, and Spanish gender labels now read `otra academia`, `otro artista`,
+  `otro organizador`, and `otro lugar` correctly.
+- Admin login now performs a full navigation after setting the session cookie,
+  avoiding a state where authentication succeeded but the browser remained on
+  the login screen.
+- The resolver is shown before public submission review and opens automatically
+  when candidates exist. TypeScript, lint, and the production build pass. Migration
+  `20260901000000_add_entity_aliases.sql` was applied to production on 2026-09-04.
+
+
+
 ## 2026-08-13 — Country-scoped public routes
 
 - Public URLs now separate market from language. Guatemala uses `/gt`; Spanish

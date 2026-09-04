@@ -1,4 +1,5 @@
 import { env } from "@/lib/utils/env";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const GEMINI_DEFAULT_MODEL = "gemini-3.1-flash-lite";
 
@@ -54,16 +55,43 @@ export function getGeminiUsage(payload: unknown) {
   };
 }
 
-export function logGeminiUsage(
+export async function logGeminiUsage(
   operation: "parse-flyer" | "admin-ai-update" | "submission-analysis" | "auto-translate",
   payload: unknown,
   attempt = 1
 ) {
-  console.info("[ai-usage]", JSON.stringify({
+  const usage = getGeminiUsage(payload);
+  const event = {
     provider: "google",
     model: getGeminiModel(),
     operation,
     attempt,
-    ...getGeminiUsage(payload)
-  }));
+    ...usage
+  };
+
+  console.info("[ai-usage]", JSON.stringify(event));
+
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { error } = await supabase.from("ai_usage_events").insert({
+      provider: event.provider,
+      model: event.model,
+      operation: event.operation,
+      attempt: event.attempt,
+      input_tokens: usage.inputTokens,
+      candidate_tokens: usage.candidateTokens,
+      thought_tokens: usage.thoughtTokens,
+      output_tokens: usage.outputTokens,
+      cached_input_tokens: usage.cachedInputTokens,
+      total_tokens: usage.totalTokens,
+      estimated_cost_usd: usage.estimatedCostUsd,
+      release_sha: process.env.VERCEL_GIT_COMMIT_SHA || null
+    });
+
+    if (error) {
+      console.error("[ai-usage] Could not persist usage", error.message);
+    }
+  } catch (error) {
+    console.error("[ai-usage] Could not persist usage", error);
+  }
 }

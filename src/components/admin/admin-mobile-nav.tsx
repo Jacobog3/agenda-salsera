@@ -16,7 +16,8 @@ import {
   Bug,
   LogOut,
   ArrowLeft,
-  PackageSearch
+  PackageSearch,
+  Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -29,6 +30,7 @@ const navLinks = [
   { href: "/admin/spots", label: "Bares", icon: MapPinned },
   { href: "/admin/resources", label: "Recursos", icon: PackageSearch },
   { href: "/admin/reports", label: "Reportes", icon: Flag },
+  { href: "/admin/ai-usage", label: "Consumo IA", icon: Activity },
   { href: "/admin/errors", label: "Errores", icon: Bug }
 ];
 

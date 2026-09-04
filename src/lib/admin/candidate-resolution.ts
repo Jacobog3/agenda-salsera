@@ -1,17 +1,47 @@
-import type { MentionEntityType, SubmissionType } from "@/lib/submissions/analysis";
+import { normalizeMentionName, type MentionEntityType, type SubmissionType } from "@/lib/submissions/analysis";
 import { applyResolvedSubmissionRelations } from "@/lib/submissions/server";
 
 type AdminSupabaseClient = ReturnType<
   typeof import("@/lib/supabase/admin").createSupabaseAdminClient
 >;
 
-type CanonicalTarget = "academy" | "teacher" | "spot";
+type CanonicalTarget = "academy" | "teacher" | "spot" | "organizer";
 
 const EXPECTED_MENTION_TYPE: Record<CanonicalTarget, MentionEntityType> = {
   academy: "academy",
   teacher: "professional",
-  spot: "spot"
+  spot: "spot",
+  organizer: "organizer"
 };
+
+export async function rememberEntityAlias(
+  supabase: AdminSupabaseClient,
+  entityType: MentionEntityType,
+  entityId: string,
+  alias: string
+) {
+  const normalizedAlias = normalizeMentionName(alias);
+  if (!normalizedAlias) return;
+
+  const { error } = await supabase.from("entity_aliases").upsert({
+    entity_type: entityType,
+    entity_id: entityId,
+    alias: alias.trim(),
+    normalized_alias: normalizedAlias,
+    source: "admin_resolution"
+  }, {
+    onConflict: "entity_type,entity_id,normalized_alias",
+    ignoreDuplicates: true
+  });
+
+  if (error) {
+    console.error("[entity-aliases] Failed to remember alias", {
+      entityType,
+      entityId,
+      error: error.message
+    });
+  }
+}
 
 const SUBMISSION_TABLES: Record<SubmissionType, string> = {
   event: "event_submissions",
@@ -37,7 +67,7 @@ export async function resolveCandidateAfterCreate(
 
   const { data: candidate, error: candidateError } = await supabase
     .from("submission_mentions")
-    .select("id,entity_type,submission_type,submission_id,resolution_status")
+    .select("id,entity_type,display_name,submission_type,submission_id,resolution_status")
     .eq("id", candidateId)
     .maybeSingle();
 
@@ -60,6 +90,13 @@ export async function resolveCandidateAfterCreate(
     .eq("id", candidateId);
 
   if (resolutionError) return false;
+
+  await rememberEntityAlias(
+    supabase,
+    candidate.entity_type as MentionEntityType,
+    createdEntityId,
+    String(candidate.display_name)
+  );
 
   const submissionType = candidate.submission_type as SubmissionType;
   const { data: submission } = await supabase

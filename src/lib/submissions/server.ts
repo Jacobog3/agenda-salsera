@@ -135,10 +135,12 @@ export async function applyResolvedSubmissionRelations(
 
     const academyId = mentions.find((mention) => mention.entity_type === "academy")?.resolved_entity_id;
     const organizerId = mentions.find((mention) => mention.entity_type === "organizer")?.resolved_entity_id;
-    if (academyId || organizerId) {
+    const spotId = mentions.find((mention) => mention.entity_type === "spot")?.resolved_entity_id;
+    if (academyId || organizerId || spotId) {
       await supabase.from("events").update({
         ...(academyId ? { academy_id: academyId } : {}),
-        ...(organizerId ? { organizer_id: organizerId } : {})
+        ...(organizerId ? { organizer_id: organizerId } : {}),
+        ...(spotId ? { spot_id: spotId } : {})
       }).eq("id", publishedEntityId);
     }
   }

@@ -8,7 +8,6 @@ import type { LocalizedAcademy } from "@/types/academy";
 import { isPrimaryDanceStyle } from "@/lib/academies/academy-helpers";
 import { formatLocation } from "@/lib/locations";
 import type { Locale } from "@/types/locale";
-import { AcademyCardRating } from "@/components/academies/academy-card-rating";
 
 export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
   const t = await getTranslations("common");
@@ -43,9 +42,6 @@ export async function AcademyCard({ academy }: { academy: LocalizedAcademy }) {
               <MapPin className="h-3 w-3 shrink-0 text-accentScale-700 md:h-3.5 md:w-3.5" />
               {formatLocation(academy.city, academy.countryCode, locale)}
             </span>
-            {academy.googlePlaceId ? (
-              <AcademyCardRating academyId={academy.id} />
-            ) : null}
           </div>
 
           <div className="flex flex-wrap gap-1">

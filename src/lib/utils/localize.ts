@@ -34,6 +34,7 @@ export function localizeEvent(event: EventRecord, locale: Locale): LocalizedEven
     organizerName: event.organizerName,
     organizerId: event.organizerId,
     academyId: event.academyId,
+    spotId: event.spotId,
     contactUrl: event.contactUrl,
     externalUrl: event.externalUrl,
     isFeatured: event.isFeatured,

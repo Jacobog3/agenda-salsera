@@ -27,6 +27,20 @@ type SelectOption = {
   label: string;
 };
 
+type SuggestedSpot = {
+  id: string;
+  name: string;
+  confidence: number;
+};
+
+type AppliedRelationship = {
+  entityType: string;
+  displayName: string;
+  roles: string[];
+  suggestedMatch: { id: string; name: string } | null;
+  suggestedResourceMatch?: { id: string; name: string } | null;
+};
+
 type Props = {
   item: EventData | null;
   onClose: () => void;
@@ -102,6 +116,7 @@ function buildInitialData(item: EventData | null): EventData {
       organizer_name: "",
       organizer_id: "",
       academy_id: "",
+      spot_id: "",
       teacher_ids: [],
       resource_ids: [],
       contact_url: "",
@@ -474,8 +489,14 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
   const [academyOptions, setAcademyOptions] = useState<SelectOption[]>([
     { value: "", label: "Sin relacionar" }
   ]);
+  const [spotOptions, setSpotOptions] = useState<SelectOption[]>([
+    { value: "", label: "Sin relacionar" }
+  ]);
+  const [suggestedSpot, setSuggestedSpot] = useState<SuggestedSpot | null>(null);
   const [teacherOptions, setTeacherOptions] = useState<SelectOption[]>([]);
   const [resourceOptions, setResourceOptions] = useState<SelectOption[]>([]);
+  const aiTeacherIdsRef = useRef<string[]>([]);
+  const aiResourceIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -491,16 +512,18 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
 
     async function loadOptions() {
       try {
-        const [organizersRes, academiesRes, teachersRes, resourcesRes] = await Promise.all([
+        const [organizersRes, academiesRes, spotsRes, teachersRes, resourcesRes] = await Promise.all([
           fetch("/api/admin/organizers?format=options"),
           fetch("/api/admin/academies?format=options"),
+          fetch("/api/admin/spots?format=options"),
           fetch("/api/admin/teachers?format=options"),
           fetch("/api/admin/resources")
         ]);
 
-        const [organizersJson, academiesJson, teachersJson, resourcesJson] = await Promise.all([
+        const [organizersJson, academiesJson, spotsJson, teachersJson, resourcesJson] = await Promise.all([
           organizersRes.json(),
           academiesRes.json(),
+          spotsRes.json(),
           teachersRes.json(),
           resourcesRes.json()
         ]);
@@ -515,6 +538,11 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         setAcademyOptions(
           Array.isArray(academiesJson.data)
             ? academiesJson.data
+            : [{ value: "", label: "Sin relacionar" }]
+        );
+        setSpotOptions(
+          Array.isArray(spotsJson.data)
+            ? spotsJson.data
             : [{ value: "", label: "Sin relacionar" }]
         );
         setTeacherOptions(Array.isArray(teachersJson.data) ? teachersJson.data : []);
@@ -536,6 +564,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
         if (cancelled) return;
         setOrganizerOptions([{ value: "", label: "Sin relacionar" }]);
         setAcademyOptions([{ value: "", label: "Sin relacionar" }]);
+        setSpotOptions([{ value: "", label: "Sin relacionar" }]);
         setTeacherOptions([]);
         setResourceOptions([]);
       }
@@ -548,6 +577,47 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    const venueName = String(data.venue_name ?? "").trim();
+    const countryCode = String(data.country_code ?? "").trim();
+    const city = String(data.city ?? "").trim();
+    if (String(data.spot_id ?? "").trim() || venueName.length < 3) {
+      setSuggestedSpot(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      const params = new URLSearchParams({ type: "spot", q: venueName });
+      if (city) params.set("city", city);
+      if (countryCode) params.set("country", countryCode);
+      try {
+        const response = await fetch(`/api/admin/entity-matches?${params.toString()}`, {
+          cache: "no-store",
+          signal: controller.signal
+        });
+        const payload = await response.json().catch(() => ({}));
+        const match = Array.isArray(payload.data) ? payload.data[0] : null;
+        if (!response.ok || !match?.id || Number(match.confidence) < 0.78) {
+          setSuggestedSpot(null);
+          return;
+        }
+        setSuggestedSpot({
+          id: String(match.id),
+          name: String(match.name),
+          confidence: Number(match.confidence)
+        });
+      } catch {
+        if (!controller.signal.aborted) setSuggestedSpot(null);
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [data.city, data.country_code, data.spot_id, data.venue_name]);
+
   function set(key: string, value: unknown) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
@@ -558,42 +628,6 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
       review_signals: reviewSignals
     }));
   }
-
-  useEffect(() => {
-    const reviewSignals = data.review_signals as ReviewSignals | undefined;
-    if (!reviewSignals || resourceOptions.length === 0) return;
-
-    const normalize = (value: string) => value
-      .toLocaleLowerCase("es")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, " ")
-      .trim();
-    const detectedDjNames = new Set(
-      reviewSignals.mentions
-        .filter((mention) => {
-          const normalizedName = normalize(mention.displayName);
-          return mention.entityType === "professional" && (
-            normalizedName.startsWith("dj ")
-            || mention.roles.some((role) => normalize(role) === "dj")
-          );
-        })
-        .map((mention) => normalize(mention.displayName))
-    );
-    const matchedResourceIds = resourceOptions
-      .filter((option) => detectedDjNames.has(normalize(option.label)))
-      .map((option) => option.value);
-    if (matchedResourceIds.length === 0) return;
-
-    setData((current) => {
-      const existingResourceIds = Array.isArray(current.resource_ids)
-        ? current.resource_ids.map(String)
-        : [];
-      const nextResourceIds = [...new Set([...existingResourceIds, ...matchedResourceIds])];
-      if (nextResourceIds.length === existingResourceIds.length) return current;
-      return { ...current, resource_ids: nextResourceIds };
-    });
-  }, [data.review_signals, resourceOptions]);
 
   function updatePriceText(nextValue: string, currencyOverride?: string) {
     const currency = String(currencyOverride ?? data.currency ?? "GTQ");
@@ -607,7 +641,7 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
     }));
   }
 
-  function applyAiSuggestions(fields: Record<string, unknown>) {
+  function applyAiSuggestions(fields: Record<string, unknown>, relationships: AppliedRelationship[] = []) {
     const normalized = { ...fields };
     const suggestionTimeZone = String(normalized.time_zone ?? data.time_zone ?? DEFAULT_TIME_ZONE);
 
@@ -631,7 +665,32 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
       normalized.price_amount = lowest === null ? "" : String(lowest);
     }
 
-    setData((prev) => ({ ...prev, ...normalized }));
+    const nextAiTeacherIds = relationships
+      .filter((relationship) => relationship.entityType === "professional")
+      .map((relationship) => relationship.suggestedMatch?.id ?? "")
+      .filter(Boolean);
+    const nextAiResourceIds = relationships
+      .map((relationship) => relationship.suggestedResourceMatch?.id ?? "")
+      .filter(Boolean);
+
+    setData((prev) => {
+      const currentTeacherIds = Array.isArray(prev.teacher_ids) ? prev.teacher_ids.map(String) : [];
+      const currentResourceIds = Array.isArray(prev.resource_ids) ? prev.resource_ids.map(String) : [];
+      return {
+        ...prev,
+        ...normalized,
+        teacher_ids: [...new Set([
+          ...currentTeacherIds.filter((id) => !aiTeacherIdsRef.current.includes(id)),
+          ...nextAiTeacherIds
+        ])],
+        resource_ids: [...new Set([
+          ...currentResourceIds.filter((id) => !aiResourceIdsRef.current.includes(id)),
+          ...nextAiResourceIds
+        ])]
+      };
+    });
+    aiTeacherIdsRef.current = nextAiTeacherIds;
+    aiResourceIdsRef.current = nextAiResourceIds;
     setAiAppliedNotice(true);
     window.setTimeout(() => setTab("form"), 0);
   }
@@ -960,6 +1019,29 @@ export function EventEditSheet({ item, onClose, onSaved }: Props) {
                 onChange={(e) => set("venue_name", e.target.value)}
                 className="h-9 text-sm"
               />
+            </div>
+            <div className="space-y-1">
+              <FieldLabel label="Lugar relacionado" hint="Bar, salón o venue con perfil" />
+              <select
+                value={String(data.spot_id ?? "")}
+                onChange={(e) => set("spot_id", e.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {spotOptions.map((option) => (
+                  <option key={option.value || "none"} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {suggestedSpot ? (
+                <button
+                  type="button"
+                  className="mt-1 text-left text-xs font-medium text-brand-700 hover:text-brand-800"
+                  onClick={() => set("spot_id", suggestedSpot.id)}
+                >
+                  Vincular sugerencia: {suggestedSpot.name} ({Math.round(suggestedSpot.confidence * 100)}%)
+                </button>
+              ) : null}
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="space-y-1">

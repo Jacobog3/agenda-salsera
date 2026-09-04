@@ -152,6 +152,7 @@ export async function POST(request: NextRequest) {
         organizer_name: relations.organizer_name,
         organizer_id: relations.organizer_id,
         academy_id: relations.academy_id,
+        spot_id: relations.spot_id,
         contact_url: body.contact_url || "",
         is_featured: body.is_featured || false,
         is_published: body.is_published !== false

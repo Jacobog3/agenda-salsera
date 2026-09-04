@@ -40,6 +40,7 @@ export type EventRecord = {
   organizerName: string;
   organizerId?: string | null;
   academyId?: string | null;
+  spotId?: string | null;
   contactUrl: string;
   externalUrl?: string | null;
   isFeatured: boolean;
@@ -73,6 +74,7 @@ export type LocalizedEvent = {
   organizerName: string;
   organizerId?: string | null;
   academyId?: string | null;
+  spotId?: string | null;
   contactUrl: string;
   externalUrl?: string | null;
   isFeatured: boolean;

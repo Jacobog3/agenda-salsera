@@ -12,6 +12,14 @@ import {
 
 const intlMiddleware = createMiddleware(routing);
 
+function canonicalizeLegacyCatalogPath(pathname: string) {
+  if (pathname === "/maestros") return "/artistas";
+  if (pathname.startsWith("/maestros/")) return "/artistas" + pathname.slice("/maestros".length);
+  if (pathname === "/en/teachers") return "/en/artists";
+  if (pathname.startsWith("/en/teachers/")) return "/en/artists" + pathname.slice("/en/teachers".length);
+  return pathname;
+}
+
 function selectedCountry(request: NextRequest) {
   const cookieCountry = request.cookies.get(SITE_COUNTRY_COOKIE)?.value.toLowerCase();
   if (cookieCountry && isSiteCountrySlug(cookieCountry)) return cookieCountry;
@@ -22,11 +30,12 @@ function selectedCountry(request: NextRequest) {
 }
 
 function legacyRedirectPath(pathname: string, country: string) {
-  if (pathname === "/" || pathname === "/es") return `/${country}`;
-  if (pathname.startsWith("/es/")) return `/${country}${pathname.slice(3)}`;
-  if (pathname === "/en") return `/${country}/en`;
-  if (pathname.startsWith("/en/")) return `/${country}/en${pathname.slice(3)}`;
-  return `/${country}${pathname}`;
+  const canonicalPath = canonicalizeLegacyCatalogPath(pathname);
+  if (canonicalPath === "/" || canonicalPath === "/es") return `/${country}`;
+  if (canonicalPath.startsWith("/es/")) return `/${country}${canonicalPath.slice(3)}`;
+  if (canonicalPath === "/en") return `/${country}/en`;
+  if (canonicalPath.startsWith("/en/")) return `/${country}/en${canonicalPath.slice(3)}`;
+  return `/${country}${canonicalPath}`;
 }
 
 export default function middleware(request: NextRequest) {
@@ -54,6 +63,14 @@ export default function middleware(request: NextRequest) {
   }
 
   const country = getSiteCountryBySlug(firstSegment) ?? DEFAULT_SITE_COUNTRY;
+  const countryPath = pathname.slice(firstSegment.length + 1) || "/";
+  const canonicalCountryPath = canonicalizeLegacyCatalogPath(countryPath);
+  if (canonicalCountryPath !== countryPath) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = `/${country.slug}${canonicalCountryPath}`;
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
   if (request.nextUrl.searchParams.has("country")) {
     const cleanUrl = request.nextUrl.clone();
     cleanUrl.searchParams.delete("country");

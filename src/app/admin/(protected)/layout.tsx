@@ -14,7 +14,8 @@ import {
   MapPinned,
   Flag,
   Bug,
-  PackageSearch
+  PackageSearch,
+  Activity
 } from "lucide-react";
 
 export const metadata = {
@@ -79,6 +80,14 @@ export default async function AdminProtectedLayout({
 
           <div className="flex items-center gap-2">
             <AdminMobileNav />
+            <Link
+              href="/admin/ai-usage"
+              aria-label="Ver consumo de inteligencia artificial"
+              title="Consumo IA"
+              className="hidden rounded-lg p-2 text-gray-400 transition-colors hover:bg-brand-50 hover:text-brand-700 lg:inline-flex"
+            >
+              <Activity className="h-4 w-4" />
+            </Link>
             <Link
               href="/admin/errors"
               aria-label="Ver errores del administrador"
